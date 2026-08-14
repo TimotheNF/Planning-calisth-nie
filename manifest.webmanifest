@@ -1,0 +1,24 @@
+{
+  "name": "Planning Calisthénie",
+  "short_name": "Calisthénie",
+  "description": "Planning, séances, performances et progressions calisthénie. Fonctionne hors-ligne, synchro optionnelle via GitHub Gist.",
+  "lang": "fr",
+  "start_url": "./",
+  "scope": "./",
+  "id": "/planning-calisthenie/",
+  "display": "standalone",
+  "display_override": ["standalone", "minimal-ui"],
+  "orientation": "portrait-primary",
+  "background_color": "#0F1F3D",
+  "theme_color": "#0F1F3D",
+  "categories": ["health", "fitness", "productivity"],
+  "icons": [
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ],
+  "shortcuts": [
+    { "name": "Planning", "url": "./#planning", "icons": [{ "src": "icons/icon-192.png", "sizes": "192x192" }] },
+    { "name": "Performances", "url": "./#performances", "icons": [{ "src": "icons/icon-192.png", "sizes": "192x192" }] }
+  ]
+}

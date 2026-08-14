@@ -1,0 +1,1405 @@
+<!DOCTYPE html>
+<script type="application/json" id="cowork-artifact-meta">
+{
+  "name": "Planning Calisthenie",
+  "schemaVersion": 1,
+  "description": "Appli perso de suivi calisthénie : sauvegarde automatique, planning hebdo par créneaux, Street Original, Street Plus, Abdo (Max réf. synchronisé avec les perfs), Front Lever (échauffement + 4 séances), Performances avec courbes, S8 = semaine test, Défi Pompes, Full Planche.",
+  "mcpTools": [],
+  "mcpServerNames": []
+}
+</script>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0F1F3D">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Calisthénie">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/favicon-32.png" sizes="32x32">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<title>Planning Calisthénie</title>
+<style>
+:root{
+  --dark:#0F1F3D; --ink:#1F2937; --muted:#6B7280; --line:#E2E5EA; --bg:#F5F6F8;
+  --card:#FFFFFF; --green:#2E7D32; --danger:#C0392B; --test:#D84315;
+  --radius:12px;
+}
+*{box-sizing:border-box;}
+body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,Helvetica,sans-serif;background:var(--bg);color:var(--ink);padding-bottom:48px;-webkit-text-size-adjust:100%;}
+header{position:sticky;top:0;z-index:20;background:var(--dark);color:#fff;padding:9px 14px;padding-top:calc(9px + env(safe-area-inset-top));box-shadow:0 2px 8px rgba(0,0,0,.18);}
+header h1{margin:0;font-size:16px;font-weight:700;letter-spacing:.2px;}
+.headerRow{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;}
+.hbtns{display:flex;gap:6px;flex-wrap:wrap;align-items:center;}
+.hbtn{background:rgba(255,255,255,.12);color:#fff;border:1px solid rgba(255,255,255,.28);border-radius:8px;padding:5px 10px;font-size:12px;cursor:pointer;}
+.hbtn:hover{background:rgba(255,255,255,.22);}
+.weekSel{display:flex;align-items:center;gap:5px;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.28);border-radius:8px;padding:3px 8px;font-size:12px;}
+.weekSel select{background:transparent;color:#fff;border:none;font-size:12px;font-weight:700;padding:2px;width:auto;}
+.weekSel select option{color:#111;}
+#saveState{font-size:11px;opacity:.85;padding:3px 8px;border-radius:20px;background:rgba(255,255,255,.12);white-space:nowrap;}
+#saveState.warn{background:#8D3B1E;opacity:1;}
+nav{position:sticky;top:44px;z-index:19;background:#fff;border-bottom:1px solid var(--line);overflow-x:auto;white-space:nowrap;padding:6px 8px;-webkit-overflow-scrolling:touch;}
+nav button{border:none;background:transparent;padding:8px 13px;margin:0 2px;border-radius:20px;font-size:13px;font-weight:600;color:var(--muted);cursor:pointer;}
+nav button.active{background:var(--dark);color:#fff;}
+main{padding:14px;max-width:1040px;margin:0 auto;}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:14px;margin-bottom:14px;box-shadow:0 1px 2px rgba(16,24,40,.04);}
+.card h2{margin:0 0 6px;font-size:16px;color:var(--dark);}
+.card .accentbar{height:5px;border-radius:5px 5px 0 0;margin:-14px -14px 12px;}
+.sub{color:var(--muted);font-size:12.5px;line-height:1.5;margin-bottom:10px;}
+.paramsRow{display:flex;gap:14px;flex-wrap:wrap;align-items:center;margin-bottom:10px;background:#F8F9FB;border:1px solid var(--line);border-radius:8px;padding:8px 10px;}
+.paramsRow label{font-size:11.5px;color:var(--muted);display:block;margin-bottom:2px;}
+.paramsRow input[type=number]{width:70px;padding:4px 6px;border:1px solid var(--line);border-radius:6px;}
+.tablewrap{overflow-x:auto;border:1px solid var(--line);border-radius:8px;-webkit-overflow-scrolling:touch;}
+table{border-collapse:collapse;width:100%;font-size:12.5px;}
+th,td{border-bottom:1px solid var(--line);padding:6px 7px;text-align:center;white-space:nowrap;}
+th{background:var(--dark);color:#fff;font-weight:600;}
+td.name{text-align:left;min-width:150px;}
+tr:nth-child(even) td{background:#F7F8FA;}
+tr.total td{font-weight:700;background:#EEF1F6 !important;}
+th.curweek{background:#F9A825;color:#3E2723;}
+td.curweek{background:#FFF6D8 !important;font-weight:800;}
+th.testcol{background:var(--test);color:#fff;}
+td.testcol{background:#FBE9E7 !important;color:#8D3B1E;font-weight:800;font-size:11px;}
+input[type=text],input[type=number],input[type=date],textarea,select{
+  font-family:inherit;font-size:12.5px;border:1px solid var(--line);border-radius:6px;padding:5px 6px;width:100%;background:#fff;color:var(--ink);
+}
+textarea{line-height:1.45;}
+td input[type=text]{min-width:130px;}
+td input[type=number]{width:58px;}
+.computed{color:var(--dark);font-weight:700;}
+.btn{border:1px solid var(--line);background:#fff;border-radius:8px;padding:6px 11px;font-size:12px;cursor:pointer;color:var(--ink);}
+.btn:hover{background:#F3F4F6;}
+.btn.primary{background:var(--dark);color:#fff;border-color:var(--dark);}
+.btn.test{background:var(--test);color:#fff;border-color:var(--test);}
+.btn.small{padding:3px 8px;font-size:11px;}
+.delbtn{background:none;border:none;color:var(--danger);cursor:pointer;font-size:14px;padding:2px 4px;}
+.syncbtn{background:none;border:none;cursor:pointer;font-size:12px;padding:0 2px;line-height:1;}
+.refCell{display:flex;align-items:center;gap:2px;justify-content:center;}
+.banner{border-radius:8px;padding:8px 10px;font-size:12px;margin-bottom:10px;line-height:1.45;}
+.banner.info{background:#E8F0FE;border:1px solid #C3D6F7;color:#123A6B;}
+.banner.test{background:#FBE9E7;border:1px solid #F3C0B3;color:#8D3B1E;}
+.banner.warn{background:#FFF8E1;border:1px solid #F1D98B;color:#7A5B00;}
+.banner.ok{background:#E8F5E9;border:1px solid #B7DFBA;color:#1B5E20;}
+#toast{position:fixed;left:50%;transform:translateX(-50%);bottom:18px;background:var(--dark);color:#fff;padding:10px 14px;border-radius:10px;font-size:12.5px;z-index:60;box-shadow:0 6px 20px rgba(0,0,0,.25);display:none;max-width:90vw;text-align:center;}
+#toast button{margin-left:8px;background:#fff;color:var(--dark);border:none;border-radius:6px;padding:3px 9px;font-size:11.5px;font-weight:700;cursor:pointer;}
+.kv{display:grid;grid-template-columns:150px 1fr;gap:6px 10px;align-items:center;font-size:12.5px;}
+.kv .k{color:var(--muted);font-size:11.5px;}
+.mono{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:11.5px;word-break:break-all;}
+ol.steps{padding-left:18px;font-size:12.5px;line-height:1.6;color:var(--ink);}
+ol.steps code{background:#F3F4F6;border-radius:4px;padding:1px 5px;font-size:11.5px;}
+
+/* ---------- Planning ---------- */
+.weekGrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(215px,1fr));gap:10px;}
+.dayCard{background:#fff;border:1px solid var(--line);border-radius:10px;overflow:hidden;display:flex;flex-direction:column;}
+.dayCard.today{border-color:var(--dark);box-shadow:0 0 0 2px rgba(15,31,61,.12);}
+.dayHead{background:#F3F5F8;padding:7px 10px;font-weight:700;font-size:12.5px;color:var(--dark);display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--line);}
+.dayHead .todayTag{font-size:9.5px;background:var(--dark);color:#fff;border-radius:20px;padding:2px 7px;font-weight:700;letter-spacing:.4px;}
+.dayBody{padding:8px;display:flex;flex-direction:column;gap:7px;flex:1;}
+.slot{border:1px solid var(--line);border-left:5px solid #90A4AE;border-radius:8px;padding:6px 7px;background:#FCFCFD;}
+.slotTop{display:flex;gap:5px;align-items:center;}
+.slotTop select{flex:1;font-weight:600;font-size:12px;border:none;background:transparent;padding:2px 0;}
+.slotNote{margin-top:4px;font-size:11.5px;border:none;background:transparent;padding:1px 0;color:var(--muted);}
+.goBtn{background:none;border:none;cursor:pointer;font-size:13px;color:var(--muted);padding:0 2px;}
+.addSlot{border:1px dashed var(--line);background:#fff;color:var(--muted);border-radius:8px;padding:5px;font-size:11.5px;cursor:pointer;}
+.addSlot:hover{color:var(--dark);border-color:var(--dark);}
+.legend{display:flex;flex-wrap:wrap;gap:6px;margin-top:4px;}
+.chip{font-size:11px;border-radius:20px;padding:3px 9px;font-weight:600;color:#fff;}
+.statGrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:10px;margin-bottom:10px;}
+.stat{background:#F8F9FB;border:1px solid var(--line);border-radius:8px;padding:10px;text-align:center;}
+.stat .v{font-size:20px;font-weight:700;color:var(--dark);}
+.stat .l{font-size:11px;color:var(--muted);}
+
+/* ---------- Front Lever ---------- */
+.flHead{display:flex;align-items:center;gap:10px;margin-bottom:2px;}
+.flBadge{width:30px;height:30px;border-radius:9px;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:14px;flex:none;}
+.warmGrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:8px;}
+.warmItem{border:1px solid var(--line);border-left:5px solid #00838F;border-radius:8px;padding:7px 9px;background:#FCFCFD;}
+canvas{max-width:100%;width:100%;height:220px;display:block;}
+.perfControls{display:flex;gap:8px;flex-wrap:wrap;align-items:end;margin-bottom:10px;}
+.perfControls > div{flex:1;min-width:118px;}
+.perfControls label{font-size:11.5px;color:var(--muted);display:block;margin-bottom:2px;}
+select.realise-OUI{background:#E8F5E9;}
+select.realise-NON{background:#FDECEA;}
+@media (max-width:560px){
+  main{padding:10px;}
+  header h1{font-size:15px;}
+  nav button{padding:7px 11px;font-size:12.5px;}
+  .card{padding:11px;}
+  .card .accentbar{margin:-11px -11px 10px;}
+}
+</style>
+</head>
+<body>
+<header>
+  <div class="headerRow">
+    <h1>🏋️ Planning Calisthénie</h1>
+    <div class="hbtns">
+      <span id="saveState">…</span>
+      <span class="weekSel">Semaine <select id="weekSelect" onchange="setWeek(this.value)"></select></span>
+      <button class="hbtn" onclick="exportData()">💾 Export</button>
+      <button class="hbtn" onclick="document.getElementById('importFile').click()">📂 Import</button>
+      <button class="hbtn" onclick="resetData()">↺ Reset</button>
+      <input type="file" id="importFile" accept="application/json" style="display:none" onchange="importData(event)">
+    </div>
+  </div>
+</header>
+<nav id="tabnav"></nav>
+<main id="mainArea"></main>
+<div id="toast"></div>
+
+<script>
+/* ===================== Constantes ===================== */
+const WEEKS = 8;          // S1-S7 = progression, S8 = semaine test
+const TEST_WEEK = 8;
+
+const ACTIVITIES = [
+  {name:"Repos",                     color:"#78909C", tab:null},
+  {name:"Street Original",           color:"#1565C0", tab:"streetOriginal"},
+  {name:"Street Plus",               color:"#6A1B9A", tab:"streetPlus"},
+  {name:"Abdo",                      color:"#F57F17", tab:"abdo"},
+  {name:"Front Lever — Séance 1",    color:"#4527A0", tab:"frontLever"},
+  {name:"Front Lever — Séance 2",    color:"#4527A0", tab:"frontLever"},
+  {name:"Front Lever — Séance 3",    color:"#4527A0", tab:"frontLever"},
+  {name:"Front Lever — Séance 4",    color:"#4527A0", tab:"frontLever"},
+  {name:"Full Planche",              color:"#C62828", tab:"fullPlanche"},
+  {name:"Défi Pompes",               color:"#AD1457", tab:"defiPompes"},
+  {name:"Souplesse",                 color:"#00838F", tab:null},
+  {name:"Libre / au feeling",        color:"#90A4AE", tab:null}
+];
+
+const SEED = {
+  version: 2,
+  semaine: 1,
+  testProtocol: {series:"2", repos:"4 min", note:"Semaine 8 = semaine test. Chaque exercice : 2 séries au max de reps (ou de secondes pour les holds), 4 min de repos entre les séries. On garde le meilleur des 2, on le logge, et le nouveau cycle S1-S7 repart sur cette base."},
+  planning: {
+    note: "Chaque jour = une pile de créneaux. Ajoute, change ou supprime un créneau en 2 clics : le planning s'adapte à ta semaine, pas l'inverse.",
+    days: [
+      {day:"LUNDI",    slots:[{act:"Street Original", note:""},{act:"Abdo", note:"10 min en fin de séance"}]},
+      {day:"MARDI",    slots:[{act:"Front Lever — Séance 1", note:"à faire frais, en début de séance"}]},
+      {day:"MERCREDI", slots:[{act:"Repos", note:""}]},
+      {day:"JEUDI",    slots:[{act:"Street Plus", note:""},{act:"Abdo", note:"10 min"}]},
+      {day:"VENDREDI", slots:[{act:"Front Lever — Séance 2", note:""},{act:"Souplesse", note:""}]},
+      {day:"SAMEDI",   slots:[{act:"Front Lever — Séance 3", note:""},{act:"Abdo", note:"10 min"}]},
+      {day:"DIMANCHE", slots:[{act:"Repos", note:""}]}
+    ]
+  },
+  seances: {
+    streetOriginal: {
+      label:"Street Original", accent:"#1565C0", basePct:0.6, growthPct:0.07,
+      subtitle:"Le socle : pompes / tractions / dips. Circuit AMRAP, minimum 5 tours visés, transitions immédiates, repos en fin de tour.",
+      blocks:[{label:null, note:null, exercises:[
+        {name:"Pompes", ref:30, repos:"—", auto:true},
+        {name:"Tractions pronation", ref:9, repos:"—", auto:true},
+        {name:"Dips", ref:8, repos:"90s (fin de tour)", auto:true}
+      ]}]
+    },
+    streetPlus: {
+      label:"Street Plus", accent:"#6A1B9A", basePct:0.6, growthPct:0.07,
+      subtitle:"Variante complète : tirage vertical supination, poussée verticale, dips, tirage horizontal. Circuit AMRAP, minimum 5 tours visés.",
+      blocks:[{label:null, note:null, exercises:[
+        {name:"Tractions supination", ref:7, repos:"—", auto:true},
+        {name:"Dips barre simple", ref:10, repos:"—", auto:true},
+        {name:"Pike push-up", ref:7, repos:"—", auto:true},
+        {name:"Tractions australiennes", ref:11, repos:"90s (fin de tour)", auto:true}
+      ]}]
+    },
+    abdo: {
+      label:"Abdo", accent:"#F57F17", basePct:0.6, growthPct:0.07,
+      subtitle:"Séance courte, 2-3x/semaine, greffée en fin d'une autre séance. Circuit AMRAP, minimum 4 tours. Unités : reps, sauf « (sec) » = secondes de maintien.",
+      blocks:[{label:null, note:null, exercises:[
+        {name:"L-sit hold (sec)", ref:10, repos:"60s", auto:true},
+        {name:"Relevé de jambes suspendu", ref:12, repos:"60s", auto:true},
+        {name:"Roue abdo (ab wheel)", ref:8, repos:"60s", auto:true},
+        {name:"Russian twist lesté", ref:20, repos:"45s", auto:true},
+        {name:"Hollow body hold (sec)", ref:15, repos:"45s", auto:true},
+        {name:"Gainage latéral (sec)", ref:30, repos:"45s", auto:true}
+      ]}]
+    }
+  },
+  frontLever: {
+    subtitle:"Force isométrique du dos (grand dorsal), des stabilisateurs scapulaires et du tronc. 4 séances rotatives + progression Tuck → Advanced Tuck → One Leg → Straddle → Full. Toujours en début de séance, après l'échauffement.",
+    echauffement: {
+      note:"Court et spécifique : réveiller la poussée verticale, le tirage horizontal puis le tirage vertical. 5-6 min, jamais à l'échec.",
+      items:[
+        {name:"Pike push-up", dose:"2 x 8 — progressif"},
+        {name:"Traction australienne", dose:"2 x 10 — lent, omoplates serrées"},
+        {name:"Traction normale", dose:"2 x 5 — contrôlées, dépression scapulaire marquée"}
+      ]
+    },
+    seances:[
+      {id:"FL1", label:"Séance 1 — Intensité max", goal:"Charger l'isométrie au maximum, puis nettoyer la forme.", accent:"#4527A0", exercises:[
+        {name:"Max hold dégressif", series:"5", dose:"max", repos:"3 min", note:"Chaque série part du niveau tenu, on dégrade la position quand ça lâche."},
+        {name:"Touch to bar", series:"3", dose:"max", repos:"2 min", note:""},
+        {name:"Perfect hold tuck", series:"3", dose:"20 s", repos:"2 min", note:"Qualité stricte : dos plat, bras tendus."},
+        {name:"Hold à l'élastique", series:"3", dose:"20 s", repos:"2 min", note:"Élastique le plus léger qui permet 20 s propres."}
+      ]},
+      {id:"FL2", label:"Séance 2 — Dynamique & négatives", goal:"Construire le passage sous la barre et la force excentrique.", accent:"#283593", exercises:[
+        {name:"Front lever raise complet", series:"3", dose:"6 reps", repos:"2 min", note:""},
+        {name:"Négatives", series:"3", dose:"6 reps", repos:"2 min", note:"Descente lente et contrôlée."},
+        {name:"Raise bar to front", series:"3", dose:"6 reps", repos:"2 min", note:""}
+      ]},
+      {id:"FL3", label:"Séance 3 — Combos", goal:"Endurance de position et enchaînements.", accent:"#00695C", exercises:[
+        {name:"Combo", series:"1", dose:"60 s", repos:"—", note:""},
+        {name:"Combo", series:"2", dose:"45 s", repos:"—", note:""},
+        {name:"Combo", series:"3", dose:"30 s", repos:"—", note:""}
+      ]},
+      {id:"FL4", label:"Séance 4 — Volume assisté", goal:"Accumuler du temps sous tension sans casser la technique.", accent:"#AD1457", exercises:[
+        {name:"Hold à l'élastique", series:"6", dose:"20 s", repos:"2 min", note:""},
+        {name:"Touch bar à l'élastique", series:"3", dose:"6 reps", repos:"2 min", note:""}
+      ]}
+    ],
+    paliers:[
+      {palier:"Palier 1 — Tuck Front Lever", objectif:"Genoux ramenés vers la poitrine, dos légèrement arrondi. Focus : dépression scapulaire.", duree:"Semaines 1-6", seances:"3-4", exercices:"5-8 séries x 10-20s\nNégatives : 4-8s/rep\nL-sits, dragonflies", critere:"3 séries de 15-20s propres, 2 séances consécutives", valide:""},
+      {palier:"Palier 2 — Advanced Tuck", objectif:"Dos aplati, bas du dos à 90° des cuisses.", duree:"Semaines 4-12", seances:"3-4", exercices:"5-8 séries x 10-20s\nDragonflies, skin-the-cats\nTractions lestées légères", critere:"3 séries de 15-20s propres", valide:""},
+      {palier:"Palier 3 — One Leg", objectif:"Une jambe tendue à l'horizontale, alterner les côtés.", duree:"Semaines 10-20", seances:"3-4", exercices:"5-8 séries x 10-20s par côté\nTractions lestées", critere:"3 séries de 15-20s propres de chaque côté", valide:""},
+      {palier:"Palier 4 — Straddle", objectif:"Jambes tendues mais largement écartées.", duree:"Semaines 16-30", seances:"3-4", exercices:"5-8 séries x 10-20s\nTractions lestées ≈ 60-85% du poids de corps\nSkin-the-cats", critere:"3 séries de 15-20s propres en Straddle", valide:""},
+      {palier:"Palier 5 — Full Front Lever", objectif:"Corps complètement tendu, jambes serrées, ligne droite rigide.", duree:"3-6 mois à 1-2 ans", seances:"3-4", exercices:"Front lever raises\nMaintien 5s forme parfaite, en début de séance", critere:"5s en Full Front Lever, forme parfaite, filmé", valide:""}
+    ],
+    safetyTitle:"Erreurs fréquentes à éviter",
+    safetyItems:[
+      "Balancement excessif (kipping) → pulls lents et contrôlés.",
+      "Fléchir les bras sous la difficulté → filmer, repasser à la progression inférieure.",
+      "Négliger la mobilité des épaules → rotateurs et german hangs.",
+      "Sauter les progressions : viser 3 x 15-20s propres avant l'étape suivante.",
+      "Placer le Front Lever en fin de séance → toujours frais, en premier."
+    ],
+    source:"Tenir un Full Front Lever demande souvent une traction lestée à 60-85% du poids de corps."
+  },
+  performances: {"Pompes": [{"date": "2026-02-03", "reps": 14}, {"date": "2026-04-06", "reps": 15}, {"date": "2026-06-28", "reps": 30}], "Pompes diamants": [{"date": "2026-02-03", "reps": 6}, {"date": "2026-07-11", "reps": 22}], "Pike push-up": [{"date": "2026-02-03", "reps": 7}], "Traction commando": [{"date": "2026-04-07", "reps": 4}], "Dips barre simple": [{"date": "2026-07-11", "reps": 10}], "Dips": [{"date": "2026-06-28", "reps": 8}], "Traction neutre": [{"date": "2026-07-11", "reps": 5}], "Tractions pronation": [{"date": "2026-04-07", "reps": 6}, {"date": "2026-07-11", "reps": 9}], "Tractions supination": [{"date": "2026-04-07", "reps": 4}, {"date": "2026-07-11", "reps": 7}], "Tractions australiennes": [{"date": "2026-04-07", "reps": 11}], "Hollow body hold (sec)": [{"date": "2026-04-08", "reps": 15}]},
+  fullPlanche: {
+    subtitle:"Objectif long terme : Tuck → Advanced Tuck → Half-Lay/Straddle → Full. 3-4 séances/semaine, poignets et épaules protégés en priorité. Se construit sur plusieurs mois à plusieurs années.",
+    paliers:[
+      {palier:"Palier 1 — Tuck Planche", objectif:"Genoux serrés contre la poitrine, corps compact. Adaptation des épaules à la charge horizontale.", duree:"Semaines 1-12", seances:"3", exercices:"Tuck planche holds : 3-6 x 10-25s\nPseudo planche push-ups : 3-5 x 6-12\nRenforcement poignets\nAccessoires : hollow body, L-sit", critere:"3 séries de 20-25s en Tuck, forme propre, 2 séances de suite", valide:""},
+      {palier:"Palier 2 — Advanced Tuck", objectif:"Genoux plus éloignés du torse, plus d'extension de hanche.", duree:"Semaines 6-24", seances:"3-4", exercices:"Elevated tuck → advanced tuck negatives\nPlanche leans : 4-6 x 5-15s\nPseudo planche push-ups", critere:"3 séries de 15-20s en Advanced Tuck", valide:""},
+      {palier:"Palier 3 — Half-Lay / Straddle", objectif:"Jambes semi-étendues ou écartées pour réduire le bras de levier.", duree:"Semaines 12-52", seances:"3-4", exercices:"Straddle planche holds\nRenforcement excentrique\nMobilité épaules/poignets", critere:"3 séries de 15-20s en Straddle", valide:""},
+      {palier:"Palier 4 — Full Planche", objectif:"Jambes tendues et serrées, alignement parfait, tension maximale du tronc.", duree:"1 à 3 ans (total)", seances:"3-4", exercices:"Full planche holds\nAffinement technique, maintenance", critere:"5s+ en Full Planche, forme parfaite", valide:""}
+    ],
+    safetyTitle:"Prévention des blessures (poignets, épaules, bas du dos)",
+    safetyItems:[
+      "Échauffement spécifique des poignets : 5-10 min avant toute charge horizontale.",
+      "Utiliser des parallettes pour diminuer l'extension du poignet.",
+      "Charge progressive : +5 à 10% de temps sous tension par semaine maximum.",
+      "Différencier fatigue musculaire normale et douleur aiguë — stop immédiat si douleur persistante.",
+      "48-72h de repos entre deux sessions intenses de planche."
+    ],
+    source:"Colonne Validé : OUI quand le critère est tenu 2 séances de suite."
+  },
+  defiPompes: {
+    note:"Progression : +1 rep chaque jour. Décharge (moitié) : mercredi et dimanche.",
+    days: (function(){
+      const jours=["Lundi","Mardi","Mercredi","Jeudi","Vendredi","Samedi","Dimanche"];
+      const out=[];
+      for(let i=0;i<30;i++){
+        const base=20+i, js=jours[i%7];
+        const dech=(js==="Mercredi"||js==="Dimanche");
+        out.push({jour:i+1, jourSemaine:js, base:base, objectif:dech?Math.floor(base/2):base, realise:"", reps:null});
+      }
+      return out;
+    })()
+  }
+};
+</script>
+<script>
+/* ===================== Utils ===================== */
+function deepClone(o){ return JSON.parse(JSON.stringify(o)); }
+function escapeHtml(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function escapeAttr(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function jsStr(s){ return String(s==null?'':s).replace(/\\/g,'\\\\').replace(/'/g,"\\'"); }
+function today(){ return new Date().toISOString().slice(0,10); }
+function computeWeekVal(maxRef, basePct, growthPct, weekIdx){
+  const ref = Number(maxRef);
+  if(!ref || ref<=0) return null;
+  return Math.round(ref * basePct * Math.pow(1+growthPct, weekIdx-1));
+}
+function fmtCell(v){ return v===null || v===undefined ? '—' : v; }
+function actColor(name){ const a = ACTIVITIES.find(x=>x.name===name); return a ? a.color : '#90A4AE'; }
+function actTab(name){ const a = ACTIVITIES.find(x=>x.name===name); return a ? a.tab : null; }
+
+/* ===================== Sauvegarde automatique ===================== */
+const STORE_KEY = 'planning-calisthenie-v2';
+let storageOK = false;
+try{
+  window.localStorage.setItem('__pc_test__','1');
+  window.localStorage.removeItem('__pc_test__');
+  storageOK = true;
+}catch(e){ storageOK = false; }
+
+let saveTimer = null;
+function scheduleSave(){
+  if(!storageOK) return;
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(saveNow, 400);
+}
+function stampLocal(){
+  if(!STATE.meta) STATE.meta = {};
+  STATE.meta.updatedAt = new Date().toISOString();
+  STATE.meta.device = STATE.meta.device || deviceLabel();
+}
+let applyingRemote = false;
+function saveNow(opts){
+  const silent = (opts && opts.silent) || applyingRemote;
+  if(!silent) stampLocal();
+  if(storageOK){
+    try{
+      window.localStorage.setItem(STORE_KEY, JSON.stringify(STATE));
+      setSaveState(SYNC.enabled ? syncLabel() : '✓ Sauvegardé', false);
+    }catch(e){ setSaveState('⚠ Stockage plein', true); }
+  }
+  if(!silent && SYNC.enabled) schedulePush();
+}
+function setSaveState(txt, warn){
+  const el = document.getElementById('saveState');
+  if(!el) return;
+  el.textContent = txt;
+  el.className = warn ? 'warn' : '';
+}
+function deviceLabel(){
+  const ua = navigator.userAgent || '';
+  if(/iPhone|iPad/i.test(ua)) return 'iPhone/iPad';
+  if(/Android/i.test(ua)) return 'Android';
+  if(/Mac/i.test(ua)) return 'Mac';
+  if(/Windows/i.test(ua)) return 'PC';
+  return 'appareil';
+}
+function loadSaved(){
+  if(!storageOK) return null;
+  try{
+    const raw = window.localStorage.getItem(STORE_KEY);
+    if(!raw) return null;
+    const obj = JSON.parse(raw);
+    if(!obj || !obj.seances || !obj.planning) return null;
+    return obj;
+  }catch(e){ return null; }
+}
+
+/* ===================== Synchro GitHub Gist =====================
+   Le token vit dans une clé localStorage séparée : il n'apparaît JAMAIS
+   dans l'export JSON ni dans le Gist. Portée minimale requise : "gist". */
+const SYNC_KEY = 'planning-calisthenie-sync';
+const GIST_FILE = 'planning-calisthenie.json';
+let SYNC = {enabled:false, token:'', gistId:'', lastRemoteAt:'', lastSyncAt:'', lastError:''};
+let pushTimer = null, syncBusy = false;
+
+function loadSync(){
+  if(!storageOK) return;
+  try{
+    const raw = window.localStorage.getItem(SYNC_KEY);
+    if(raw) SYNC = Object.assign(SYNC, JSON.parse(raw));
+  }catch(e){}
+}
+function saveSync(){
+  if(!storageOK) return;
+  try{ window.localStorage.setItem(SYNC_KEY, JSON.stringify(SYNC)); }catch(e){}
+}
+function syncLabel(){
+  if(!SYNC.enabled) return storageOK ? '✓ Local' : '⚠ Export requis';
+  if(!navigator.onLine) return '☁ hors-ligne';
+  if(syncBusy) return '☁ …';
+  if(SYNC.lastError) return '☁ erreur';
+  if(SYNC.lastSyncAt) return '☁ ' + SYNC.lastSyncAt.slice(11,16);
+  return '☁ prêt';
+}
+function refreshSyncPill(){ setSaveState(SYNC.enabled ? syncLabel() : (storageOK?'✓ Sauvegarde auto':'⚠ Utilise 💾 Export'), !!SYNC.lastError || !storageOK); }
+
+async function ghFetch(path, opts){
+  const res = await fetch('https://api.github.com'+path, Object.assign({
+    headers: {
+      'Authorization': 'Bearer ' + SYNC.token,
+      'Accept': 'application/vnd.github+json',
+      'X-GitHub-Api-Version': '2022-11-28'
+    }
+  }, opts||{}));
+  if(!res.ok){
+    let msg = res.status + ' ' + res.statusText;
+    try{ const j = await res.json(); if(j.message) msg += ' — ' + j.message; }catch(e){}
+    throw new Error(msg);
+  }
+  return res.json();
+}
+function schedulePush(){
+  clearTimeout(pushTimer);
+  pushTimer = setTimeout(()=>pushRemote(true), 2500);
+}
+async function pushRemote(auto){
+  if(!SYNC.enabled || !SYNC.token) return;
+  if(!navigator.onLine){ SYNC.lastError=''; refreshSyncPill(); return; }
+  syncBusy = true; refreshSyncPill();
+  try{
+    const payload = deepClone(STATE);
+    const body = {files:{}};
+    body.files[GIST_FILE] = {content: JSON.stringify(payload, null, 1)};
+    let g;
+    if(SYNC.gistId){
+      // Détection de conflit : quelqu'un d'autre a poussé depuis notre dernier pull ?
+      const remote = await ghFetch('/gists/'+SYNC.gistId);
+      const rf = remote.files && remote.files[GIST_FILE];
+      if(rf && SYNC.lastRemoteAt && remote.updated_at !== SYNC.lastRemoteAt){
+        let rdata = null;
+        try{ rdata = JSON.parse(rf.truncated ? await (await fetch(rf.raw_url)).text() : rf.content); }catch(e){}
+        const rAt = rdata && rdata.meta ? rdata.meta.updatedAt : null;
+        const lAt = STATE.meta ? STATE.meta.updatedAt : null;
+        if(rAt && lAt && rAt > lAt){
+          syncBusy = false;
+          SYNC.lastError = 'conflit';
+          refreshSyncPill(); saveSync();
+          toast('Version distante plus récente ('+fmtDT(rAt)+').', 'Récupérer', ()=>pullRemote(true));
+          return;
+        }
+      }
+      body.description = 'Planning Calisthénie — sauvegarde ('+deviceLabel()+')';
+      g = await ghFetch('/gists/'+SYNC.gistId, {method:'PATCH', body: JSON.stringify(body)});
+    }else{
+      body.public = false;
+      body.description = 'Planning Calisthénie — sauvegarde ('+deviceLabel()+')';
+      g = await ghFetch('/gists', {method:'POST', body: JSON.stringify(body)});
+      SYNC.gistId = g.id;
+    }
+    SYNC.lastRemoteAt = g.updated_at;
+    SYNC.lastSyncAt = new Date().toISOString();
+    SYNC.lastError = '';
+    saveSync(); syncBusy = false; refreshSyncPill();
+    if(currentTab==='sync') renderPage();
+    if(!auto) toast('Envoyé sur GitHub ✓');
+  }catch(e){
+    syncBusy = false; SYNC.lastError = e.message; saveSync(); refreshSyncPill();
+    if(!auto) alert('Échec de l\'envoi : ' + e.message);
+    if(currentTab==='sync') renderPage();
+  }
+}
+async function pullRemote(force){
+  if(!SYNC.enabled || !SYNC.token || !SYNC.gistId) return;
+  if(!navigator.onLine) return;
+  syncBusy = true; refreshSyncPill();
+  try{
+    const g = await ghFetch('/gists/'+SYNC.gistId);
+    const f = g.files && g.files[GIST_FILE];
+    if(!f) throw new Error('fichier ' + GIST_FILE + ' absent du Gist');
+    const txt = f.truncated ? await (await fetch(f.raw_url)).text() : f.content;
+    const obj = JSON.parse(txt);
+    if(!obj.seances || !obj.planning) throw new Error('contenu inattendu');
+    const rAt = obj.meta ? obj.meta.updatedAt : null;
+    const lAt = STATE.meta ? STATE.meta.updatedAt : null;
+    if(!force && lAt && rAt && rAt <= lAt){
+      SYNC.lastRemoteAt = g.updated_at; SYNC.lastSyncAt = new Date().toISOString(); SYNC.lastError='';
+      saveSync(); syncBusy=false; refreshSyncPill(); return;
+    }
+    STATE = obj; migrate(); syncRefs();
+    selectedPerfExercise = null; seanceChartSel = {};
+    SYNC.lastRemoteAt = g.updated_at;
+    SYNC.lastSyncAt = new Date().toISOString();
+    SYNC.lastError = '';
+    applyingRemote = true;
+    saveSync(); saveNow({silent:true}); syncBusy = false;
+    renderWeekSelect(); renderPage();
+    applyingRemote = false;
+    refreshSyncPill();
+    toast('Données récupérées depuis GitHub ✓');
+  }catch(e){
+    syncBusy = false; SYNC.lastError = e.message; saveSync(); refreshSyncPill();
+    if(force) alert('Échec de la récupération : ' + e.message);
+    if(currentTab==='sync') renderPage();
+  }
+}
+function fmtDT(iso){
+  if(!iso) return '—';
+  try{ const d = new Date(iso); return d.toLocaleString('fr-FR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'}); }
+  catch(e){ return iso; }
+}
+let toastTimer=null;
+function toast(msg, actionLabel, action){
+  const el = document.getElementById('toast');
+  if(!el) return;
+  el.innerHTML = escapeHtml(msg) + (actionLabel?`<button id="toastBtn">${escapeHtml(actionLabel)}</button>`:'');
+  el.style.display = 'block';
+  if(actionLabel){
+    document.getElementById('toastBtn').onclick = ()=>{ el.style.display='none'; if(action) action(); };
+  }
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(()=>{ el.style.display='none'; }, actionLabel?12000:3500);
+}
+
+/* ===================== State ===================== */
+let STATE = loadSaved() || deepClone(SEED);
+let currentTab = 'planning';
+let selectedPerfExercise = null;
+let seanceChartSel = {};
+let testDraft = {};
+let compactWeeks = (typeof window!=='undefined' && window.innerWidth < 640);
+
+const TABS = [
+  {id:'planning',        label:'Planning'},
+  {id:'streetOriginal',  label:'Street Original'},
+  {id:'streetPlus',      label:'Street Plus'},
+  {id:'abdo',            label:'Abdo'},
+  {id:'frontLever',      label:'Front Lever'},
+  {id:'performances',    label:'Performances'},
+  {id:'defiPompes',      label:'Défi Pompes'},
+  {id:'fullPlanche',     label:'Full Planche'},
+  {id:'sync',            label:'☁ Synchro'}
+];
+const SEANCE_KEYS = ['streetOriginal','streetPlus','abdo'];
+
+/* ===================== Synchronisation perfs → Max réf. ===================== */
+function latestPerf(name){
+  const arr = STATE.performances[name];
+  if(!arr || !arr.length) return null;
+  const s = arr.slice().sort((a,b)=>String(a.date).localeCompare(String(b.date)));
+  const v = s[s.length-1].reps;
+  return (typeof v === 'number' && !isNaN(v)) ? v : null;
+}
+function perfDate(name){
+  const arr = STATE.performances[name];
+  if(!arr || !arr.length) return null;
+  const s = arr.slice().sort((a,b)=>String(a.date).localeCompare(String(b.date)));
+  return s[s.length-1].date;
+}
+function syncRefs(){
+  SEANCE_KEYS.forEach(k=>{
+    const s = STATE.seances[k];
+    if(!s) return;
+    s.blocks.forEach(b=>b.exercises.forEach(ex=>{
+      if(ex.auto === undefined) ex.auto = true;
+      if(ex.auto){
+        const p = latestPerf(ex.name);
+        if(p !== null && p > 0) ex.ref = p;
+      }
+    }));
+  });
+}
+function seancesUsing(name){
+  const out = [];
+  SEANCE_KEYS.forEach(k=>{
+    const s = STATE.seances[k];
+    if(s && s.blocks.some(b=>b.exercises.some(ex=>ex.name===name))) out.push(s.label);
+  });
+  return out;
+}
+
+/* ===================== Nav ===================== */
+function renderNav(){
+  document.getElementById('tabnav').innerHTML = TABS.map(t =>
+    `<button data-tab="${t.id}" class="${t.id===currentTab?'active':''}" onclick="switchTab('${t.id}')">${escapeHtml(t.label)}</button>`
+  ).join('');
+}
+function renderWeekSelect(){
+  const sel = document.getElementById('weekSelect');
+  let opts = '';
+  for(let n=1;n<=WEEKS;n++){
+    opts += `<option value="${n}" ${n===STATE.semaine?'selected':''}>S${n}${n===TEST_WEEK?' · TEST':''}</option>`;
+  }
+  sel.innerHTML = opts;
+}
+function setWeek(v){ STATE.semaine = parseInt(v,10)||1; renderWeekSelect(); renderPage(); scheduleSave(); }
+function switchTab(id){
+  currentTab = id;
+  renderNav(); renderPage();
+  window.scrollTo({top:0,behavior:'instant'});
+}
+
+/* ===================== Dispatch ===================== */
+function renderPage(){
+  syncRefs();
+  const main = document.getElementById('mainArea');
+  if(SEANCE_KEYS.includes(currentTab)){
+    main.innerHTML = renderSeanceHtml(currentTab);
+    recomputeSeance(currentTab);
+    drawSeanceChart(currentTab);
+  } else if(currentTab === 'planning'){
+    main.innerHTML = renderPlanningHtml();
+  } else if(currentTab === 'performances'){
+    main.innerHTML = renderPerformancesHtml();
+    initPerfPage();
+  } else if(currentTab === 'fullPlanche'){
+    main.innerHTML = renderPhaseHtml('fullPlanche', 'Full Planche', '#C62828');
+  } else if(currentTab === 'frontLever'){
+    main.innerHTML = renderFrontLeverHtml();
+  } else if(currentTab === 'defiPompes'){
+    main.innerHTML = renderDefiHtml();
+    recomputeDefi();
+  } else if(currentTab === 'sync'){
+    main.innerHTML = renderSyncHtml();
+  }
+  scheduleSave();
+}
+
+/* ===================== Planning ===================== */
+function todayIndex(){ const d = new Date().getDay(); return (d+6)%7; }
+function renderPlanningHtml(){
+  const p = STATE.planning;
+  const ti = todayIndex();
+  const opts = act => ACTIVITIES.map(a=>`<option value="${escapeAttr(a.name)}" ${a.name===act?'selected':''}>${escapeHtml(a.name)}</option>`).join('');
+
+  const days = p.days.map((d,di)=>{
+    const slots = d.slots.map((s,si)=>{
+      const tab = actTab(s.act);
+      return `
+      <div class="slot" style="border-left-color:${actColor(s.act)};">
+        <div class="slotTop">
+          <select onchange="setSlotAct(${di},${si},this.value)">${opts(s.act)}</select>
+          ${tab?`<button class="goBtn" title="Ouvrir la séance" onclick="switchTab('${tab}')">↗</button>`:''}
+          <button class="delbtn" title="Supprimer" onclick="removeSlot(${di},${si})">✕</button>
+        </div>
+        <input class="slotNote" type="text" placeholder="note (durée, focus…)" value="${escapeAttr(s.note)}" oninput="STATE.planning.days[${di}].slots[${si}].note=this.value">
+      </div>`;
+    }).join('');
+    return `
+      <div class="dayCard ${di===ti?'today':''}">
+        <div class="dayHead"><span>${escapeHtml(d.day)}</span>${di===ti?'<span class="todayTag">AUJOURD\'HUI</span>':''}</div>
+        <div class="dayBody">
+          ${slots || '<div style="font-size:11.5px;color:var(--muted);padding:4px 2px;">Rien de prévu.</div>'}
+          <button class="addSlot" onclick="addSlot(${di})">+ Ajouter un créneau</button>
+        </div>
+      </div>`;
+  }).join('');
+
+  const counts = {};
+  p.days.forEach(d=>d.slots.forEach(s=>{ if(s.act!=='Repos'){ counts[s.act]=(counts[s.act]||0)+1; } }));
+  const legend = Object.keys(counts).sort().map(k=>
+    `<span class="chip" style="background:${actColor(k)}">${escapeHtml(k)} × ${counts[k]}</span>`).join('') ||
+    '<span style="font-size:11.5px;color:var(--muted)">Aucune séance placée.</span>';
+  const nbSeances = Object.values(counts).reduce((a,b)=>a+b,0);
+  const nbRepos = p.days.filter(d=>d.slots.every(s=>s.act==='Repos')).length;
+  const testBanner = STATE.semaine===TEST_WEEK
+    ? `<div class="banner test"><b>Semaine test (S8)</b> — sur chaque séance : ${escapeHtml(STATE.testProtocol.series)} séries au max, ${escapeHtml(STATE.testProtocol.repos)} de repos. Logue les résultats, les Max réf. se mettent à jour tout seuls.</div>` : '';
+
+  return `
+    <div class="card">
+      <div class="accentbar" style="background:#37474F"></div>
+      <h2>Planning hebdomadaire — semaine S${STATE.semaine}${STATE.semaine===TEST_WEEK?' (TEST)':''}</h2>
+      ${testBanner}
+      <div class="sub">Un créneau = une séance. Change le contenu dans le menu déroulant, ajoute-en autant que tu veux, et clique sur ↗ pour ouvrir la séance correspondante.</div>
+      <div class="statGrid">
+        <div class="stat"><div class="v">${nbSeances}</div><div class="l">Créneaux actifs</div></div>
+        <div class="stat"><div class="v">${nbRepos}</div><div class="l">Jours 100% repos</div></div>
+        <div class="stat"><div class="v">S${STATE.semaine}/${WEEKS}</div><div class="l">Semaine du cycle</div></div>
+      </div>
+      <div class="weekGrid">${days}</div>
+      <div class="legend" style="margin-top:12px;">${legend}</div>
+      <label style="font-size:11.5px;color:var(--muted);display:block;margin-top:12px;">Note de la semaine</label>
+      <textarea rows="2" oninput="STATE.planning.note=this.value">${escapeHtml(p.note)}</textarea>
+      <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:10px;">
+        <button class="btn small" onclick="clearWeek()">Vider la semaine</button>
+        <button class="btn small" onclick="shiftWeek()">Décaler d'un jour →</button>
+      </div>
+    </div>`;
+}
+function setSlotAct(di,si,val){ STATE.planning.days[di].slots[si].act = val; renderPage(); }
+function addSlot(di){ STATE.planning.days[di].slots.push({act:'Libre / au feeling', note:''}); renderPage(); }
+function removeSlot(di,si){ STATE.planning.days[di].slots.splice(si,1); renderPage(); }
+function clearWeek(){
+  if(confirm('Vider tous les créneaux de la semaine ?')){
+    STATE.planning.days.forEach(d=>d.slots=[{act:'Repos',note:''}]);
+    renderPage();
+  }
+}
+function shiftWeek(){
+  const d = STATE.planning.days;
+  const slots = d.map(x=>x.slots);
+  slots.unshift(slots.pop());
+  d.forEach((x,i)=>x.slots=slots[i]);
+  renderPage();
+}
+
+/* ===================== Séances ===================== */
+function visibleWeeks(){
+  if(!compactWeeks) { const a=[]; for(let n=1;n<=WEEKS;n++) a.push(n); return a; }
+  const cur = STATE.semaine;
+  return cur===TEST_WEEK ? [TEST_WEEK] : [cur, TEST_WEEK];
+}
+function renderSeanceHtml(key){
+  const s = STATE.seances[key];
+  const cur = STATE.semaine;
+  const wks = visibleWeeks();
+  const weekHeaders = wks.map(n=>`<th class="${n===TEST_WEEK?'testcol':(n===cur?'curweek':'')}">S${n}${n===TEST_WEEK?' TEST':''}</th>`).join('');
+
+  const blocksHtml = s.blocks.map((b, bi) => {
+    const rows = b.exercises.map((ex, ei) => {
+      const cells = wks.map(n => {
+        if(n===TEST_WEEK) return `<td class="testcol">MAX ×${escapeHtml(STATE.testProtocol.series)}</td>`;
+        const v = computeWeekVal(ex.ref, s.basePct, s.growthPct, n);
+        return `<td class="computed ${n===cur?'curweek':''}" id="w_${key}_${bi}_${ei}_${n}">${fmtCell(v)}</td>`;
+      }).join('');
+      const auto = ex.auto !== false;
+      const pd = perfDate(ex.name);
+      const syncTitle = auto
+        ? (pd ? `Synchronisé avec ta dernière perf (${pd}). Clic = passer en manuel.` : 'Synchro auto activée : dès que tu logges une perf pour cet exercice, la valeur se met à jour.')
+        : 'Valeur manuelle. Clic = réactiver la synchro avec tes perfs.';
+      return `<tr>
+        <td class="name"><input type="text" value="${escapeAttr(ex.name)}" oninput="STATE.seances['${key}'].blocks[${bi}].exercises[${ei}].name=this.value" onchange="renderPage()"></td>
+        <td><div class="refCell">
+          <input type="number" value="${escapeAttr(ex.ref)}" oninput="setRefManual('${key}',${bi},${ei},this.value)">
+          <button class="syncbtn" title="${escapeAttr(syncTitle)}" onclick="toggleAuto('${key}',${bi},${ei})">${auto?'🔄':'🔒'}</button>
+        </div></td>
+        ${cells}
+        <td><input type="text" value="${escapeAttr(ex.repos)}" style="width:96px;" oninput="STATE.seances['${key}'].blocks[${bi}].exercises[${ei}].repos=this.value"></td>
+        <td><button class="delbtn" onclick="removeExercise('${key}',${bi},${ei})">🗑</button></td>
+      </tr>`;
+    }).join('');
+    const totalCells = wks.map(n => n===TEST_WEEK
+      ? `<td class="testcol">—</td>`
+      : `<td class="${n===cur?'curweek':''}" id="total_${key}_${bi}_${n}"></td>`).join('');
+    return `
+      <div style="margin-bottom:14px;">
+        ${b.label ? `<div style="display:flex;gap:8px;align-items:center;">
+            <input type="text" style="flex:1;font-weight:700;border:none;background:transparent;color:${s.accent};font-size:13.5px;" value="${escapeAttr(b.label)}" oninput="STATE.seances['${key}'].blocks[${bi}].label=this.value">
+            <button class="delbtn" onclick="removeBlock('${key}',${bi})">🗑 bloc</button>
+          </div>` : ''}
+        ${b.note!==null && b.note!==undefined ? `<textarea rows="1" style="font-size:11.5px;color:var(--muted);border:none;background:transparent;" oninput="STATE.seances['${key}'].blocks[${bi}].note=this.value">${escapeHtml(b.note)}</textarea>` : ''}
+        <div class="tablewrap">
+          <table>
+            <thead><tr><th style="text-align:left;">Exercice</th><th>Max réf.</th>${weekHeaders}<th>Repos</th><th></th></tr></thead>
+            <tbody>${rows}<tr class="total"><td class="name">TOTAL / tour</td><td></td>${totalCells}<td></td><td></td></tr></tbody>
+          </table>
+        </div>
+        <button class="btn small" style="margin-top:6px;" onclick="addExercise('${key}',${bi})">+ Ajouter un exercice</button>
+      </div>`;
+  }).join('');
+
+  const exNames = [];
+  s.blocks.forEach(b=>b.exercises.forEach(ex=>{ if(ex.name) exNames.push(ex.name); }));
+  if(!seanceChartSel[key] || !exNames.includes(seanceChartSel[key])) seanceChartSel[key] = exNames[0] || null;
+  const chartOpts = exNames.map(n=>`<option value="${escapeAttr(n)}" ${n===seanceChartSel[key]?'selected':''}>${escapeHtml(n)}</option>`).join('');
+
+  const testCard = (cur===TEST_WEEK) ? renderTestCard(key) : '';
+
+  return `
+    <div class="card">
+      <div class="accentbar" style="background:${s.accent}"></div>
+      <h2>${escapeHtml(s.label)} — circuit</h2>
+      <textarea class="sub" rows="2" oninput="STATE.seances['${key}'].subtitle=this.value">${escapeHtml(s.subtitle)}</textarea>
+      <div class="banner info">🔄 <b>Max réf. synchronisé</b> : la valeur suit automatiquement ta dernière perf loggée pour cet exercice (onglet Performances ou carte ci-dessous). Le cadenas 🔒 fige une valeur à la main.</div>
+      <div class="paramsRow">
+        <div><label>Base % (S1)</label><input type="number" min="0" max="100" value="${Math.round(s.basePct*100)}" oninput="STATE.seances['${key}'].basePct=(parseFloat(this.value)||0)/100;recomputeSeance('${key}')"> %</div>
+        <div><label>Progression / semaine</label><input type="number" min="0" max="100" value="${Math.round(s.growthPct*100)}" oninput="STATE.seances['${key}'].growthPct=(parseFloat(this.value)||0)/100;recomputeSeance('${key}')"> %</div>
+        <div><button class="btn small" onclick="compactWeeks=!compactWeeks;renderPage()">${compactWeeks?'Voir les 8 semaines':'Vue mobile (semaine en cours)'}</button></div>
+      </div>
+      ${blocksHtml}
+      <button class="btn" onclick="addBlock('${key}')">+ Ajouter un bloc</button>
+    </div>
+    ${testCard}
+    <div class="card">
+      <div class="accentbar" style="background:${s.accent}"></div>
+      <h2>Courbe de progression</h2>
+      <div class="sub">Logue une perf : la courbe et le Max réf. se mettent à jour immédiatement, ici et dans l'onglet Performances.</div>
+      <div class="perfControls">
+        <div><label>Exercice</label><select id="sChartSel_${key}" onchange="seanceChartSel['${key}']=this.value;drawSeanceChart('${key}')">${chartOpts}</select></div>
+        <div><label>Date</label><input type="date" id="sChartDate_${key}"></div>
+        <div><label>Reps / sec</label><input type="number" id="sChartVal_${key}"></div>
+        <div><button class="btn primary" onclick="addSeancePerf('${key}')">+ Ajouter</button></div>
+      </div>
+      <canvas id="sChart_${key}" height="180"></canvas>
+    </div>`;
+}
+function renderTestCard(key){
+  const s = STATE.seances[key];
+  const tp = STATE.testProtocol;
+  const rows = [];
+  s.blocks.forEach((b,bi)=>b.exercises.forEach((ex,ei)=>{
+    const id = key+'_'+bi+'_'+ei;
+    rows.push(`<tr>
+      <td class="name">${escapeHtml(ex.name)}</td>
+      <td><input type="number" id="t1_${id}" placeholder="—"></td>
+      <td><input type="number" id="t2_${id}" placeholder="—"></td>
+      <td style="color:var(--muted);">${escapeHtml(tp.repos)}</td>
+      <td style="color:var(--muted);">actuel : ${escapeHtml(ex.ref)}</td>
+    </tr>`);
+  }));
+  return `
+    <div class="card">
+      <div class="accentbar" style="background:var(--test)"></div>
+      <h2>S8 — Semaine test</h2>
+      <textarea class="sub" rows="2" oninput="STATE.testProtocol.note=this.value">${escapeHtml(tp.note)}</textarea>
+      <div class="paramsRow">
+        <div><label>Séries</label><input type="text" style="width:60px;" value="${escapeAttr(tp.series)}" oninput="STATE.testProtocol.series=this.value"></div>
+        <div><label>Repos entre séries</label><input type="text" style="width:80px;" value="${escapeAttr(tp.repos)}" oninput="STATE.testProtocol.repos=this.value"></div>
+        <div><label>Date du test</label><input type="date" id="testDate_${key}"></div>
+      </div>
+      <div class="tablewrap">
+        <table>
+          <thead><tr><th style="text-align:left;">Exercice</th><th>Série 1 (max)</th><th>Série 2 (max)</th><th>Repos</th><th>Max réf.</th></tr></thead>
+          <tbody>${rows.join('')}</tbody>
+        </table>
+      </div>
+      <button class="btn test" style="margin-top:8px;" onclick="saveTest('${key}')">✔ Enregistrer le test (garde le meilleur des 2)</button>
+    </div>`;
+}
+function saveTest(key){
+  const s = STATE.seances[key];
+  const dateEl = document.getElementById('testDate_'+key);
+  const date = (dateEl && dateEl.value) ? dateEl.value : today();
+  let n = 0;
+  s.blocks.forEach((b,bi)=>b.exercises.forEach((ex,ei)=>{
+    const id = key+'_'+bi+'_'+ei;
+    const a = parseFloat((document.getElementById('t1_'+id)||{}).value);
+    const c = parseFloat((document.getElementById('t2_'+id)||{}).value);
+    const vals = [a,c].filter(v=>!isNaN(v));
+    if(!vals.length) return;
+    const best = Math.max.apply(null, vals);
+    if(!STATE.performances[ex.name]) STATE.performances[ex.name] = [];
+    STATE.performances[ex.name] = STATE.performances[ex.name].filter(e=>e.date!==date);
+    STATE.performances[ex.name].push({date, reps:best});
+    STATE.performances[ex.name].sort((x,y)=>String(x.date).localeCompare(String(y.date)));
+    ex.auto = true;
+    n++;
+  }));
+  if(!n){ alert('Aucune valeur saisie.'); return; }
+  syncRefs(); renderPage(); saveNow();
+  alert(n + ' test(s) enregistré(s). Les Max réf. sont à jour — passe en S1 pour relancer le cycle.');
+}
+function setRefManual(key,bi,ei,val){
+  const ex = STATE.seances[key].blocks[bi].exercises[ei];
+  ex.ref = parseFloat(val)||0;
+  ex.auto = false;
+  recomputeSeance(key);
+  const btn = document.querySelector(`#w_${key}_${bi}_${ei}_1`);
+  scheduleSave();
+}
+function toggleAuto(key,bi,ei){
+  const ex = STATE.seances[key].blocks[bi].exercises[ei];
+  ex.auto = (ex.auto === false);
+  renderPage();
+}
+function recomputeSeance(key){
+  const s = STATE.seances[key];
+  const wks = visibleWeeks();
+  s.blocks.forEach((b,bi)=>{
+    const totals={}, counts={};
+    wks.forEach(n=>{ totals[n]=0; counts[n]=0; });
+    b.exercises.forEach((ex,ei)=>{
+      wks.forEach(n=>{
+        if(n===TEST_WEEK) return;
+        const v = computeWeekVal(ex.ref, s.basePct, s.growthPct, n);
+        const cell = document.getElementById(`w_${key}_${bi}_${ei}_${n}`);
+        if(cell) cell.textContent = fmtCell(v);
+        if(v!==null){ totals[n]+=v; counts[n]++; }
+      });
+    });
+    wks.forEach(n=>{
+      if(n===TEST_WEEK) return;
+      const t = document.getElementById(`total_${key}_${bi}_${n}`);
+      if(t) t.textContent = counts[n]>0 ? totals[n] : '—';
+    });
+  });
+}
+function drawSeanceChart(key){
+  const canvas = document.getElementById('sChart_'+key);
+  if(!canvas) return;
+  const d = document.getElementById('sChartDate_'+key);
+  if(d && !d.value) d.value = today();
+  const td = document.getElementById('testDate_'+key);
+  if(td && !td.value) td.value = today();
+  const name = seanceChartSel[key];
+  const entries = (name && STATE.performances[name]) ? STATE.performances[name] : [];
+  drawLineChart(canvas, entries.map(e=>e.date), entries.map(e=>e.reps), STATE.seances[key].accent);
+}
+function addSeancePerf(key){
+  const name = seanceChartSel[key];
+  const date = document.getElementById('sChartDate_'+key).value;
+  const val = parseFloat(document.getElementById('sChartVal_'+key).value);
+  if(!name){ alert("Aucun exercice sélectionné."); return; }
+  if(!date){ alert('Choisis une date.'); return; }
+  if(isNaN(val)){ alert('Entre un nombre de reps/secondes.'); return; }
+  if(!STATE.performances[name]) STATE.performances[name] = [];
+  STATE.performances[name].push({date, reps:val});
+  STATE.performances[name].sort((a,b)=>String(a.date).localeCompare(String(b.date)));
+  syncRefs(); renderPage(); saveNow();
+}
+function addExercise(key,bi){
+  STATE.seances[key].blocks[bi].exercises.push({name:'Nouvel exercice', ref:0, repos:'—', auto:true});
+  renderPage();
+}
+function removeExercise(key,bi,ei){ STATE.seances[key].blocks[bi].exercises.splice(ei,1); renderPage(); }
+function addBlock(key){ STATE.seances[key].blocks.push({label:'Nouveau bloc', note:'', exercises:[]}); renderPage(); }
+function removeBlock(key,bi){
+  if(confirm('Supprimer ce bloc et tous ses exercices ?')){ STATE.seances[key].blocks.splice(bi,1); renderPage(); }
+}
+
+/* ===================== Front Lever ===================== */
+function renderFrontLeverHtml(){
+  const f = STATE.frontLever;
+  const warm = f.echauffement.items.map((it,i)=>`
+    <div class="warmItem">
+      <input type="text" style="border:none;background:transparent;padding:0;font-weight:700;font-size:12.5px;" value="${escapeAttr(it.name)}" oninput="STATE.frontLever.echauffement.items[${i}].name=this.value">
+      <input type="text" style="border:none;background:transparent;padding:0;font-size:11.5px;color:var(--muted);" value="${escapeAttr(it.dose)}" oninput="STATE.frontLever.echauffement.items[${i}].dose=this.value">
+    </div>`).join('');
+
+  const seances = f.seances.map((s,si)=>{
+    const rows = s.exercises.map((ex,ei)=>`
+      <tr>
+        <td class="name"><input type="text" value="${escapeAttr(ex.name)}" oninput="STATE.frontLever.seances[${si}].exercises[${ei}].name=this.value"></td>
+        <td><input type="text" style="width:52px;" value="${escapeAttr(ex.series)}" oninput="STATE.frontLever.seances[${si}].exercises[${ei}].series=this.value"></td>
+        <td><input type="text" style="width:78px;" value="${escapeAttr(ex.dose)}" oninput="STATE.frontLever.seances[${si}].exercises[${ei}].dose=this.value"></td>
+        <td><input type="text" style="width:70px;" value="${escapeAttr(ex.repos)}" oninput="STATE.frontLever.seances[${si}].exercises[${ei}].repos=this.value"></td>
+        <td style="text-align:left;white-space:normal;"><input type="text" style="min-width:160px;" value="${escapeAttr(ex.note)}" oninput="STATE.frontLever.seances[${si}].exercises[${ei}].note=this.value"></td>
+        <td><button class="delbtn" onclick="removeFlEx(${si},${ei})">🗑</button></td>
+      </tr>`).join('');
+    return `
+      <div class="card">
+        <div class="accentbar" style="background:${s.accent}"></div>
+        <div class="flHead">
+          <div class="flBadge" style="background:${s.accent}">${si+1}</div>
+          <div style="flex:1;">
+            <input type="text" style="border:none;background:transparent;padding:0;font-weight:700;color:var(--dark);font-size:15px;" value="${escapeAttr(s.label)}" oninput="STATE.frontLever.seances[${si}].label=this.value">
+            <input type="text" style="border:none;background:transparent;padding:0;color:var(--muted);font-size:11.5px;" value="${escapeAttr(s.goal)}" oninput="STATE.frontLever.seances[${si}].goal=this.value">
+          </div>
+        </div>
+        <div class="tablewrap" style="margin-top:8px;">
+          <table style="min-width:600px;">
+            <thead><tr><th style="text-align:left;">Exercice</th><th>Séries</th><th>Reps / temps</th><th>Repos</th><th style="text-align:left;">Note</th><th></th></tr></thead>
+            <tbody>${rows}</tbody>
+          </table>
+        </div>
+        <button class="btn small" style="margin-top:6px;" onclick="addFlEx(${si})">+ Ajouter un exercice</button>
+      </div>`;
+  }).join('');
+
+  const paliers = f.paliers.map((row,i)=>`
+    <tr>
+      <td class="name"><input type="text" value="${escapeAttr(row.palier)}" oninput="STATE.frontLever.paliers[${i}].palier=this.value"></td>
+      <td style="white-space:normal;min-width:180px;"><textarea rows="3" oninput="STATE.frontLever.paliers[${i}].objectif=this.value">${escapeHtml(row.objectif)}</textarea></td>
+      <td><input type="text" style="width:110px;" value="${escapeAttr(row.duree)}" oninput="STATE.frontLever.paliers[${i}].duree=this.value"></td>
+      <td style="white-space:normal;min-width:180px;"><textarea rows="3" oninput="STATE.frontLever.paliers[${i}].exercices=this.value">${escapeHtml(row.exercices)}</textarea></td>
+      <td style="white-space:normal;min-width:170px;"><textarea rows="3" oninput="STATE.frontLever.paliers[${i}].critere=this.value">${escapeHtml(row.critere)}</textarea></td>
+      <td><select onchange="STATE.frontLever.paliers[${i}].valide=this.value">
+        <option value="" ${row.valide===''?'selected':''}>—</option>
+        <option value="OUI" ${row.valide==='OUI'?'selected':''}>OUI</option>
+        <option value="EN COURS" ${row.valide==='EN COURS'?'selected':''}>EN COURS</option>
+        <option value="NON" ${row.valide==='NON'?'selected':''}>NON</option>
+      </select></td>
+    </tr>`).join('');
+
+  const safety = f.safetyItems.map((it,i)=>`
+    <div style="display:flex;gap:6px;margin-bottom:4px;">
+      <input type="text" style="flex:1;" value="${escapeAttr(it)}" oninput="STATE.frontLever.safetyItems[${i}]=this.value">
+      <button class="delbtn" onclick="removeSafetyItem('frontLever',${i})">✕</button>
+    </div>`).join('');
+
+  return `
+    <div class="card">
+      <div class="accentbar" style="background:#4527A0"></div>
+      <h2>Front Lever</h2>
+      <textarea class="sub" rows="3" oninput="STATE.frontLever.subtitle=this.value">${escapeHtml(f.subtitle)}</textarea>
+    </div>
+    <div class="card">
+      <div class="accentbar" style="background:#00838F"></div>
+      <h2>Échauffement</h2>
+      <textarea class="sub" rows="2" oninput="STATE.frontLever.echauffement.note=this.value">${escapeHtml(f.echauffement.note)}</textarea>
+      <div class="warmGrid">${warm}</div>
+    </div>
+    ${seances}
+    <div class="card">
+      <div class="accentbar" style="background:#4527A0"></div>
+      <h2>Paliers de progression</h2>
+      <div class="tablewrap">
+        <table style="min-width:820px;">
+          <thead><tr><th style="text-align:left;">Palier</th><th>Objectif technique</th><th>Durée</th><th>Exercices clés</th><th>Critère de passage</th><th>Validé</th></tr></thead>
+          <tbody>${paliers}</tbody>
+        </table>
+      </div>
+    </div>
+    <div class="card">
+      <input type="text" style="font-weight:700;color:#4527A0;border:none;background:transparent;font-size:14px;width:100%;margin-bottom:6px;" value="${escapeAttr(f.safetyTitle)}" oninput="STATE.frontLever.safetyTitle=this.value">
+      ${safety}
+      <button class="btn small" onclick="addSafetyItem('frontLever')">+ Ligne</button>
+      <div class="sub" style="margin-top:10px;">Repère</div>
+      <textarea rows="2" oninput="STATE.frontLever.source=this.value">${escapeHtml(f.source)}</textarea>
+    </div>`;
+}
+function addFlEx(si){ STATE.frontLever.seances[si].exercises.push({name:'Nouvel exercice',series:'3',dose:'',repos:'2 min',note:''}); renderPage(); }
+function removeFlEx(si,ei){ STATE.frontLever.seances[si].exercises.splice(ei,1); renderPage(); }
+
+/* ===================== Full Planche ===================== */
+function renderPhaseHtml(key, title, accent){
+  const p = STATE[key];
+  const rows = p.paliers.map((row,i) => `
+    <tr>
+      <td class="name"><input type="text" value="${escapeAttr(row.palier)}" oninput="STATE['${key}'].paliers[${i}].palier=this.value"></td>
+      <td style="white-space:normal;min-width:180px;"><textarea rows="3" oninput="STATE['${key}'].paliers[${i}].objectif=this.value">${escapeHtml(row.objectif)}</textarea></td>
+      <td><input type="text" style="width:110px;" value="${escapeAttr(row.duree)}" oninput="STATE['${key}'].paliers[${i}].duree=this.value"></td>
+      <td><input type="text" style="width:50px;" value="${escapeAttr(row.seances)}" oninput="STATE['${key}'].paliers[${i}].seances=this.value"></td>
+      <td style="white-space:normal;min-width:180px;"><textarea rows="3" oninput="STATE['${key}'].paliers[${i}].exercices=this.value">${escapeHtml(row.exercices)}</textarea></td>
+      <td style="white-space:normal;min-width:170px;"><textarea rows="3" oninput="STATE['${key}'].paliers[${i}].critere=this.value">${escapeHtml(row.critere)}</textarea></td>
+      <td><select onchange="STATE['${key}'].paliers[${i}].valide=this.value">
+        <option value="" ${row.valide===''?'selected':''}>—</option>
+        <option value="OUI" ${row.valide==='OUI'?'selected':''}>OUI</option>
+        <option value="EN COURS" ${row.valide==='EN COURS'?'selected':''}>EN COURS</option>
+        <option value="NON" ${row.valide==='NON'?'selected':''}>NON</option>
+      </select></td>
+      <td><button class="delbtn" onclick="removePalier('${key}',${i})">🗑</button></td>
+    </tr>`).join('');
+  const safety = p.safetyItems.map((it,i) => `
+    <div style="display:flex;gap:6px;margin-bottom:4px;">
+      <input type="text" style="flex:1;" value="${escapeAttr(it)}" oninput="STATE['${key}'].safetyItems[${i}]=this.value">
+      <button class="delbtn" onclick="removeSafetyItem('${key}',${i})">✕</button>
+    </div>`).join('');
+  return `
+    <div class="card">
+      <div class="accentbar" style="background:${accent}"></div>
+      <h2>${escapeHtml(title)} — plan de progression par phases</h2>
+      <textarea class="sub" rows="3" oninput="STATE['${key}'].subtitle=this.value">${escapeHtml(p.subtitle)}</textarea>
+      <div class="tablewrap">
+        <table style="min-width:860px;">
+          <thead><tr><th style="text-align:left;">Palier</th><th>Objectif technique</th><th>Durée</th><th>Séances/sem</th><th>Exercices clés</th><th>Critère de passage</th><th>Validé</th><th></th></tr></thead>
+          <tbody>${rows}</tbody>
+        </table>
+      </div>
+      <button class="btn small" style="margin-top:8px;" onclick="addPalier('${key}')">+ Ajouter un palier</button>
+    </div>
+    <div class="card">
+      <input type="text" style="font-weight:700;color:${accent};border:none;background:transparent;font-size:14px;width:100%;margin-bottom:6px;" value="${escapeAttr(p.safetyTitle)}" oninput="STATE['${key}'].safetyTitle=this.value">
+      ${safety}
+      <button class="btn small" onclick="addSafetyItem('${key}')">+ Ligne</button>
+      <div class="sub" style="margin-top:10px;">Repère</div>
+      <textarea rows="2" oninput="STATE['${key}'].source=this.value">${escapeHtml(p.source)}</textarea>
+    </div>`;
+}
+function addPalier(key){
+  STATE[key].paliers.push({palier:'Nouveau palier',objectif:'',duree:'',seances:'',exercices:'',critere:'',valide:''});
+  renderPage();
+}
+function removePalier(key,i){ STATE[key].paliers.splice(i,1); renderPage(); }
+function addSafetyItem(key){ STATE[key].safetyItems.push(''); renderPage(); }
+function removeSafetyItem(key,i){ STATE[key].safetyItems.splice(i,1); renderPage(); }
+
+/* ===================== Performances ===================== */
+function allKnownExerciseNames(){
+  const names = new Set(Object.keys(STATE.performances));
+  SEANCE_KEYS.forEach(k=>{ STATE.seances[k].blocks.forEach(b=>b.exercises.forEach(ex=>names.add(ex.name))); });
+  STATE.frontLever.seances.forEach(s=>s.exercises.forEach(ex=>names.add(ex.name)));
+  return Array.from(names).filter(Boolean).sort((a,b)=>a.localeCompare(b,'fr'));
+}
+function renderPerformancesHtml(){
+  const names = allKnownExerciseNames();
+  if(!selectedPerfExercise || !names.includes(selectedPerfExercise)) selectedPerfExercise = names[0] || null;
+  const options = names.map(n=>`<option value="${escapeAttr(n)}" ${n===selectedPerfExercise?'selected':''}>${escapeHtml(n)}</option>`).join('');
+  const used = selectedPerfExercise ? seancesUsing(selectedPerfExercise) : [];
+  const link = used.length
+    ? `<div class="banner info">🔄 Cet exercice alimente automatiquement le <b>Max réf.</b> de : ${escapeHtml(used.join(', '))}. La dernière perf loggée devient la référence du cycle.</div>`
+    : `<div class="banner info">Cet exercice n'est utilisé dans aucune séance — il est juste suivi ici. Ajoute-le à une séance avec exactement le même nom pour synchroniser le Max réf.</div>`;
+  return `
+    <div class="card">
+      <div class="accentbar" style="background:#283593"></div>
+      <h2>Performances — historique &amp; progression</h2>
+      <div class="sub">Logue une date + un nombre de reps (ou de secondes pour les holds). Tout se propage instantanément aux séances.</div>
+      <div class="perfControls">
+        <div><label>Exercice</label><select id="perfExerciseSelect" onchange="onPerfSelectChange(this.value)">${options}</select></div>
+        <div><label>Ou nouvel exercice</label><input type="text" id="perfNewName" placeholder="nom de l'exercice"></div>
+        <div><label>Date</label><input type="date" id="perfDate"></div>
+        <div><label>Reps / sec</label><input type="number" id="perfReps"></div>
+        <div><button class="btn primary" onclick="addPerfEntry()">+ Ajouter</button></div>
+      </div>
+      ${link}
+    </div>
+    <div class="card">
+      <h2 id="perfChartTitle">${selectedPerfExercise? escapeHtml(selectedPerfExercise):'Aucune donnée'}</h2>
+      <canvas id="perfChart" height="180"></canvas>
+      <div class="tablewrap" style="margin-top:12px;">
+        <table id="perfHistTable">
+          <thead><tr><th>Date</th><th>Reps / sec</th><th></th></tr></thead>
+          <tbody id="perfHistBody"></tbody>
+        </table>
+      </div>
+    </div>`;
+}
+function initPerfPage(){
+  const d = document.getElementById('perfDate');
+  if(d) d.value = today();
+  drawPerfChart();
+}
+function onPerfSelectChange(name){
+  selectedPerfExercise = name;
+  const n = document.getElementById('perfNewName'); if(n) n.value='';
+  renderPage();
+}
+function addPerfEntry(){
+  const newName = document.getElementById('perfNewName').value.trim();
+  const name = newName || selectedPerfExercise;
+  const date = document.getElementById('perfDate').value;
+  const reps = parseFloat(document.getElementById('perfReps').value);
+  if(!name){ alert("Choisis ou tape un nom d'exercice."); return; }
+  if(!date){ alert('Choisis une date.'); return; }
+  if(isNaN(reps)){ alert('Entre un nombre de reps/secondes.'); return; }
+  if(!STATE.performances[name]) STATE.performances[name] = [];
+  STATE.performances[name].push({date, reps});
+  STATE.performances[name].sort((a,b)=>String(a.date).localeCompare(String(b.date)));
+  selectedPerfExercise = name;
+  syncRefs(); renderPage(); saveNow();
+}
+function removePerfEntry(name, idx){ STATE.performances[name].splice(idx,1); syncRefs(); renderPage(); saveNow(); }
+function drawPerfChart(){
+  const name = selectedPerfExercise;
+  const titleEl = document.getElementById('perfChartTitle');
+  if(titleEl) titleEl.textContent = name || 'Aucune donnée';
+  const entries = (name && STATE.performances[name]) ? STATE.performances[name] : [];
+  const tbody = document.getElementById('perfHistBody');
+  if(tbody){
+    tbody.innerHTML = entries.map((e,i)=>`
+      <tr><td>${escapeHtml(e.date)}</td><td>${escapeHtml(e.reps)}</td>
+      <td><button class="delbtn" onclick="removePerfEntry('${jsStr(name)}',${i})">🗑</button></td></tr>`
+    ).join('') || '<tr><td colspan="3" style="color:var(--muted);">Aucune perf loggée pour cet exercice.</td></tr>';
+  }
+  const canvas = document.getElementById('perfChart');
+  if(canvas) drawLineChart(canvas, entries.map(e=>e.date), entries.map(e=>e.reps), '#283593');
+}
+
+/* Graphique canvas maison — aucune dépendance externe. */
+function drawLineChart(canvas, labels, values, color){
+  const dpr = window.devicePixelRatio || 1;
+  const w = canvas.clientWidth || 320, h = canvas.clientHeight || 220;
+  canvas.width = w*dpr; canvas.height = h*dpr;
+  const ctx = canvas.getContext('2d');
+  ctx.setTransform(dpr,0,0,dpr,0,0);
+  ctx.clearRect(0,0,w,h);
+  if(!values.length){
+    ctx.fillStyle = '#6B7280'; ctx.font='13px Arial';
+    ctx.fillText('Aucune perf loggée pour le moment.', 10, h/2);
+    return;
+  }
+  const padL=38, padR=14, padT=16, padB=26;
+  const plotW = w-padL-padR, plotH = h-padT-padB;
+  const maxV = Math.max.apply(null, values), minV = Math.min.apply(null, [0].concat(values));
+  const range = (maxV-minV) || 1;
+  ctx.strokeStyle = '#E2E5EA'; ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(padL,padT); ctx.lineTo(padL,padT+plotH); ctx.lineTo(padL+plotW,padT+plotH); ctx.stroke();
+  ctx.font = '10px Arial'; ctx.textAlign='right'; ctx.textBaseline='middle';
+  for(let i=0;i<=4;i++){
+    const v = minV + range*i/4;
+    const y = padT+plotH - (v-minV)/range*plotH;
+    ctx.strokeStyle = '#F0F1F3'; ctx.beginPath(); ctx.moveTo(padL,y); ctx.lineTo(padL+plotW,y); ctx.stroke();
+    ctx.fillStyle = '#6B7280'; ctx.fillText(Math.round(v), padL-6, y);
+  }
+  const n = values.length;
+  const stepX = n>1 ? plotW/(n-1) : 0;
+  const pts = values.map((v,i)=>({x: padL + (n>1 ? i*stepX : plotW/2), y: padT+plotH-(v-minV)/range*plotH}));
+  ctx.strokeStyle = color; ctx.lineWidth = 2.5; ctx.beginPath();
+  pts.forEach((p,i)=> i===0 ? ctx.moveTo(p.x,p.y) : ctx.lineTo(p.x,p.y));
+  ctx.stroke();
+  ctx.lineTo(pts[pts.length-1].x, padT+plotH); ctx.lineTo(pts[0].x, padT+plotH); ctx.closePath();
+  ctx.fillStyle = color + '22'; ctx.fill();
+  ctx.textAlign = 'center';
+  pts.forEach((p,i)=>{
+    ctx.fillStyle = color; ctx.beginPath(); ctx.arc(p.x,p.y,3.5,0,Math.PI*2); ctx.fill();
+    ctx.fillStyle = '#1F2937'; ctx.font = '10px Arial'; ctx.textBaseline='bottom';
+    ctx.fillText(values[i], p.x, p.y-6);
+  });
+  ctx.fillStyle = '#6B7280'; ctx.font = '9.5px Arial'; ctx.textBaseline = 'top';
+  const showEvery = Math.max(1, Math.ceil(n/6));
+  labels.forEach((lab,i)=>{
+    if(i%showEvery!==0 && i!==n-1) return;
+    ctx.fillText(String(lab).slice(5), pts[i].x, padT+plotH+6);
+  });
+}
+
+/* ===================== Défi Pompes ===================== */
+function renderDefiHtml(){
+  const d = STATE.defiPompes;
+  const rows = d.days.map((day,i) => `
+    <tr>
+      <td>J-${day.jour}</td>
+      <td>${escapeHtml(day.jourSemaine)}</td>
+      <td><input type="number" value="${escapeAttr(day.objectif)}" style="width:58px;" oninput="STATE.defiPompes.days[${i}].objectif=parseFloat(this.value)||0;recomputeDefi()"></td>
+      <td><select class="realise-${day.realise}" onchange="STATE.defiPompes.days[${i}].realise=this.value;recomputeDefi();this.className='realise-'+this.value">
+        <option value="" ${day.realise===''?'selected':''}>—</option>
+        <option value="OUI" ${day.realise==='OUI'?'selected':''}>OUI</option>
+        <option value="NON" ${day.realise==='NON'?'selected':''}>NON</option>
+      </select></td>
+      <td><input type="number" value="${day.reps===null||day.reps===undefined?'':day.reps}" style="width:58px;" oninput="STATE.defiPompes.days[${i}].reps=this.value===''?null:parseFloat(this.value);recomputeDefi()"></td>
+      <td id="ecart_${i}">—</td>
+    </tr>`).join('');
+  return `
+    <div class="card">
+      <div class="accentbar" style="background:#AD1457"></div>
+      <h2>Défi Pompes — 30 jours</h2>
+      <textarea class="sub" rows="1" oninput="STATE.defiPompes.note=this.value">${escapeHtml(d.note)}</textarea>
+      <div class="statGrid" id="defiStats"></div>
+      <div class="tablewrap">
+        <table>
+          <thead><tr><th>Jour</th><th>Jour sem.</th><th>Objectif</th><th>Réalisé</th><th>Reps réelles</th><th>Écart</th></tr></thead>
+          <tbody>${rows}</tbody>
+        </table>
+      </div>
+    </div>`;
+}
+function recomputeDefi(){
+  const d = STATE.defiPompes;
+  let done=0, failed=0, totalReps=0;
+  d.days.forEach((day,i)=>{
+    if(day.realise==='OUI') done++;
+    if(day.realise==='NON') failed++;
+    if(typeof day.reps==='number') totalReps += day.reps;
+    const c = document.getElementById(`ecart_${i}`);
+    if(c) c.textContent = (day.reps===null||day.reps===undefined) ? '—' : (day.reps-day.objectif);
+  });
+  const rate = Math.round(done/d.days.length*100);
+  const stats = document.getElementById('defiStats');
+  if(stats){
+    stats.innerHTML = `
+      <div class="stat"><div class="v">${done}</div><div class="l">Jours complétés</div></div>
+      <div class="stat"><div class="v">${failed}</div><div class="l">Jours ratés</div></div>
+      <div class="stat"><div class="v">${totalReps}</div><div class="l">Total reps</div></div>
+      <div class="stat"><div class="v">${rate}%</div><div class="l">Taux de complétion</div></div>`;
+  }
+}
+
+/* ===================== Page Synchro ===================== */
+function renderSyncHtml(){
+  const on = SYNC.enabled;
+  const statut = !on ? '<span class="banner warn">Synchro désactivée — les données restent sur cet appareil uniquement.</span>'
+    : SYNC.lastError ? `<span class="banner test">Dernière erreur : ${escapeHtml(SYNC.lastError)}</span>`
+    : `<span class="banner ok">Synchro active — dernier échange : ${escapeHtml(fmtDT(SYNC.lastSyncAt))}</span>`;
+  return `
+    <div class="card">
+      <div class="accentbar" style="background:#0F1F3D"></div>
+      <h2>☁ Synchro téléphone ↔ ordinateur</h2>
+      <div class="sub">Tes données sont stockées dans un <b>Gist secret</b> de ton compte GitHub. Chaque appareil pousse ses modifications et récupère celles des autres. Aucun serveur, aucun abonnement.</div>
+      ${statut}
+      <div class="kv" style="margin-top:10px;">
+        <div class="k">Token GitHub (portée <code>gist</code>)</div>
+        <div><input type="password" id="syncToken" placeholder="ghp_… ou github_pat_…" value="${escapeAttr(SYNC.token)}" autocomplete="off"></div>
+        <div class="k">Identifiant du Gist</div>
+        <div><input type="text" id="syncGist" placeholder="laisse vide : il sera créé automatiquement" value="${escapeAttr(SYNC.gistId)}"></div>
+        <div class="k">Synchro automatique</div>
+        <div><label style="font-size:12.5px;"><input type="checkbox" id="syncOn" ${on?'checked':''} style="width:auto;margin-right:6px;">Activer (envoi 2,5 s après chaque modification, récupération à l'ouverture)</label></div>
+      </div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:12px;">
+        <button class="btn primary" onclick="applySyncSettings()">Enregistrer</button>
+        <button class="btn" onclick="pushRemote(false)">⬆ Envoyer maintenant</button>
+        <button class="btn" onclick="pullRemote(true)">⬇ Récupérer maintenant</button>
+        <button class="btn" onclick="forgetSync()">Oublier le token</button>
+      </div>
+      <div class="kv" style="margin-top:14px;">
+        <div class="k">Dernière modif. locale</div><div>${escapeHtml(fmtDT(STATE.meta && STATE.meta.updatedAt))} — ${escapeHtml((STATE.meta&&STATE.meta.device)||deviceLabel())}</div>
+        <div class="k">Gist</div><div class="mono">${SYNC.gistId?`<a href="https://gist.github.com/${escapeAttr(SYNC.gistId)}" target="_blank" rel="noopener">gist.github.com/${escapeHtml(SYNC.gistId)}</a>`:'—'}</div>
+        <div class="k">Connexion</div><div>${navigator.onLine?'en ligne':'hors-ligne (la synchro reprendra au retour du réseau)'}</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Mettre en place en 4 étapes</h2>
+      <ol class="steps">
+        <li>Sur GitHub : <b>Settings → Developer settings → Personal access tokens → Tokens (classic) → Generate new token</b>.</li>
+        <li>Coche <b>uniquement</b> la case <code>gist</code>. Aucune autre. Expiration : ce que tu veux (« No expiration » évite d'y revenir).</li>
+        <li>Copie le token, colle-le ci-dessus, coche <b>Activer</b>, clique <b>Enregistrer</b> puis <b>⬆ Envoyer maintenant</b>. L'identifiant du Gist se remplit tout seul.</li>
+        <li>Sur ton autre appareil : ouvre la même adresse, colle le <b>même token</b> et le <b>même identifiant de Gist</b>, active, puis <b>⬇ Récupérer</b>.</li>
+      </ol>
+      <div class="banner warn" style="margin-top:10px;">Le token est enregistré en clair dans le navigateur de cet appareil. Quiconque a accès à l'appareil déverrouillé peut le lire. Avec la portée <code>gist</code> seule, il ne donne accès qu'à tes Gists — pas à ton code. En cas de perte de l'appareil : révoque le token sur GitHub, il devient inutilisable.</div>
+    </div>
+
+    <div class="card">
+      <h2>Règle de résolution des conflits</h2>
+      <div class="sub">Avant chaque envoi, l'appli compare la date de dernière modification locale et distante. Si la version distante est plus récente, elle refuse d'écraser et te propose de la récupérer. Le dernier appareil à enregistrer gagne — donc évite de modifier la même séance sur deux appareils sans synchroniser entre les deux.</div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap;">
+        <button class="btn" onclick="exportData()">💾 Export JSON (sauvegarde froide)</button>
+        <button class="btn" onclick="document.getElementById('importFile').click()">📂 Import JSON</button>
+      </div>
+    </div>`;
+}
+function applySyncSettings(){
+  SYNC.token = document.getElementById('syncToken').value.trim();
+  SYNC.gistId = document.getElementById('syncGist').value.trim().replace(/^.*gist\.github\.com\//,'');
+  SYNC.enabled = document.getElementById('syncOn').checked;
+  SYNC.lastError = '';
+  if(SYNC.enabled && !SYNC.token){ SYNC.enabled = false; alert('Il faut un token pour activer la synchro.'); }
+  saveSync(); refreshSyncPill(); renderPage();
+  if(SYNC.enabled) toast('Réglages enregistrés. Utilise ⬆ Envoyer ou ⬇ Récupérer.');
+}
+function forgetSync(){
+  if(!confirm('Effacer le token et l\'identifiant du Gist de cet appareil ? Le Gist lui-même reste intact sur GitHub.')) return;
+  SYNC = {enabled:false, token:'', gistId:'', lastRemoteAt:'', lastSyncAt:'', lastError:''};
+  saveSync(); refreshSyncPill(); renderPage();
+}
+
+/* ===================== Export / Import / Reset ===================== */
+function exportData(){
+  const blob = new Blob([JSON.stringify(STATE, null, 1)], {type:'application/json'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `planning-calisthenie-${today()}.json`;
+  document.body.appendChild(a); a.click(); a.remove();
+}
+function importData(evt){
+  const file = evt.target.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    try{
+      const obj = JSON.parse(e.target.result);
+      if(!obj.seances || !obj.planning) throw new Error('structure inattendue');
+      if(!obj.planning.days || !obj.planning.days[0] || !obj.planning.days[0].slots) throw new Error('ancien format de planning');
+      STATE = obj;
+      migrate();
+      selectedPerfExercise = null; seanceChartSel = {};
+      renderWeekSelect(); renderPage(); saveNow();
+      alert('Données chargées ✅');
+    }catch(err){ alert('Fichier invalide : ' + err.message); }
+  };
+  reader.readAsText(file);
+  evt.target.value = '';
+}
+function resetData(){
+  if(confirm("Repartir des données d'origine ? Tout ce qui est enregistré sur cet appareil sera effacé.")){
+    STATE = deepClone(SEED);
+    selectedPerfExercise = null; seanceChartSel = {};
+    if(storageOK){ try{ window.localStorage.removeItem(STORE_KEY); }catch(e){} }
+    renderWeekSelect(); renderPage(); saveNow();
+  }
+}
+
+/* ===================== Migration / Init ===================== */
+function migrate(){
+  if(!STATE.semaine) STATE.semaine = 1;
+  if(!STATE.testProtocol) STATE.testProtocol = deepClone(SEED.testProtocol);
+  if(!STATE.performances) STATE.performances = {};
+  SEANCE_KEYS.forEach(k=>{
+    if(!STATE.seances[k]) STATE.seances[k] = deepClone(SEED.seances[k]);
+    STATE.seances[k].blocks.forEach(b=>b.exercises.forEach(ex=>{ if(ex.auto===undefined) ex.auto = true; }));
+  });
+  STATE.version = 2;
+}
+migrate();
+loadSync();
+syncRefs();
+
+const hash = (location.hash||'').replace('#','');
+if(TABS.some(t=>t.id===hash)) currentTab = hash;
+
+renderWeekSelect();
+renderNav();
+renderPage();
+refreshSyncPill();
+
+document.addEventListener('input', scheduleSave, true);
+document.addEventListener('change', scheduleSave, true);
+window.addEventListener('pagehide', ()=>saveNow());
+document.addEventListener('visibilitychange', ()=>{
+  if(document.visibilityState==='hidden'){ saveNow(); }
+  else if(SYNC.enabled){ pullRemote(false); }
+});
+window.addEventListener('online', ()=>{ refreshSyncPill(); if(SYNC.enabled) pullRemote(false); });
+window.addEventListener('offline', refreshSyncPill);
+if(SYNC.enabled) pullRemote(false);
+
+/* Service worker : l'appli s'ouvre hors-ligne et se met à jour toute seule. */
+if('serviceWorker' in navigator){
+  window.addEventListener('load', ()=>{
+    navigator.serviceWorker.register('sw.js').then(reg=>{
+      reg.addEventListener('updatefound', ()=>{
+        const nw = reg.installing;
+        if(!nw) return;
+        nw.addEventListener('statechange', ()=>{
+          if(nw.state === 'installed' && navigator.serviceWorker.controller){
+            toast('Nouvelle version disponible.', 'Recharger', ()=>{
+              nw.postMessage('SKIP_WAITING');
+              setTimeout(()=>location.reload(), 200);
+            });
+          }
+        });
+      });
+    }).catch(()=>{});
+  });
+}
+</script>
+</body>
+</html>
