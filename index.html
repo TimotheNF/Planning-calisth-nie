@@ -3,7 +3,7 @@
 {
   "name": "Planning Calisthenie",
   "schemaVersion": 1,
-  "description": "Appli perso de suivi calisthénie : sauvegarde automatique, planning hebdo par créneaux, Street Original, Street Plus, Abdo (Max réf. synchronisé avec les perfs), Front Lever (échauffement + 4 séances), Performances avec courbes, S8 = semaine test, Défi Pompes, Full Planche.",
+  "description": "Appli calisthénie : planning, Street Original / Plus, Street / Plus à progression par réussite, Abdo, Front Lever, Full Planche, Performances, synchro GitHub.",
   "mcpTools": [],
   "mcpServerNames": []
 }
@@ -12,7 +12,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="theme-color" content="#0F1F3D">
+<meta name="theme-color" content="#0E0E10">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -20,186 +20,256 @@
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="icons/favicon-32.png" sizes="32x32">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
-<title>Planning Calisthénie</title>
+<title>Calisthénie</title>
 <style>
 :root{
-  --dark:#0F1F3D; --ink:#1F2937; --muted:#6B7280; --line:#E2E5EA; --bg:#F5F6F8;
-  --card:#FFFFFF; --green:#2E7D32; --danger:#C0392B; --test:#D84315;
-  --radius:12px;
+  color-scheme: dark;
+  --bg:#0E0E10;
+  --surface-1:#1a1a19;
+  --surface-2:#232322;
+  --line:#31312F;
+  --line-soft:#26262A;
+  --text-primary:#F6F5F1;
+  --text-secondary:#A9A89E;
+  --text-muted:#77766E;
+  /* palette catégorielle validée pour la surface sombre #1a1a19 */
+  --s1:#3987e5;  /* bleu    — Street Original */
+  --s2:#d95926;  /* orange  — Street Original Plus */
+  --s3:#199e70;  /* aqua    — Street */
+  --s4:#c98500;  /* jaune   — Street Plus */
+  --s5:#d55181;  /* magenta — Abdo */
+  --s6:#9085e9;  /* violet  — Front Lever */
+  --good:#199e70; --warn:#c98500; --bad:#e66767;
+  --radius:16px;
 }
-*{box-sizing:border-box;}
-body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,Helvetica,sans-serif;background:var(--bg);color:var(--ink);padding-bottom:48px;-webkit-text-size-adjust:100%;}
-header{position:sticky;top:0;z-index:20;background:var(--dark);color:#fff;padding:9px 14px;padding-top:calc(9px + env(safe-area-inset-top));box-shadow:0 2px 8px rgba(0,0,0,.18);}
-header h1{margin:0;font-size:16px;font-weight:700;letter-spacing:.2px;}
-.headerRow{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;}
-.hbtns{display:flex;gap:6px;flex-wrap:wrap;align-items:center;}
-.hbtn{background:rgba(255,255,255,.12);color:#fff;border:1px solid rgba(255,255,255,.28);border-radius:8px;padding:5px 10px;font-size:12px;cursor:pointer;}
-.hbtn:hover{background:rgba(255,255,255,.22);}
-.weekSel{display:flex;align-items:center;gap:5px;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.28);border-radius:8px;padding:3px 8px;font-size:12px;}
-.weekSel select{background:transparent;color:#fff;border:none;font-size:12px;font-weight:700;padding:2px;width:auto;}
-.weekSel select option{color:#111;}
-#saveState{font-size:11px;opacity:.85;padding:3px 8px;border-radius:20px;background:rgba(255,255,255,.12);white-space:nowrap;}
-#saveState.warn{background:#8D3B1E;opacity:1;}
-nav{position:sticky;top:44px;z-index:19;background:#fff;border-bottom:1px solid var(--line);overflow-x:auto;white-space:nowrap;padding:6px 8px;-webkit-overflow-scrolling:touch;}
-nav button{border:none;background:transparent;padding:8px 13px;margin:0 2px;border-radius:20px;font-size:13px;font-weight:600;color:var(--muted);cursor:pointer;}
-nav button.active{background:var(--dark);color:#fff;}
-main{padding:14px;max-width:1040px;margin:0 auto;}
-.card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:14px;margin-bottom:14px;box-shadow:0 1px 2px rgba(16,24,40,.04);}
-.card h2{margin:0 0 6px;font-size:16px;color:var(--dark);}
-.card .accentbar{height:5px;border-radius:5px 5px 0 0;margin:-14px -14px 12px;}
-.sub{color:var(--muted);font-size:12.5px;line-height:1.5;margin-bottom:10px;}
-.paramsRow{display:flex;gap:14px;flex-wrap:wrap;align-items:center;margin-bottom:10px;background:#F8F9FB;border:1px solid var(--line);border-radius:8px;padding:8px 10px;}
-.paramsRow label{font-size:11.5px;color:var(--muted);display:block;margin-bottom:2px;}
-.paramsRow input[type=number]{width:70px;padding:4px 6px;border:1px solid var(--line);border-radius:6px;}
-.tablewrap{overflow-x:auto;border:1px solid var(--line);border-radius:8px;-webkit-overflow-scrolling:touch;}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+html,body{background:var(--bg);}
+body{
+  margin:0;padding-bottom:56px;color:var(--text-primary);
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Inter,Roboto,Arial,sans-serif;
+  font-size:14px;line-height:1.5;-webkit-text-size-adjust:100%;
+  background-image:radial-gradient(900px 420px at 12% -8%, rgba(57,135,229,.14), transparent 60%),
+                   radial-gradient(760px 380px at 96% 2%, rgba(217,89,38,.12), transparent 62%);
+  background-attachment:fixed;
+}
+.num{font-variant-numeric:tabular-nums;font-feature-settings:"tnum";}
+
+/* ---------- Chrome ---------- */
+header{
+  position:sticky;top:0;z-index:30;
+  padding:10px 14px;padding-top:calc(10px + env(safe-area-inset-top));
+  background:rgba(14,14,16,.82);backdrop-filter:blur(14px);
+  border-bottom:1px solid var(--line-soft);
+}
+.headerRow{display:flex;align-items:center;justify-content:space-between;gap:10px;}
+.brand{display:flex;align-items:center;gap:9px;min-width:0;}
+.brandMark{width:28px;height:28px;border-radius:9px;flex:none;display:grid;place-items:center;
+  background:linear-gradient(135deg,var(--s1),var(--s2));box-shadow:0 4px 14px rgba(217,89,38,.28);}
+.brandMark svg{width:17px;height:17px;display:block;}
+h1{margin:0;font-size:15px;font-weight:650;letter-spacing:-.01em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+#saveState{font-size:11px;padding:5px 11px;border-radius:20px;white-space:nowrap;cursor:pointer;
+  background:var(--surface-2);border:1px solid var(--line);color:var(--text-secondary);}
+#saveState.warn{background:rgba(230,103,103,.14);border-color:rgba(230,103,103,.4);color:#f0a2a2;}
+nav{position:sticky;top:49px;z-index:29;background:rgba(14,14,16,.82);backdrop-filter:blur(14px);
+  border-bottom:1px solid var(--line-soft);overflow-x:auto;white-space:nowrap;padding:7px 10px;
+  scrollbar-width:none;}
+nav::-webkit-scrollbar{display:none;}
+nav button{border:1px solid transparent;background:transparent;padding:7px 13px;margin-right:4px;
+  border-radius:20px;font-size:12.5px;font-weight:600;color:var(--text-muted);cursor:pointer;font-family:inherit;}
+nav button:hover{color:var(--text-secondary);}
+nav button.active{background:var(--text-primary);color:#111;border-color:var(--text-primary);}
+main{padding:14px;max-width:1060px;margin:0 auto;}
+
+/* ---------- Cartes ---------- */
+.card{background:var(--surface-1);border:1px solid var(--line);border-radius:var(--radius);
+  padding:16px;margin-bottom:14px;position:relative;overflow:hidden;}
+.card::before{content:'';position:absolute;inset:0 0 auto 0;height:2px;background:var(--acc,transparent);opacity:.85;}
+.card h2{margin:0 0 4px;font-size:15.5px;font-weight:650;letter-spacing:-.01em;}
+.sub{color:var(--text-secondary);font-size:12.5px;line-height:1.55;margin-bottom:12px;}
+.eyebrow{font-size:10.5px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--text-muted);margin-bottom:6px;}
+.banner{border-radius:12px;padding:11px 13px;font-size:12.5px;line-height:1.55;margin:12px 0;
+  background:var(--surface-2);border:1px solid var(--line);color:var(--text-secondary);}
+.banner b{color:var(--text-primary);}
+.banner.accent{border-color:color-mix(in srgb, var(--acc) 45%, transparent);background:color-mix(in srgb, var(--acc) 11%, var(--surface-2));}
+.banner.ok{border-color:rgba(25,158,112,.45);background:rgba(25,158,112,.12);}
+.banner.warn{border-color:rgba(201,133,0,.45);background:rgba(201,133,0,.12);}
+.banner.bad{border-color:rgba(230,103,103,.45);background:rgba(230,103,103,.12);}
+
+/* ---------- Contrôles ---------- */
+input,textarea,select,button{font-family:inherit;}
+input[type=text],input[type=number],input[type=date],input[type=password],textarea,select{
+  font-size:13px;border:1px solid var(--line);border-radius:10px;padding:8px 10px;width:100%;
+  background:var(--surface-2);color:var(--text-primary);}
+input:focus,textarea:focus,select:focus{outline:2px solid color-mix(in srgb,var(--s1) 60%,transparent);outline-offset:1px;border-color:transparent;}
+textarea{line-height:1.5;resize:vertical;}
+label.lbl{font-size:10.5px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--text-muted);display:block;margin-bottom:4px;}
+.btn{border:1px solid var(--line);background:var(--surface-2);border-radius:11px;padding:9px 14px;
+  font-size:12.5px;font-weight:600;cursor:pointer;color:var(--text-primary);transition:transform .06s ease;}
+.btn:active{transform:scale(.97);}
+.btn:hover{border-color:#454542;}
+.btn.primary{background:linear-gradient(135deg,var(--s1),#2f6fc4);border-color:transparent;color:#fff;}
+.btn.go{background:linear-gradient(135deg,var(--good),#128257);border-color:transparent;color:#fff;}
+.btn.warm{background:linear-gradient(135deg,var(--s2),#b8461b);border-color:transparent;color:#fff;}
+.btn.ghost{background:transparent;}
+.btn.danger{color:#f0a2a2;border-color:rgba(230,103,103,.4);background:transparent;}
+.btn.small{padding:5px 10px;font-size:11.5px;border-radius:9px;}
+.btn.block{width:100%;}
+.row{display:flex;gap:8px;flex-wrap:wrap;}
+.row>*{flex:1;min-width:130px;}
+.delbtn{background:none;border:none;color:#e08585;cursor:pointer;font-size:15px;padding:3px 5px;}
+.iconbtn{background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:14px;padding:2px 4px;}
+
+/* ---------- Tableaux ---------- */
+.tablewrap{overflow-x:auto;border:1px solid var(--line);border-radius:12px;}
 table{border-collapse:collapse;width:100%;font-size:12.5px;}
-th,td{border-bottom:1px solid var(--line);padding:6px 7px;text-align:center;white-space:nowrap;}
-th{background:var(--dark);color:#fff;font-weight:600;}
+th,td{border-bottom:1px solid var(--line-soft);padding:8px 9px;text-align:center;white-space:nowrap;}
+th{background:var(--surface-2);color:var(--text-secondary);font-weight:650;font-size:11px;
+  letter-spacing:.05em;text-transform:uppercase;}
+tr:last-child td{border-bottom:none;}
 td.name{text-align:left;min-width:150px;}
-tr:nth-child(even) td{background:#F7F8FA;}
-tr.total td{font-weight:700;background:#EEF1F6 !important;}
-th.curweek{background:#F9A825;color:#3E2723;}
-td.curweek{background:#FFF6D8 !important;font-weight:800;}
-th.testcol{background:var(--test);color:#fff;}
-td.testcol{background:#FBE9E7 !important;color:#8D3B1E;font-weight:800;font-size:11px;}
-input[type=text],input[type=number],input[type=date],textarea,select{
-  font-family:inherit;font-size:12.5px;border:1px solid var(--line);border-radius:6px;padding:5px 6px;width:100%;background:#fff;color:var(--ink);
-}
-textarea{line-height:1.45;}
-td input[type=text]{min-width:130px;}
-td input[type=number]{width:58px;}
-.computed{color:var(--dark);font-weight:700;}
-.btn{border:1px solid var(--line);background:#fff;border-radius:8px;padding:6px 11px;font-size:12px;cursor:pointer;color:var(--ink);}
-.btn:hover{background:#F3F4F6;}
-.btn.primary{background:var(--dark);color:#fff;border-color:var(--dark);}
-.btn.test{background:var(--test);color:#fff;border-color:var(--test);}
-.btn.small{padding:3px 8px;font-size:11px;}
-.delbtn{background:none;border:none;color:var(--danger);cursor:pointer;font-size:14px;padding:2px 4px;}
-.syncbtn{background:none;border:none;cursor:pointer;font-size:12px;padding:0 2px;line-height:1;}
-.refCell{display:flex;align-items:center;gap:2px;justify-content:center;}
-.banner{border-radius:8px;padding:8px 10px;font-size:12px;margin-bottom:10px;line-height:1.45;}
-.banner.info{background:#E8F0FE;border:1px solid #C3D6F7;color:#123A6B;}
-.banner.test{background:#FBE9E7;border:1px solid #F3C0B3;color:#8D3B1E;}
-.banner.warn{background:#FFF8E1;border:1px solid #F1D98B;color:#7A5B00;}
-.banner.ok{background:#E8F5E9;border:1px solid #B7DFBA;color:#1B5E20;}
-#toast{position:fixed;left:50%;transform:translateX(-50%);bottom:18px;background:var(--dark);color:#fff;padding:10px 14px;border-radius:10px;font-size:12.5px;z-index:60;box-shadow:0 6px 20px rgba(0,0,0,.25);display:none;max-width:90vw;text-align:center;}
-#toast button{margin-left:8px;background:#fff;color:var(--dark);border:none;border-radius:6px;padding:3px 9px;font-size:11.5px;font-weight:700;cursor:pointer;}
-.kv{display:grid;grid-template-columns:150px 1fr;gap:6px 10px;align-items:center;font-size:12.5px;}
-.kv .k{color:var(--muted);font-size:11.5px;}
-.mono{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:11.5px;word-break:break-all;}
-ol.steps{padding-left:18px;font-size:12.5px;line-height:1.6;color:var(--ink);}
-ol.steps code{background:#F3F4F6;border-radius:4px;padding:1px 5px;font-size:11.5px;}
+td input,td select{padding:6px 8px;border-radius:8px;}
+td input[type=number]{width:66px;}
+
+/* ---------- Séance ---------- */
+.seanceHead{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;flex-wrap:wrap;}
+.badge{border-radius:20px;padding:5px 12px;font-size:11px;font-weight:700;white-space:nowrap;
+  background:color-mix(in srgb,var(--acc) 20%,transparent);color:var(--acc);
+  border:1px solid color-mix(in srgb,var(--acc) 45%,transparent);}
+.exGrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(112px,1fr));gap:10px;margin:14px 0 12px;}
+.exTile{border:1px solid var(--line);border-radius:14px;padding:12px 10px;background:var(--surface-2);
+  text-align:center;position:relative;overflow:hidden;}
+.exTile::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--acc);}
+.exTile .exName{font-size:11.5px;color:var(--text-secondary);font-weight:600;line-height:1.3;min-height:31px;
+  display:flex;align-items:center;justify-content:center;}
+.exTile .exReps{font-size:34px;font-weight:750;letter-spacing:-.03em;line-height:1.05;color:var(--text-primary);}
+.exTile .exU{font-size:10.5px;font-weight:700;color:var(--text-muted);letter-spacing:.06em;text-transform:uppercase;}
+.exTile .exMeta{font-size:10.5px;color:var(--text-muted);margin-top:5px;}
+.exTile.max{border-color:color-mix(in srgb,var(--acc) 55%,transparent);}
+.kpiRow{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:4px;}
+.kpi{flex:1;min-width:96px;background:var(--surface-2);border:1px solid var(--line);border-radius:12px;padding:10px 12px;}
+.kpi .v{font-size:19px;font-weight:700;letter-spacing:-.02em;}
+.kpi .l{font-size:10.5px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em;margin-top:1px;}
+.palierRow{display:flex;flex-wrap:wrap;gap:4px;margin-top:8px;max-height:96px;overflow:auto;}
+.chipP{border:1px solid var(--line);background:var(--surface-2);border-radius:20px;padding:3px 9px;
+  font-size:11px;font-weight:650;color:var(--text-muted);}
+.chipP.cur{background:var(--acc);color:#0E0E10;border-color:var(--acc);}
+.chipP.done{color:var(--text-secondary);border-color:#3c3c39;}
 
 /* ---------- Planning ---------- */
-.weekGrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(215px,1fr));gap:10px;}
-.dayCard{background:#fff;border:1px solid var(--line);border-radius:10px;overflow:hidden;display:flex;flex-direction:column;}
-.dayCard.today{border-color:var(--dark);box-shadow:0 0 0 2px rgba(15,31,61,.12);}
-.dayHead{background:#F3F5F8;padding:7px 10px;font-weight:700;font-size:12.5px;color:var(--dark);display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--line);}
-.dayHead .todayTag{font-size:9.5px;background:var(--dark);color:#fff;border-radius:20px;padding:2px 7px;font-weight:700;letter-spacing:.4px;}
-.dayBody{padding:8px;display:flex;flex-direction:column;gap:7px;flex:1;}
-.slot{border:1px solid var(--line);border-left:5px solid #90A4AE;border-radius:8px;padding:6px 7px;background:#FCFCFD;}
-.slotTop{display:flex;gap:5px;align-items:center;}
+.weekGrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:10px;}
+.dayCard{background:var(--surface-2);border:1px solid var(--line);border-radius:14px;overflow:hidden;display:flex;flex-direction:column;}
+.dayCard.today{border-color:var(--s1);box-shadow:0 0 0 1px rgba(57,135,229,.35);}
+.dayHead{padding:9px 11px;font-weight:700;font-size:11.5px;letter-spacing:.06em;text-transform:uppercase;
+  color:var(--text-secondary);display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--line-soft);}
+.todayTag{font-size:9.5px;background:var(--s1);color:#fff;border-radius:20px;padding:2px 8px;letter-spacing:.04em;}
+.dayBody{padding:9px;display:flex;flex-direction:column;gap:7px;flex:1;}
+.slot{border:1px solid var(--line);border-left:3px solid var(--sc,#666);border-radius:10px;padding:7px 8px;background:var(--surface-1);}
+.slotTop{display:flex;gap:4px;align-items:center;}
 .slotTop select{flex:1;font-weight:600;font-size:12px;border:none;background:transparent;padding:2px 0;}
-.slotNote{margin-top:4px;font-size:11.5px;border:none;background:transparent;padding:1px 0;color:var(--muted);}
-.goBtn{background:none;border:none;cursor:pointer;font-size:13px;color:var(--muted);padding:0 2px;}
-.addSlot{border:1px dashed var(--line);background:#fff;color:var(--muted);border-radius:8px;padding:5px;font-size:11.5px;cursor:pointer;}
-.addSlot:hover{color:var(--dark);border-color:var(--dark);}
-.legend{display:flex;flex-wrap:wrap;gap:6px;margin-top:4px;}
-.chip{font-size:11px;border-radius:20px;padding:3px 9px;font-weight:600;color:#fff;}
-.statGrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:10px;margin-bottom:10px;}
-.stat{background:#F8F9FB;border:1px solid var(--line);border-radius:8px;padding:10px;text-align:center;}
-.stat .v{font-size:20px;font-weight:700;color:var(--dark);}
-.stat .l{font-size:11px;color:var(--muted);}
+.slotNote{margin-top:3px;font-size:11.5px;border:none;background:transparent;padding:1px 0;color:var(--text-muted);}
+.addSlot{border:1px dashed var(--line);background:transparent;color:var(--text-muted);border-radius:10px;padding:6px;font-size:11.5px;cursor:pointer;font-weight:600;}
+.addSlot:hover{color:var(--text-primary);border-color:var(--text-muted);}
+.legend{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px;}
+.chip{font-size:11px;border-radius:20px;padding:3px 10px;font-weight:650;color:#0E0E10;}
 
-.syncHero{display:flex;gap:12px;align-items:center;}
-.syncIcon{font-size:30px;line-height:1;flex:none;}
-.syncTitle{font-size:16px;font-weight:700;color:var(--dark);}
-.syncDetail{font-size:12.5px;color:var(--muted);line-height:1.45;margin-top:2px;}
-details.card summary::-webkit-details-marker{color:var(--muted);}
-.btn.danger{color:var(--danger);border-color:#f0c4bd;}
-
-/* ---------- Séances à progression ---------- */
-.modeBadge{color:#fff;border-radius:20px;padding:4px 11px;font-size:11.5px;font-weight:700;white-space:nowrap;}
-.exGrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;margin:12px 0;}
-.exTile{border:1px solid var(--line);border-left:5px solid #90A4AE;border-radius:10px;padding:10px;background:#FCFCFD;text-align:center;}
-.exTile .exName{font-size:11.5px;color:var(--muted);font-weight:600;line-height:1.3;min-height:30px;}
-.exTile .exReps{font-size:30px;font-weight:800;color:var(--dark);line-height:1.1;}
-.exTile .exReps span{font-size:11px;font-weight:600;color:var(--muted);display:block;margin-top:-2px;}
-.exTile .exCap{font-size:10.5px;color:var(--muted);margin-top:3px;}
-.objLine{font-size:13px;margin-bottom:10px;}
-.palierRow{display:flex;flex-wrap:wrap;gap:5px;margin-top:6px;}
-.palierChip{border:1px solid var(--line);background:#F8F9FB;border-radius:20px;padding:3px 9px;font-size:11.5px;font-weight:700;color:var(--muted);}
-.palierChip .u{font-size:9.5px;font-weight:600;margin-left:1px;}
-.palierChip.cur{background:#0D47A1;color:#fff;border-color:#0D47A1;}
+/* ---------- Performances ---------- */
+.prGrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(158px,1fr));gap:10px;}
+.prCard{background:var(--surface-2);border:1px solid var(--line);border-radius:14px;padding:12px;cursor:pointer;
+  position:relative;overflow:hidden;transition:border-color .12s ease;}
+.prCard:hover{border-color:#4a4a46;}
+.prCard.sel{border-color:var(--acc);box-shadow:0 0 0 1px color-mix(in srgb,var(--acc) 45%,transparent);}
+.prName{font-size:11.5px;color:var(--text-secondary);font-weight:650;line-height:1.3;height:31px;overflow:hidden;}
+.prName .dot{display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:6px;vertical-align:1px;}
+.prVal{font-size:29px;font-weight:750;letter-spacing:-.03em;line-height:1.1;margin-top:2px;}
+.prUnit{font-size:11px;color:var(--text-muted);font-weight:650;margin-left:3px;}
+.prDelta{font-size:11px;font-weight:700;margin-top:1px;}
+.prDelta.up{color:var(--good);} .prDelta.flat{color:var(--text-muted);} .prDelta.down{color:var(--bad);}
+.prSpark{margin-top:7px;height:34px;width:100%;display:block;}
+canvas.mainChart{width:100%;height:250px;display:block;}
+#chartTip{position:absolute;pointer-events:none;background:#000;border:1px solid var(--line);
+  border-radius:9px;padding:6px 9px;font-size:11.5px;display:none;z-index:5;white-space:nowrap;}
 
 /* ---------- Front Lever ---------- */
-.flHead{display:flex;align-items:center;gap:10px;margin-bottom:2px;}
-.flBadge{width:30px;height:30px;border-radius:9px;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:14px;flex:none;}
-.warmGrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:8px;}
-.warmItem{border:1px solid var(--line);border-left:5px solid #00838F;border-radius:8px;padding:7px 9px;background:#FCFCFD;}
-canvas{max-width:100%;width:100%;height:220px;display:block;}
-.perfControls{display:flex;gap:8px;flex-wrap:wrap;align-items:end;margin-bottom:10px;}
-.perfControls > div{flex:1;min-width:118px;}
-.perfControls label{font-size:11.5px;color:var(--muted);display:block;margin-bottom:2px;}
-select.realise-OUI{background:#E8F5E9;}
-select.realise-NON{background:#FDECEA;}
+.flHead{display:flex;align-items:center;gap:11px;}
+.flBadge{width:32px;height:32px;border-radius:10px;display:grid;place-items:center;color:#0E0E10;font-weight:800;font-size:14px;flex:none;background:var(--acc);}
+.warmGrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:9px;}
+.warmItem{border:1px solid var(--line);border-left:3px solid var(--s3);border-radius:11px;padding:9px 11px;background:var(--surface-2);}
+
+/* ---------- Divers ---------- */
+.kv{display:grid;grid-template-columns:140px 1fr;gap:8px 12px;align-items:center;font-size:12.5px;}
+.kv .k{color:var(--text-muted);font-size:11px;text-transform:uppercase;letter-spacing:.06em;}
+.mono{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:11.5px;word-break:break-all;color:var(--text-secondary);}
+ol.steps{padding-left:18px;font-size:12.5px;line-height:1.7;color:var(--text-secondary);}
+ol.steps b{color:var(--text-primary);}
+details.card summary{cursor:pointer;font-weight:650;font-size:14.5px;list-style:none;display:flex;justify-content:space-between;}
+details.card summary::after{content:'▾';color:var(--text-muted);}
+details.card[open] summary::after{content:'▴';}
+details.card summary::-webkit-details-marker{display:none;}
+.syncHero{display:flex;gap:13px;align-items:center;}
+.syncIcon{font-size:32px;line-height:1;flex:none;}
+.syncTitle{font-size:16px;font-weight:700;letter-spacing:-.01em;}
+.syncDetail{font-size:12.5px;color:var(--text-secondary);margin-top:2px;}
+#toast{position:fixed;left:50%;transform:translateX(-50%);bottom:20px;background:#000;border:1px solid var(--line);
+  color:#fff;padding:11px 15px;border-radius:12px;font-size:12.5px;z-index:60;display:none;max-width:92vw;
+  text-align:center;box-shadow:0 12px 40px rgba(0,0,0,.6);}
+#toast button{margin-left:9px;background:var(--text-primary);color:#111;border:none;border-radius:8px;
+  padding:4px 10px;font-size:11.5px;font-weight:700;cursor:pointer;}
 @media (max-width:560px){
-  main{padding:10px;}
-  header h1{font-size:15px;}
-  nav button{padding:7px 11px;font-size:12.5px;}
-  .card{padding:11px;}
-  .card .accentbar{margin:-11px -11px 10px;}
+  main{padding:11px;}
+  .card{padding:13px;border-radius:14px;}
+  .kv{grid-template-columns:1fr;gap:4px 0;}
+  .kv .k{margin-top:6px;}
 }
 </style>
 </head>
 <body>
 <header>
   <div class="headerRow">
-    <h1>🏋️ Planning Calisthénie</h1>
-    <div class="hbtns">
-      <span id="saveState" title="Ouvrir la page Synchro" style="cursor:pointer" onclick="switchTab('sync')">…</span>
-      <span class="weekSel">Semaine <select id="weekSelect" onchange="setWeek(this.value)"></select></span>
-      <button class="hbtn" onclick="exportData()">💾 Export</button>
-      <button class="hbtn" onclick="document.getElementById('importFile').click()">📂 Import</button>
-      <button class="hbtn" onclick="resetData()">↺ Reset</button>
-      <input type="file" id="importFile" accept="application/json" style="display:none" onchange="importData(event)">
+    <div class="brand">
+      <div class="brandMark">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round">
+          <path d="M4 9v6M7.5 6.5v11M16.5 6.5v11M20 9v6M7.5 12h9"/>
+        </svg>
+      </div>
+      <h1>Calisthénie</h1>
     </div>
+    <span id="saveState" onclick="switchTab('sync')">…</span>
   </div>
 </header>
 <nav id="tabnav"></nav>
 <main id="mainArea"></main>
 <div id="toast"></div>
+<input type="file" id="importFile" accept="application/json" style="display:none" onchange="importData(event)">
 
 <script>
-/* ===================== Constantes ===================== */
-const WEEKS = 8;          // S1-S7 = progression, S8 = semaine test
-const TEST_WEEK = 8;
+/* ===================== Données de référence ===================== */
+const COURBE_DEFAUT = [1.25,2,2.5,3.25,4,4.5,5,5.25,6,6.25,6.5,7,7.25,7.5,8.25,8.5,9,9.5,10,10.25,
+                       11,11.25,11.5,12,12.25,12.5,13.25,13.5,14,14.5,15.25,16,16.5,17.25,18.5];
 
 const ACTIVITIES = [
-  {name:"Repos",                     color:"#78909C", tab:null},
-  {name:"Street Original",           color:"#1565C0", tab:"streetOriginal"},
-  {name:"Street Original Plus",      color:"#0D47A1", tab:"streetOriginal"},
-  {name:"Street",                    color:"#6A1B9A", tab:"street"},
-  {name:"Street Plus",               color:"#4A148C", tab:"street"},
-  {name:"Abdo",                      color:"#F57F17", tab:"abdo"},
-  {name:"Front Lever — Séance 1",    color:"#4527A0", tab:"frontLever"},
-  {name:"Front Lever — Séance 2",    color:"#4527A0", tab:"frontLever"},
-  {name:"Front Lever — Séance 3",    color:"#4527A0", tab:"frontLever"},
-  {name:"Front Lever — Séance 4",    color:"#4527A0", tab:"frontLever"},
-  {name:"Full Planche",              color:"#C62828", tab:"fullPlanche"},
-  {name:"Défi Pompes",               color:"#AD1457", tab:"defiPompes"},
-  {name:"Mobilité",                  color:"#00838F", tab:null},
-  {name:"Libre / au feeling",        color:"#90A4AE", tab:null}
+  {name:"Repos",                  color:"#5A5A56", tab:null},
+  {name:"Street Original",        color:"#3987e5", tab:"streetOriginal"},
+  {name:"Street Original Plus",   color:"#d95926", tab:"streetOriginalPlus"},
+  {name:"Street",                 color:"#199e70", tab:"street"},
+  {name:"Street Plus",            color:"#c98500", tab:"streetPlus"},
+  {name:"Abdo",                   color:"#d55181", tab:"abdo"},
+  {name:"Front Lever — Séance 1", color:"#9085e9", tab:"frontLever"},
+  {name:"Front Lever — Séance 2", color:"#9085e9", tab:"frontLever"},
+  {name:"Front Lever — Séance 3", color:"#9085e9", tab:"frontLever"},
+  {name:"Front Lever — Séance 4", color:"#9085e9", tab:"frontLever"},
+  {name:"Full Planche",           color:"#e66767", tab:"fullPlanche"},
+  {name:"Défi Pompes",            color:"#d55181", tab:"defiPompes"},
+  {name:"Mobilité",               color:"#199e70", tab:null},
+  {name:"Libre / au feeling",     color:"#5A5A56", tab:null}
 ];
 
 const SEED = {
-  version: 2,
-  semaine: 1,
-  planning: {
-    note: "Chaque jour = une pile de créneaux. Ajoute, change ou supprime un créneau en 2 clics : le planning s'adapte à ta semaine, pas l'inverse.",
-    days: [
+  version:4,
+  planning:{
+    note:"Chaque jour est une pile de créneaux. Ajoute, remplace ou supprime en deux clics.",
+    days:[
       {day:"LUNDI",    slots:[{act:"Street Original", note:""},{act:"Abdo", note:"10 min en fin de séance"}]},
-      {day:"MARDI",    slots:[{act:"Front Lever — Séance 1", note:"à faire frais, en début de séance"}]},
+      {day:"MARDI",    slots:[{act:"Front Lever — Séance 1", note:"à faire frais"}]},
       {day:"MERCREDI", slots:[{act:"Repos", note:""}]},
       {day:"JEUDI",    slots:[{act:"Street", note:""},{act:"Abdo", note:"10 min"}]},
       {day:"VENDREDI", slots:[{act:"Front Lever — Séance 2", note:""},{act:"Mobilité", note:""}]},
@@ -207,33 +277,62 @@ const SEED = {
       {day:"DIMANCHE", slots:[{act:"Repos", note:""}]}
     ]
   },
-  seances: {
-    streetOriginal: {
-      label:"Street Original", accent:"#1565C0", type:"progressive", toursCible:5, repos:"90s (fin de tour)",
-      subtitle:"Circuit au poids du corps. Objectif : tenir le nombre de tours cible aux valeurs affichées. Dès que c'est fait, chaque exercice prend +1 rep pour la fois suivante.",
+  courbePoids:{
+    note:"Paliers de charge. Une séance réussie = un palier franchi.",
+    paliers:COURBE_DEFAUT.slice()
+  },
+  test:{intervalleSemaines:8, series:"2", repos:"4 min", dernier:"",
+        note:"Tous les 8 semaines : 2 séries au max par exercice, 4 min de repos. On garde le meilleur des deux."},
+  seances:{
+    streetOriginal:{
+      label:"Street Original", accent:"#3987e5", type:"progressive", leste:false, plusDe:"streetOriginalPlus",
+      toursCible:5,
+      subtitle:"Le socle. Tiens les 5 tours aux valeurs affichées et tout monte d'une rep la fois suivante.",
       exercises:[
-        {name:"Pompes", reps:5, plafond:8},
-        {name:"Tractions pronation", reps:5, plafond:8},
-        {name:"Dips", reps:10, plafond:15}
+        {name:"Tractions", reps:5,  plafond:8,  repos:"2 min"},
+        {name:"Dips",      reps:5,  plafond:8,  repos:"3 min"},
+        {name:"Pompes",    reps:10, plafond:15, repos:"3 min"}
       ],
-      lest:{actif:false, charge:0, palier:0},
       history:[]
     },
-    street: {
-      label:"Street", accent:"#6A1B9A", type:"progressive", toursCible:5, repos:"90s (fin de tour)",
-      subtitle:"Circuit au poids du corps, quatre mouvements. Même règle : nombre de tours cible atteint, chaque exercice prend +1 rep pour la fois suivante.",
+    streetOriginalPlus:{
+      label:"Street Original Plus", accent:"#d95926", type:"progressive", leste:true,
+      toursCible:5, palier:0,
+      subtitle:"Mêmes mouvements, reps figées au plafond. C'est la charge qui monte, un palier par séance réussie.",
       exercises:[
-        {name:"Tractions supination", reps:5, plafond:8},
-        {name:"Dips barre simple", reps:5, plafond:8},
-        {name:"Pike push-up", reps:5, plafond:8},
-        {name:"Tractions australiennes", reps:10, plafond:15}
+        {name:"Tractions", reps:8,  repos:"2 min"},
+        {name:"Dips",      reps:8,  repos:"3 min"},
+        {name:"Pompes",    reps:15, repos:"3 min"}
       ],
-      lest:{actif:false, charge:0, palier:0},
       history:[]
     },
-    abdo: {
-      label:"Abdo", accent:"#F57F17", type:"circuit", basePct:0.6, growthPct:0.07,
-      subtitle:"Séance courte, 2-3x/semaine, greffée en fin d'une autre séance. Circuit AMRAP, minimum 4 tours. Unités : reps, sauf « (sec) » = secondes de maintien.",
+    street:{
+      label:"Street", accent:"#199e70", type:"progressive", leste:false, plusDe:"streetPlus",
+      toursCible:5,
+      subtitle:"Quatre mouvements. Même règle : 5 tours tenus, +1 rep partout la fois suivante.",
+      exercises:[
+        {name:"Tractions supination",   reps:5,  plafond:8,  repos:"2 min"},
+        {name:"Dips barre simple",      reps:5,  plafond:8,  repos:"3 min"},
+        {name:"Pike push-up",           reps:5,  plafond:8,  repos:"3 min"},
+        {name:"Tractions australiennes",reps:10, plafond:15, repos:"3 min"}
+      ],
+      history:[]
+    },
+    streetPlus:{
+      label:"Street Plus", accent:"#c98500", type:"progressive", leste:true,
+      toursCible:5, palier:0,
+      subtitle:"Version lestée du Street. Reps figées, charge progressive.",
+      exercises:[
+        {name:"Tractions supination",   reps:8,  repos:"2 min"},
+        {name:"Dips barre simple",      reps:8,  repos:"3 min"},
+        {name:"Pike push-up",           reps:8,  repos:"3 min"},
+        {name:"Tractions australiennes",reps:15, repos:"3 min"}
+      ],
+      history:[]
+    },
+    abdo:{
+      label:"Abdo", accent:"#d55181", type:"circuit", basePct:0.6, growthPct:0.07, semaine:1,
+      subtitle:"Séance courte, greffée en fin d'une autre séance. Circuit AMRAP, minimum 4 tours. « (sec) » = secondes de maintien.",
       blocks:[{label:null, note:null, exercises:[
         {name:"L-sit hold (sec)", ref:0, repos:"60s", auto:true},
         {name:"Relevé de jambes suspendu", ref:0, repos:"60s", auto:true},
@@ -244,57 +343,48 @@ const SEED = {
       ]}]
     }
   },
-  courbePoids: {
-    note:"Paliers de charge utilisés dès qu'une séance passe en mode lesté : un palier franchi à chaque séance réussie. Valeurs provisoires — remplace-les par ta courbe.",
-    paliers:[2.5, 5, 7.5, 10, 12.5, 15, 17.5, 20, 22.5, 25]
-  },
-  test: {
-    intervalleSemaines:8,
-    series:"2",
-    repos:"4 min",
-    dernier:"",
-    note:"Tous les 8 semaines : 2 séries au max de reps par exercice, 4 min de repos entre les séries. On garde le meilleur des 2, on le logge dans Performances."
-  },
-  frontLever: {
-    subtitle:"Force isométrique du dos (grand dorsal), des stabilisateurs scapulaires et du tronc. 4 séances rotatives + progression Tuck → Advanced Tuck → One Leg → Straddle → Full. Toujours en début de séance, après l'échauffement.",
-    echauffement: {
-      note:"Court et spécifique : réveiller la poussée verticale, le tirage horizontal puis le tirage vertical. 5-6 min, jamais à l'échec.",
+  perfPrincipaux:["Tractions","Dips","Pompes","Tractions supination","Pike push-up","Tractions australiennes"],
+  performances:{},
+  frontLever:{
+    subtitle:"Force isométrique du dos, des stabilisateurs scapulaires et du tronc. 4 séances rotatives, toujours en début de séance.",
+    echauffement:{
+      note:"Court et spécifique : poussée verticale, tirage horizontal, tirage vertical. 5-6 min, jamais à l'échec.",
       items:[
         {name:"Pike push-up", dose:"2 x 8 — progressif"},
         {name:"Traction australienne", dose:"2 x 10 — lent, omoplates serrées"},
-        {name:"Traction normale", dose:"2 x 5 — contrôlées, dépression scapulaire marquée"}
+        {name:"Traction normale", dose:"2 x 5 — contrôlées, dépression scapulaire"}
       ]
     },
     seances:[
-      {id:"FL1", label:"Séance 1 — Intensité max", goal:"Charger l'isométrie au maximum, puis nettoyer la forme.", accent:"#4527A0", exercises:[
-        {name:"Max hold dégressif", series:"5", dose:"max", repos:"3 min", note:"Chaque série part du niveau tenu, on dégrade la position quand ça lâche."},
+      {label:"Séance 1 — Intensité max", goal:"Charger l'isométrie au maximum, puis nettoyer la forme.", exercises:[
+        {name:"Max hold dégressif", series:"5", dose:"max", repos:"3 min", note:"On dégrade la position quand ça lâche."},
         {name:"Touch to bar", series:"3", dose:"max", repos:"2 min", note:""},
-        {name:"Perfect hold tuck", series:"3", dose:"20 s", repos:"2 min", note:"Qualité stricte : dos plat, bras tendus."},
-        {name:"Hold à l'élastique", series:"3", dose:"20 s", repos:"2 min", note:"Élastique le plus léger qui permet 20 s propres."}
+        {name:"Perfect hold tuck", series:"3", dose:"20 s", repos:"2 min", note:"Dos plat, bras tendus."},
+        {name:"Hold à l'élastique", series:"3", dose:"20 s", repos:"2 min", note:"Élastique le plus léger possible."}
       ]},
-      {id:"FL2", label:"Séance 2 — Dynamique & négatives", goal:"Construire le passage sous la barre et la force excentrique.", accent:"#283593", exercises:[
+      {label:"Séance 2 — Dynamique & négatives", goal:"Construire le passage sous la barre et la force excentrique.", exercises:[
         {name:"Front lever raise complet", series:"3", dose:"6 reps", repos:"2 min", note:""},
         {name:"Négatives", series:"3", dose:"6 reps", repos:"2 min", note:"Descente lente et contrôlée."},
         {name:"Raise bar to front", series:"3", dose:"6 reps", repos:"2 min", note:""}
       ]},
-      {id:"FL3", label:"Séance 3 — Combos", goal:"Endurance de position et enchaînements.", accent:"#00695C", exercises:[
+      {label:"Séance 3 — Combos", goal:"Endurance de position et enchaînements.", exercises:[
         {name:"Combo", series:"1", dose:"60 s", repos:"—", note:""},
         {name:"Combo", series:"2", dose:"45 s", repos:"—", note:""},
         {name:"Combo", series:"3", dose:"30 s", repos:"—", note:""}
       ]},
-      {id:"FL4", label:"Séance 4 — Volume assisté", goal:"Accumuler du temps sous tension sans casser la technique.", accent:"#AD1457", exercises:[
+      {label:"Séance 4 — Volume assisté", goal:"Accumuler du temps sous tension sans casser la technique.", exercises:[
         {name:"Hold à l'élastique", series:"6", dose:"20 s", repos:"2 min", note:""},
         {name:"Touch bar à l'élastique", series:"3", dose:"6 reps", repos:"2 min", note:""}
       ]}
     ],
     paliers:[
-      {palier:"Palier 1 — Tuck Front Lever", objectif:"Genoux ramenés vers la poitrine, dos légèrement arrondi. Focus : dépression scapulaire.", duree:"Semaines 1-6", seances:"3-4", exercices:"5-8 séries x 10-20s\nNégatives : 4-8s/rep\nL-sits, dragonflies", critere:"3 séries de 15-20s propres, 2 séances consécutives", valide:""},
-      {palier:"Palier 2 — Advanced Tuck", objectif:"Dos aplati, bas du dos à 90° des cuisses.", duree:"Semaines 4-12", seances:"3-4", exercices:"5-8 séries x 10-20s\nDragonflies, skin-the-cats\nTractions lestées légères", critere:"3 séries de 15-20s propres", valide:""},
-      {palier:"Palier 3 — One Leg", objectif:"Une jambe tendue à l'horizontale, alterner les côtés.", duree:"Semaines 10-20", seances:"3-4", exercices:"5-8 séries x 10-20s par côté\nTractions lestées", critere:"3 séries de 15-20s propres de chaque côté", valide:""},
-      {palier:"Palier 4 — Straddle", objectif:"Jambes tendues mais largement écartées.", duree:"Semaines 16-30", seances:"3-4", exercices:"5-8 séries x 10-20s\nTractions lestées ≈ 60-85% du poids de corps\nSkin-the-cats", critere:"3 séries de 15-20s propres en Straddle", valide:""},
-      {palier:"Palier 5 — Full Front Lever", objectif:"Corps complètement tendu, jambes serrées, ligne droite rigide.", duree:"3-6 mois à 1-2 ans", seances:"3-4", exercices:"Front lever raises\nMaintien 5s forme parfaite, en début de séance", critere:"5s en Full Front Lever, forme parfaite, filmé", valide:""}
+      {palier:"1 — Tuck", objectif:"Genoux vers la poitrine, dos légèrement arrondi. Focus dépression scapulaire.", duree:"S1-6", exercices:"5-8 x 10-20s\nNégatives 4-8s/rep", critere:"3 x 15-20s propres, 2 séances de suite", valide:""},
+      {palier:"2 — Advanced Tuck", objectif:"Dos aplati, bas du dos à 90° des cuisses.", duree:"S4-12", exercices:"5-8 x 10-20s\nDragonflies, skin-the-cats", critere:"3 x 15-20s propres", valide:""},
+      {palier:"3 — One Leg", objectif:"Une jambe tendue à l'horizontale, alterner.", duree:"S10-20", exercices:"5-8 x 10-20s par côté", critere:"3 x 15-20s de chaque côté", valide:""},
+      {palier:"4 — Straddle", objectif:"Jambes tendues, largement écartées.", duree:"S16-30", exercices:"5-8 x 10-20s\nTractions lestées 60-85% PDC", critere:"3 x 15-20s en Straddle", valide:""},
+      {palier:"5 — Full", objectif:"Corps tendu, jambes serrées, ligne droite.", duree:"3-6 mois à 2 ans", exercices:"Front lever raises\nMaintien 5s forme parfaite", critere:"5s en Full, forme parfaite, filmé", valide:""}
     ],
-    safetyTitle:"Erreurs fréquentes à éviter",
+    safetyTitle:"Erreurs fréquentes",
     safetyItems:[
       "Balancement excessif (kipping) → pulls lents et contrôlés.",
       "Fléchir les bras sous la difficulté → filmer, repasser à la progression inférieure.",
@@ -304,36 +394,31 @@ const SEED = {
     ],
     source:"Tenir un Full Front Lever demande souvent une traction lestée à 60-85% du poids de corps."
   },
-  performances: {},
-  fullPlanche: {
-    subtitle:"Objectif long terme : Tuck → Advanced Tuck → Half-Lay/Straddle → Full. 3-4 séances/semaine, poignets et épaules protégés en priorité. Se construit sur plusieurs mois à plusieurs années.",
+  fullPlanche:{
+    subtitle:"Objectif long terme : Tuck → Advanced Tuck → Straddle → Full. Poignets et épaules protégés en priorité.",
     paliers:[
-      {palier:"Palier 1 — Tuck Planche", objectif:"Genoux serrés contre la poitrine, corps compact. Adaptation des épaules à la charge horizontale.", duree:"Semaines 1-12", seances:"3", exercices:"Tuck planche holds : 3-6 x 10-25s\nPseudo planche push-ups : 3-5 x 6-12\nRenforcement poignets\nAccessoires : hollow body, L-sit", critere:"3 séries de 20-25s en Tuck, forme propre, 2 séances de suite", valide:""},
-      {palier:"Palier 2 — Advanced Tuck", objectif:"Genoux plus éloignés du torse, plus d'extension de hanche.", duree:"Semaines 6-24", seances:"3-4", exercices:"Elevated tuck → advanced tuck negatives\nPlanche leans : 4-6 x 5-15s\nPseudo planche push-ups", critere:"3 séries de 15-20s en Advanced Tuck", valide:""},
-      {palier:"Palier 3 — Half-Lay / Straddle", objectif:"Jambes semi-étendues ou écartées pour réduire le bras de levier.", duree:"Semaines 12-52", seances:"3-4", exercices:"Straddle planche holds\nRenforcement excentrique\nMobilité épaules/poignets", critere:"3 séries de 15-20s en Straddle", valide:""},
-      {palier:"Palier 4 — Full Planche", objectif:"Jambes tendues et serrées, alignement parfait, tension maximale du tronc.", duree:"1 à 3 ans (total)", seances:"3-4", exercices:"Full planche holds\nAffinement technique, maintenance", critere:"5s+ en Full Planche, forme parfaite", valide:""}
+      {palier:"1 — Tuck Planche", objectif:"Genoux serrés, corps compact. Adaptation des épaules à la charge horizontale.", duree:"S1-12", exercices:"Tuck holds 3-6 x 10-25s\nPseudo planche push-ups 3-5 x 6-12", critere:"3 x 20-25s en Tuck, 2 séances de suite", valide:""},
+      {palier:"2 — Advanced Tuck", objectif:"Genoux plus éloignés du torse.", duree:"S6-24", exercices:"Advanced tuck negatives\nPlanche leans 4-6 x 5-15s", critere:"3 x 15-20s en Advanced Tuck", valide:""},
+      {palier:"3 — Straddle", objectif:"Jambes semi-étendues ou écartées.", duree:"S12-52", exercices:"Straddle holds\nRenforcement excentrique", critere:"3 x 15-20s en Straddle", valide:""},
+      {palier:"4 — Full Planche", objectif:"Jambes tendues et serrées, alignement parfait.", duree:"1 à 3 ans", exercices:"Full planche holds\nAffinement technique", critere:"5s+ en Full, forme parfaite", valide:""}
     ],
-    safetyTitle:"Prévention des blessures (poignets, épaules, bas du dos)",
+    safetyTitle:"Prévention (poignets, épaules, bas du dos)",
     safetyItems:[
-      "Échauffement spécifique des poignets : 5-10 min avant toute charge horizontale.",
-      "Utiliser des parallettes pour diminuer l'extension du poignet.",
-      "Charge progressive : +5 à 10% de temps sous tension par semaine maximum.",
-      "Différencier fatigue musculaire normale et douleur aiguë — stop immédiat si douleur persistante.",
-      "48-72h de repos entre deux sessions intenses de planche."
+      "Échauffement des poignets : 5-10 min avant toute charge horizontale.",
+      "Parallettes pour diminuer l'extension du poignet.",
+      "+5 à 10% de temps sous tension par semaine, maximum.",
+      "Fatigue musculaire ≠ douleur aiguë : stop immédiat si la douleur persiste.",
+      "48-72h entre deux sessions intenses."
     ],
     source:"Colonne Validé : OUI quand le critère est tenu 2 séances de suite."
   },
-  defiPompes: {
-    note:"Progression : +1 rep chaque jour. Décharge (moitié) : mercredi et dimanche.",
-    days: (function(){
-      const jours=["Lundi","Mardi","Mercredi","Jeudi","Vendredi","Samedi","Dimanche"];
-      const out=[];
-      for(let i=0;i<30;i++){
-        const base=20+i, js=jours[i%7];
-        const dech=(js==="Mercredi"||js==="Dimanche");
-        out.push({jour:i+1, jourSemaine:js, base:base, objectif:dech?Math.floor(base/2):base, realise:"", reps:null});
-      }
-      return out;
+  defiPompes:{
+    note:"+1 rep par jour. Décharge de moitié le mercredi et le dimanche.",
+    days:(function(){
+      const j=["Lundi","Mardi","Mercredi","Jeudi","Vendredi","Samedi","Dimanche"], o=[];
+      for(let i=0;i<30;i++){ const b=20+i, js=j[i%7], d=(js==="Mercredi"||js==="Dimanche");
+        o.push({jour:i+1, jourSemaine:js, objectif:d?Math.floor(b/2):b, realise:"", reps:null}); }
+      return o;
     })()
   }
 };
@@ -345,978 +430,841 @@ function escapeHtml(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replac
 function escapeAttr(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 function jsStr(s){ return String(s==null?'':s).replace(/\\/g,'\\\\').replace(/'/g,"\\'"); }
 function today(){ return new Date().toISOString().slice(0,10); }
-function computeWeekVal(maxRef, basePct, growthPct, weekIdx){
-  const ref = Number(maxRef);
-  if(!ref || ref<=0) return null;
-  return Math.round(ref * basePct * Math.pow(1+growthPct, weekIdx-1));
+function fmtDT(iso){
+  if(!iso) return '—';
+  try{ return new Date(iso).toLocaleString('fr-FR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'}); }
+  catch(e){ return iso; }
 }
-function fmtCell(v){ return v===null || v===undefined ? '—' : v; }
-function actColor(name){ const a = ACTIVITIES.find(x=>x.name===name); return a ? a.color : '#90A4AE'; }
-function actTab(name){ const a = ACTIVITIES.find(x=>x.name===name); return a ? a.tab : null; }
+function nombre(v){ const n = Number(v); return isNaN(n) ? 0 : n; }
+function fmtKg(v){ return (Math.round(nombre(v)*100)/100).toString().replace('.',','); }
+function actColor(n){ const a=ACTIVITIES.find(x=>x.name===n); return a?a.color:'#5A5A56'; }
+function actTab(n){ const a=ACTIVITIES.find(x=>x.name===n); return a?a.tab:null; }
+function semainesDepuis(iso){
+  if(!iso) return null;
+  const d=new Date(iso); if(isNaN(d)) return null;
+  return Math.floor((Date.now()-d.getTime())/(7*24*3600*1000));
+}
 
-/* ===================== Sauvegarde automatique ===================== */
-const STORE_KEY = 'planning-calisthenie-v2';
-let storageOK = false;
-try{
-  window.localStorage.setItem('__pc_test__','1');
-  window.localStorage.removeItem('__pc_test__');
-  storageOK = true;
-}catch(e){ storageOK = false; }
+/* ===================== Stockage local ===================== */
+const STORE_KEY='planning-calisthenie-v2';
+let storageOK=false;
+try{ window.localStorage.setItem('__t__','1'); window.localStorage.removeItem('__t__'); storageOK=true; }catch(e){ storageOK=false; }
+function loadSaved(){
+  if(!storageOK) return null;
+  try{ const r=window.localStorage.getItem(STORE_KEY); if(!r) return null;
+       const o=JSON.parse(r); return (o&&o.seances&&o.planning)?o:null; }catch(e){ return null; }
+}
 
-let saveTimer = null;
-function scheduleSave(){
-  if(!storageOK) return;
-  clearTimeout(saveTimer);
-  saveTimer = setTimeout(saveNow, 400);
+/* ===================== Synchro GitHub Gist ===================== */
+const SYNC_KEY='planning-calisthenie-sync';
+const GIST_FILE='planning-calisthenie.json';
+let SYNC={enabled:false, token:'', gistId:'', lastRemoteAt:'', lastSyncAt:'', lastError:''};
+let pushTimer=null, syncBusy=false, applyingRemote=false;
+const PUSH_DEBOUNCE=5000, PUSH_MIN_INTERVAL=15000;
+let lastLocalFP=null, lastPushedFP=null, lastPushAt=0, pushCooldownUntil=0;
+
+function stateFingerprint(){ const c=deepClone(STATE); delete c.meta; return JSON.stringify(c); }
+function isQuotaError(m){ return /rate limit|secondary rate|abuse detection|too many requests/i.test(m||''); }
+function loadSync(){ if(!storageOK) return; try{ const r=window.localStorage.getItem(SYNC_KEY); if(r) SYNC=Object.assign(SYNC,JSON.parse(r)); }catch(e){} }
+function saveSync(){ if(!storageOK) return; try{ window.localStorage.setItem(SYNC_KEY,JSON.stringify(SYNC)); }catch(e){} }
+function deviceLabel(){
+  const u=navigator.userAgent||'';
+  if(/iPhone|iPad/i.test(u)) return 'iPhone/iPad';
+  if(/Android/i.test(u)) return 'Android';
+  if(/Mac/i.test(u)) return 'Mac';
+  if(/Windows/i.test(u)) return 'PC';
+  return 'appareil';
 }
 function stampLocal(){
-  if(!STATE.meta) STATE.meta = {};
-  STATE.meta.updatedAt = new Date().toISOString();
-  STATE.meta.device = STATE.meta.device || deviceLabel();
+  if(!STATE.meta) STATE.meta={};
+  STATE.meta.updatedAt=new Date().toISOString();
+  STATE.meta.device=STATE.meta.device||deviceLabel();
 }
-let applyingRemote = false;
+function setSaveState(t,w){ const e=document.getElementById('saveState'); if(!e) return; e.textContent=t; e.className=w?'warn':''; }
+function syncLabel(){
+  if(!SYNC.enabled) return storageOK?'✓ Local':'⚠ Export requis';
+  if(!navigator.onLine) return '🌐 hors-ligne';
+  if(syncBusy) return '🌐 …';
+  if(Date.now()<pushCooldownUntil) return '🌐 pause '+Math.ceil((pushCooldownUntil-Date.now())/60000)+' min';
+  if(SYNC.lastError) return '🌐 erreur';
+  if(SYNC.lastSyncAt) return '🌐 '+SYNC.lastSyncAt.slice(11,16);
+  return '🌐 prêt';
+}
+function refreshSyncPill(){ setSaveState(SYNC.enabled?syncLabel():(storageOK?'✓ Sauvegarde auto':'⚠ Export requis'), !!SYNC.lastError||!storageOK); }
+let saveTimer=null;
+function scheduleSave(){ clearTimeout(saveTimer); saveTimer=setTimeout(saveNow,400); }
 function saveNow(opts){
-  const silent = (opts && opts.silent) || applyingRemote;
-  const fp = stateFingerprint();
-  const changed = (fp !== lastLocalFP);
-  if(!changed && !silent) return;                 // rien n'a bougé : ni horodatage, ni écriture, ni envoi
+  const silent=(opts&&opts.silent)||applyingRemote;
+  const fp=stateFingerprint();
+  const changed=(fp!==lastLocalFP);
+  if(!changed && !silent) return;
   if(!silent) stampLocal();
-  lastLocalFP = fp;
+  lastLocalFP=fp;
   if(storageOK){
-    try{
-      window.localStorage.setItem(STORE_KEY, JSON.stringify(STATE));
-      setSaveState(SYNC.enabled ? syncLabel() : '✓ Sauvegardé', false);
-    }catch(e){ setSaveState('⚠ Stockage plein', true); }
+    try{ window.localStorage.setItem(STORE_KEY,JSON.stringify(STATE)); refreshSyncPill(); }
+    catch(e){ setSaveState('⚠ Stockage plein',true); }
   }
   if(!silent && SYNC.enabled) schedulePush();
 }
-function setSaveState(txt, warn){
-  const el = document.getElementById('saveState');
-  if(!el) return;
-  el.textContent = txt;
-  el.className = warn ? 'warn' : '';
-}
-function deviceLabel(){
-  const ua = navigator.userAgent || '';
-  if(/iPhone|iPad/i.test(ua)) return 'iPhone/iPad';
-  if(/Android/i.test(ua)) return 'Android';
-  if(/Mac/i.test(ua)) return 'Mac';
-  if(/Windows/i.test(ua)) return 'PC';
-  return 'appareil';
-}
-function loadSaved(){
-  if(!storageOK) return null;
-  try{
-    const raw = window.localStorage.getItem(STORE_KEY);
-    if(!raw) return null;
-    const obj = JSON.parse(raw);
-    if(!obj || !obj.seances || !obj.planning) return null;
-    return obj;
-  }catch(e){ return null; }
-}
-
-/* ===================== Synchro GitHub Gist =====================
-   Le token vit dans une clé localStorage séparée : il n'apparaît JAMAIS
-   dans l'export JSON ni dans le Gist. Portée minimale requise : "gist". */
-const SYNC_KEY = 'planning-calisthenie-sync';
-const GIST_FILE = 'planning-calisthenie.json';
-let SYNC = {enabled:false, token:'', gistId:'', lastRemoteAt:'', lastSyncAt:'', lastError:''};
-let pushTimer = null, syncBusy = false;
-
-/* Garde-fous anti-boucle : on ne parle à GitHub que si le contenu a réellement
-   changé, jamais plus d'une fois par 15 s, et on se met en pause si GitHub
-   renvoie un dépassement de quota. */
-const PUSH_DEBOUNCE = 5000;
-const PUSH_MIN_INTERVAL = 15000;
-let lastLocalFP = null, lastPushedFP = null, lastPushAt = 0, pushCooldownUntil = 0;
-function stateFingerprint(){
-  const c = deepClone(STATE);
-  delete c.meta;
-  return JSON.stringify(c);
-}
-function isQuotaError(msg){ return /rate limit|secondary rate|abuse detection|too many requests/i.test(msg||''); }
-
-function loadSync(){
-  if(!storageOK) return;
-  try{
-    const raw = window.localStorage.getItem(SYNC_KEY);
-    if(raw) SYNC = Object.assign(SYNC, JSON.parse(raw));
-  }catch(e){}
-}
-function saveSync(){
-  if(!storageOK) return;
-  try{ window.localStorage.setItem(SYNC_KEY, JSON.stringify(SYNC)); }catch(e){}
-}
-function syncLabel(){
-  if(!SYNC.enabled) return storageOK ? '✓ Local' : '⚠ Export requis';
-  if(!navigator.onLine) return '☁ hors-ligne';
-  if(syncBusy) return '☁ …';
-  if(Date.now() < pushCooldownUntil) return '☁ pause ' + Math.ceil((pushCooldownUntil-Date.now())/60000) + ' min';
-  if(SYNC.lastError) return '☁ erreur';
-  if(SYNC.lastSyncAt) return '☁ ' + SYNC.lastSyncAt.slice(11,16);
-  return '☁ prêt';
-}
-function refreshSyncPill(){ setSaveState(SYNC.enabled ? syncLabel() : (storageOK?'✓ Sauvegarde auto':'⚠ Utilise 💾 Export'), !!SYNC.lastError || !storageOK); }
-
-async function ghFetch(path, opts){
-  const res = await fetch('https://api.github.com'+path, Object.assign({
-    headers: {
-      'Authorization': 'Bearer ' + SYNC.token,
-      'Accept': 'application/vnd.github+json',
-      'X-GitHub-Api-Version': '2022-11-28'
-    }
-  }, opts||{}));
+async function ghFetch(path,opts){
+  const res=await fetch('https://api.github.com'+path,Object.assign({
+    headers:{'Authorization':'Bearer '+SYNC.token,'Accept':'application/vnd.github+json','X-GitHub-Api-Version':'2022-11-28'}
+  },opts||{}));
   if(!res.ok){
-    let msg = res.status + ' ' + res.statusText;
-    try{ const j = await res.json(); if(j.message) msg += ' — ' + j.message; }catch(e){}
-    throw new Error(msg);
+    let m=res.status+' '+res.statusText;
+    try{ const j=await res.json(); if(j.message) m+=' — '+j.message; }catch(e){}
+    throw new Error(m);
   }
   return res.json();
 }
 function schedulePush(){
   if(!SYNC.enabled) return;
   clearTimeout(pushTimer);
-  const now = Date.now();
-  const wait = Math.max(PUSH_DEBOUNCE, (lastPushAt + PUSH_MIN_INTERVAL) - now, pushCooldownUntil - now);
-  pushTimer = setTimeout(()=>pushRemote(true), wait);
+  const now=Date.now();
+  pushTimer=setTimeout(()=>pushRemote(true), Math.max(PUSH_DEBOUNCE,(lastPushAt+PUSH_MIN_INTERVAL)-now,pushCooldownUntil-now));
 }
 async function pushRemote(auto){
-  if(!SYNC.enabled || !SYNC.token) return;
+  if(!SYNC.enabled||!SYNC.token) return;
   if(!navigator.onLine){ SYNC.lastError=''; refreshSyncPill(); return; }
-  const fp = stateFingerprint();
+  const fp=stateFingerprint();
   if(auto){
-    if(fp === lastPushedFP) return;                    // rien de neuf : aucune requête
-    if(Date.now() < pushCooldownUntil){ schedulePush(); return; }
+    if(fp===lastPushedFP) return;
+    if(Date.now()<pushCooldownUntil){ schedulePush(); return; }
   }
-  syncBusy = true; refreshSyncPill();
+  syncBusy=true; refreshSyncPill();
   try{
-    const payload = deepClone(STATE);
-    const body = {files:{}};
-    body.files[GIST_FILE] = {content: JSON.stringify(payload, null, 1)};
+    const body={files:{}};
+    body.files[GIST_FILE]={content:JSON.stringify(deepClone(STATE),null,1)};
     let g;
     if(SYNC.gistId){
-      // Détection de conflit : quelqu'un d'autre a poussé depuis notre dernier pull ?
-      const remote = await ghFetch('/gists/'+SYNC.gistId);
-      const rf = remote.files && remote.files[GIST_FILE];
-      if(rf && SYNC.lastRemoteAt && remote.updated_at !== SYNC.lastRemoteAt){
-        let rdata = null;
-        try{ rdata = JSON.parse(rf.truncated ? await (await fetch(rf.raw_url)).text() : rf.content); }catch(e){}
-        const rAt = rdata && rdata.meta ? rdata.meta.updatedAt : null;
-        const lAt = STATE.meta ? STATE.meta.updatedAt : null;
-        if(rAt && lAt && rAt > lAt){
-          syncBusy = false;
-          SYNC.lastError = 'conflit';
-          refreshSyncPill(); saveSync();
-          toast('Version distante plus récente ('+fmtDT(rAt)+').', 'Récupérer', ()=>pullRemote(true));
+      const remote=await ghFetch('/gists/'+SYNC.gistId);
+      const rf=remote.files&&remote.files[GIST_FILE];
+      if(rf&&SYNC.lastRemoteAt&&remote.updated_at!==SYNC.lastRemoteAt){
+        let rd=null;
+        try{ rd=JSON.parse(rf.truncated ? await (await fetch(rf.raw_url)).text() : rf.content); }catch(e){}
+        const rAt=rd&&rd.meta?rd.meta.updatedAt:null, lAt=STATE.meta?STATE.meta.updatedAt:null;
+        if(rAt&&lAt&&rAt>lAt){
+          syncBusy=false; SYNC.lastError='conflit'; refreshSyncPill(); saveSync();
+          toast('Version distante plus récente ('+fmtDT(rAt)+').','Récupérer',()=>pullRemote(true));
           return;
         }
       }
-      body.description = 'Planning Calisthénie — sauvegarde ('+deviceLabel()+')';
-      g = await ghFetch('/gists/'+SYNC.gistId, {method:'PATCH', body: JSON.stringify(body)});
+      body.description='Calisthénie — sauvegarde ('+deviceLabel()+')';
+      g=await ghFetch('/gists/'+SYNC.gistId,{method:'PATCH',body:JSON.stringify(body)});
     }else{
-      body.public = false;
-      body.description = 'Planning Calisthénie — sauvegarde ('+deviceLabel()+')';
-      g = await ghFetch('/gists', {method:'POST', body: JSON.stringify(body)});
-      SYNC.gistId = g.id;
+      body.public=false; body.description='Calisthénie — sauvegarde ('+deviceLabel()+')';
+      g=await ghFetch('/gists',{method:'POST',body:JSON.stringify(body)});
+      SYNC.gistId=g.id;
     }
-    SYNC.lastRemoteAt = g.updated_at;
-    SYNC.lastSyncAt = new Date().toISOString();
-    SYNC.lastError = '';
-    lastPushedFP = fp; lastPushAt = Date.now(); pushCooldownUntil = 0;
-    saveSync(); syncBusy = false; refreshSyncPill();
-    const gf = document.getElementById('syncGist');      // pas de re-rendu : ça relancerait un cycle
-    if(gf && !gf.value) gf.value = SYNC.gistId;
+    SYNC.lastRemoteAt=g.updated_at; SYNC.lastSyncAt=new Date().toISOString(); SYNC.lastError='';
+    lastPushedFP=fp; lastPushAt=Date.now(); pushCooldownUntil=0;
+    saveSync(); syncBusy=false; refreshSyncPill();
+    const gf=document.getElementById('syncGist'); if(gf&&!gf.value) gf.value=SYNC.gistId;
     if(!auto) toast('Envoyé sur GitHub ✓');
   }catch(e){
-    syncBusy = false; lastPushAt = Date.now();
-    if(isQuotaError(e.message)){
-      pushCooldownUntil = Date.now() + 20*60*1000;
-      SYNC.lastError = 'Quota GitHub atteint. Pause automatique de 20 min, puis reprise. (' + e.message.slice(0,80) + '…)';
-    }else{
-      SYNC.lastError = e.message;
-    }
+    syncBusy=false; lastPushAt=Date.now();
+    if(isQuotaError(e.message)){ pushCooldownUntil=Date.now()+20*60*1000; SYNC.lastError='Quota GitHub atteint. Pause automatique de 20 min.'; }
+    else SYNC.lastError=e.message;
     saveSync(); refreshSyncPill();
-    if(!auto) alert('Échec de l\'envoi : ' + SYNC.lastError);
+    if(!auto) alert("Échec de l'envoi : "+SYNC.lastError);
   }
 }
 async function pullRemote(force){
-  if(!SYNC.enabled || !SYNC.token || !SYNC.gistId) return;
+  if(!SYNC.enabled||!SYNC.token||!SYNC.gistId) return;
   if(!navigator.onLine) return;
-  if(!force && Date.now() < pushCooldownUntil) return;
-  syncBusy = true; refreshSyncPill();
+  if(!force&&Date.now()<pushCooldownUntil) return;
+  syncBusy=true; refreshSyncPill();
   try{
-    const g = await ghFetch('/gists/'+SYNC.gistId);
-    const f = g.files && g.files[GIST_FILE];
-    if(!f) throw new Error('fichier ' + GIST_FILE + ' absent du Gist');
-    const txt = f.truncated ? await (await fetch(f.raw_url)).text() : f.content;
-    const obj = JSON.parse(txt);
-    if(!obj.seances || !obj.planning) throw new Error('contenu inattendu');
-    const rAt = obj.meta ? obj.meta.updatedAt : null;
-    const lAt = STATE.meta ? STATE.meta.updatedAt : null;
-    if(!force && lAt && rAt && rAt <= lAt){
-      SYNC.lastRemoteAt = g.updated_at; SYNC.lastSyncAt = new Date().toISOString(); SYNC.lastError='';
+    const g=await ghFetch('/gists/'+SYNC.gistId);
+    const f=g.files&&g.files[GIST_FILE];
+    if(!f) throw new Error('fichier '+GIST_FILE+' absent du Gist');
+    const obj=JSON.parse(f.truncated ? await (await fetch(f.raw_url)).text() : f.content);
+    if(!obj.seances||!obj.planning) throw new Error('contenu inattendu');
+    const rAt=obj.meta?obj.meta.updatedAt:null, lAt=STATE.meta?STATE.meta.updatedAt:null;
+    if(!force&&lAt&&rAt&&rAt<=lAt){
+      SYNC.lastRemoteAt=g.updated_at; SYNC.lastSyncAt=new Date().toISOString(); SYNC.lastError='';
       saveSync(); syncBusy=false; refreshSyncPill(); return;
     }
-    STATE = obj; migrate(); syncRefs();
-    selectedPerfExercise = null; seanceChartSel = {};
-    SYNC.lastRemoteAt = g.updated_at;
-    SYNC.lastSyncAt = new Date().toISOString();
-    SYNC.lastError = '';
-    applyingRemote = true;
-    saveSync(); saveNow({silent:true}); syncBusy = false;
-    lastPushedFP = stateFingerprint(); lastLocalFP = lastPushedFP;
-    renderWeekSelect(); renderPage();
-    applyingRemote = false;
-    refreshSyncPill();
-    toast('Données récupérées depuis GitHub ✓');
+    STATE=obj; migrate(); syncRefs();
+    selectedPerf=null;
+    applyingRemote=true;
+    SYNC.lastRemoteAt=g.updated_at; SYNC.lastSyncAt=new Date().toISOString(); SYNC.lastError='';
+    saveSync(); saveNow({silent:true}); syncBusy=false;
+    lastPushedFP=stateFingerprint(); lastLocalFP=lastPushedFP;
+    renderPage(); applyingRemote=false; refreshSyncPill();
+    toast('Données récupérées ✓');
   }catch(e){
-    syncBusy = false;
-    if(isQuotaError(e.message)){
-      pushCooldownUntil = Date.now() + 20*60*1000;
-      SYNC.lastError = 'Quota GitHub atteint. Pause automatique de 20 min, puis reprise.';
-    }else{ SYNC.lastError = e.message; }
+    syncBusy=false;
+    if(isQuotaError(e.message)){ pushCooldownUntil=Date.now()+20*60*1000; SYNC.lastError='Quota GitHub atteint. Pause automatique de 20 min.'; }
+    else SYNC.lastError=e.message;
     saveSync(); refreshSyncPill();
-    if(force) alert('Échec de la récupération : ' + SYNC.lastError);
+    if(force) alert('Échec de la récupération : '+SYNC.lastError);
   }
-}
-function fmtDT(iso){
-  if(!iso) return '—';
-  try{ const d = new Date(iso); return d.toLocaleString('fr-FR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'}); }
-  catch(e){ return iso; }
 }
 let toastTimer=null;
-function toast(msg, actionLabel, action){
-  const el = document.getElementById('toast');
-  if(!el) return;
-  el.innerHTML = escapeHtml(msg) + (actionLabel?`<button id="toastBtn">${escapeHtml(actionLabel)}</button>`:'');
-  el.style.display = 'block';
-  if(actionLabel){
-    document.getElementById('toastBtn').onclick = ()=>{ el.style.display='none'; if(action) action(); };
-  }
+function toast(msg,label,action){
+  const el=document.getElementById('toast'); if(!el) return;
+  el.innerHTML=escapeHtml(msg)+(label?`<button id="toastBtn">${escapeHtml(label)}</button>`:'');
+  el.style.display='block';
+  if(label) document.getElementById('toastBtn').onclick=()=>{ el.style.display='none'; if(action) action(); };
   clearTimeout(toastTimer);
-  toastTimer = setTimeout(()=>{ el.style.display='none'; }, actionLabel?12000:3500);
+  toastTimer=setTimeout(()=>{ el.style.display='none'; }, label?12000:3800);
 }
 
-/* ===================== State ===================== */
-let STATE = loadSaved() || deepClone(SEED);
-let currentTab = 'planning';
-let selectedPerfExercise = null;
-let seanceChartSel = {};
-let testDraft = {};
-let compactWeeks = (typeof window!=='undefined' && window.innerWidth < 640);
+/* ===================== État ===================== */
+let STATE=loadSaved()||deepClone(SEED);
+let currentTab='planning';
+let selectedPerf=null;
 
-const TABS = [
-  {id:'planning',        label:'Planning'},
-  {id:'streetOriginal',  label:'Street Original'},
-  {id:'street',          label:'Street'},
-  {id:'abdo',            label:'Abdo'},
-  {id:'frontLever',      label:'Front Lever'},
-  {id:'performances',    label:'Performances'},
-  {id:'defiPompes',      label:'Défi Pompes'},
-  {id:'fullPlanche',     label:'Full Planche'},
-  {id:'sync',            label:'☁ Synchro'}
+const TABS=[
+  {id:'planning',           label:'Planning'},
+  {id:'streetOriginal',     label:'Street Original'},
+  {id:'streetOriginalPlus', label:'Street Orig. +'},
+  {id:'street',             label:'Street'},
+  {id:'streetPlus',         label:'Street +'},
+  {id:'abdo',               label:'Abdo'},
+  {id:'frontLever',         label:'Front Lever'},
+  {id:'performances',       label:'Performances'},
+  {id:'defiPompes',         label:'Défi Pompes'},
+  {id:'fullPlanche',        label:'Full Planche'},
+  {id:'sync',               label:'🌐 Synchro'}
 ];
-const SEANCE_KEYS = ['streetOriginal','street','abdo'];
-const PROG_KEYS   = ['streetOriginal','street'];
-function isProg(k){ return PROG_KEYS.indexOf(k) >= 0; }
+const SEANCE_KEYS=['streetOriginal','streetOriginalPlus','street','streetPlus','abdo'];
+const PROG_KEYS=['streetOriginal','streetOriginalPlus','street','streetPlus'];
+function isProg(k){ return PROG_KEYS.indexOf(k)>=0; }
 
-/* ===================== Synchronisation perfs → Max réf. ===================== */
-function latestPerf(name){
-  const arr = STATE.performances[name];
-  if(!arr || !arr.length) return null;
-  const s = arr.slice().sort((a,b)=>String(a.date).localeCompare(String(b.date)));
-  const v = s[s.length-1].reps;
-  return (typeof v === 'number' && !isNaN(v)) ? v : null;
+/* ===================== Perfs ↔ Max réf. ===================== */
+function latestPerf(n){
+  const a=STATE.performances[n];
+  if(!a||!a.length) return null;
+  const s=a.slice().sort((x,y)=>String(x.date).localeCompare(String(y.date)));
+  const v=s[s.length-1].reps;
+  return (typeof v==='number'&&!isNaN(v))?v:null;
 }
-function perfDate(name){
-  const arr = STATE.performances[name];
-  if(!arr || !arr.length) return null;
-  const s = arr.slice().sort((a,b)=>String(a.date).localeCompare(String(b.date)));
-  return s[s.length-1].date;
+function perfSerie(n){
+  const a=STATE.performances[n];
+  if(!a||!a.length) return [];
+  return a.slice().sort((x,y)=>String(x.date).localeCompare(String(y.date)));
 }
 function syncRefs(){
-  SEANCE_KEYS.forEach(k=>{
-    const s = STATE.seances[k];
-    if(!s || s.type === 'progressive' || !s.blocks) return;
-    s.blocks.forEach(b=>b.exercises.forEach(ex=>{
-      if(ex.auto === undefined) ex.auto = true;
-      if(ex.auto){
-        const p = latestPerf(ex.name);
-        if(p !== null && p > 0) ex.ref = p;
-      }
-    }));
-  });
+  const s=STATE.seances.abdo;
+  if(!s||!s.blocks) return;
+  s.blocks.forEach(b=>b.exercises.forEach(ex=>{
+    if(ex.auto===undefined) ex.auto=true;
+    if(ex.auto){ const p=latestPerf(ex.name); if(p!==null&&p>0) ex.ref=p; }
+  }));
 }
-function isFresh(){
-  if(Object.keys(STATE.performances||{}).length) return false;
-  return SEANCE_KEYS.filter(k=>!isProg(k)).every(k=>STATE.seances[k].blocks.every(b=>b.exercises.every(ex=>!Number(ex.ref))));
+function exNames(k){
+  const s=STATE.seances[k];
+  if(!s) return [];
+  if(s.type==='progressive') return s.exercises.map(e=>e.name).filter(Boolean);
+  const o=[]; (s.blocks||[]).forEach(b=>b.exercises.forEach(e=>{ if(e.name) o.push(e.name); })); return o;
 }
-function freshBanner(){
-  if(!isFresh()) return '';
-  return `<div class="banner warn">👋 <b>Appli vierge.</b> Les colonnes S1-S7 restent à « — » tant qu'aucun <i>Max réf.</i> n'est renseigné. Trois façons de démarrer : tape un nombre dans la colonne <b>Max réf.</b>, logge une perf dans la carte <b>Courbe de progression</b>, ou récupère une sauvegarde existante via <b>📂 Import</b> / l'onglet <b>☁ Synchro</b>.</div>`;
-}
-function seancesUsing(name){
-  const out = [];
-  SEANCE_KEYS.forEach(k=>{
-    const s = STATE.seances[k];
-    if(s && exNames(k).indexOf(name) >= 0) out.push(s.label);
-  });
-  return out;
+function tousExercices(){
+  const n=new Set(Object.keys(STATE.performances));
+  SEANCE_KEYS.forEach(k=>exNames(k).forEach(x=>n.add(x)));
+  STATE.frontLever.seances.forEach(s=>s.exercises.forEach(e=>n.add(e.name)));
+  return Array.from(n).filter(Boolean).sort((a,b)=>a.localeCompare(b,'fr'));
 }
 
-/* ===================== Nav ===================== */
+/* ===================== Navigation ===================== */
 function renderNav(){
-  document.getElementById('tabnav').innerHTML = TABS.map(t =>
-    `<button data-tab="${t.id}" class="${t.id===currentTab?'active':''}" onclick="switchTab('${t.id}')">${escapeHtml(t.label)}</button>`
-  ).join('');
+  document.getElementById('tabnav').innerHTML=TABS.map(t=>
+    `<button data-tab="${t.id}" class="${t.id===currentTab?'active':''}" onclick="switchTab('${t.id}')">${escapeHtml(t.label)}</button>`).join('');
+  const a=document.querySelector('#tabnav button.active');
+  if(a&&a.scrollIntoView) a.scrollIntoView({inline:'center',block:'nearest'});
 }
-function renderWeekSelect(){
-  const sel = document.getElementById('weekSelect');
-  let opts = '';
-  for(let n=1;n<=WEEKS;n++){
-    opts += `<option value="${n}" ${n===STATE.semaine?'selected':''}>S${n}${n===TEST_WEEK?' · TEST':''}</option>`;
-  }
-  sel.innerHTML = opts;
-}
-function setWeek(v){ STATE.semaine = parseInt(v,10)||1; renderWeekSelect(); renderPage(); scheduleSave(); }
-function switchTab(id){
-  currentTab = id;
-  renderNav(); renderPage();
-  window.scrollTo({top:0,behavior:'instant'});
-}
+function switchTab(id){ currentTab=id; renderNav(); renderPage(); window.scrollTo({top:0,behavior:'instant'}); }
 
-/* ===================== Dispatch ===================== */
 function renderPage(){
   syncRefs();
-  const main = document.getElementById('mainArea');
-  if(SEANCE_KEYS.includes(currentTab)){
-    main.innerHTML = isProg(currentTab) ? renderProgHtml(currentTab) : renderSeanceHtml(currentTab);
-    if(!isProg(currentTab)) recomputeSeance(currentTab);
-    drawSeanceChart(currentTab);
-  } else if(currentTab === 'planning'){
-    main.innerHTML = renderPlanningHtml();
-  } else if(currentTab === 'performances'){
-    main.innerHTML = renderPerformancesHtml();
-    initPerfPage();
-  } else if(currentTab === 'fullPlanche'){
-    main.innerHTML = renderPhaseHtml('fullPlanche', 'Full Planche', '#C62828');
-  } else if(currentTab === 'frontLever'){
-    main.innerHTML = renderFrontLeverHtml();
-  } else if(currentTab === 'defiPompes'){
-    main.innerHTML = renderDefiHtml();
-    recomputeDefi();
-  } else if(currentTab === 'sync'){
-    main.innerHTML = renderSyncHtml();
-  }
+  const m=document.getElementById('mainArea');
+  if(isProg(currentTab)){ m.innerHTML=renderProg(currentTab); afterProg(currentTab); }
+  else if(currentTab==='abdo'){ m.innerHTML=renderAbdo(); recomputeAbdo(); }
+  else if(currentTab==='planning') m.innerHTML=renderPlanning();
+  else if(currentTab==='performances'){ m.innerHTML=renderPerf(); afterPerf(); }
+  else if(currentTab==='frontLever') m.innerHTML=renderFrontLever();
+  else if(currentTab==='fullPlanche') m.innerHTML=renderPhase('fullPlanche','Full Planche','#e66767');
+  else if(currentTab==='defiPompes'){ m.innerHTML=renderDefi(); recomputeDefi(); }
+  else if(currentTab==='sync') m.innerHTML=renderSync();
   scheduleSave();
 }
 
 /* ===================== Planning ===================== */
-function todayIndex(){ const d = new Date().getDay(); return (d+6)%7; }
-function renderPlanningHtml(){
-  const p = STATE.planning;
-  const ti = todayIndex();
-  const opts = act => ACTIVITIES.map(a=>`<option value="${escapeAttr(a.name)}" ${a.name===act?'selected':''}>${escapeHtml(a.name)}</option>`).join('');
-
-  const days = p.days.map((d,di)=>{
-    const slots = d.slots.map((s,si)=>{
-      const tab = actTab(s.act);
-      return `
-      <div class="slot" style="border-left-color:${actColor(s.act)};">
+function todayIndex(){ return (new Date().getDay()+6)%7; }
+function renderPlanning(){
+  const p=STATE.planning, ti=todayIndex();
+  const opts=a=>ACTIVITIES.map(x=>`<option value="${escapeAttr(x.name)}" ${x.name===a?'selected':''}>${escapeHtml(x.name)}</option>`).join('');
+  const days=p.days.map((d,di)=>{
+    const slots=d.slots.map((s,si)=>{
+      const tab=actTab(s.act);
+      return `<div class="slot" style="--sc:${actColor(s.act)}">
         <div class="slotTop">
           <select onchange="setSlotAct(${di},${si},this.value)">${opts(s.act)}</select>
-          ${tab?`<button class="goBtn" title="Ouvrir la séance" onclick="switchTab('${tab}')">↗</button>`:''}
-          <button class="delbtn" title="Supprimer" onclick="removeSlot(${di},${si})">✕</button>
+          ${tab?`<button class="iconbtn" title="Ouvrir" onclick="switchTab('${tab}')">↗</button>`:''}
+          <button class="delbtn" onclick="removeSlot(${di},${si})">✕</button>
         </div>
-        <input class="slotNote" type="text" placeholder="note (durée, focus…)" value="${escapeAttr(s.note)}" oninput="STATE.planning.days[${di}].slots[${si}].note=this.value">
-      </div>`;
-    }).join('');
-    return `
-      <div class="dayCard ${di===ti?'today':''}">
-        <div class="dayHead"><span>${escapeHtml(d.day)}</span>${di===ti?'<span class="todayTag">AUJOURD\'HUI</span>':''}</div>
-        <div class="dayBody">
-          ${slots || '<div style="font-size:11.5px;color:var(--muted);padding:4px 2px;">Rien de prévu.</div>'}
-          <button class="addSlot" onclick="addSlot(${di})">+ Ajouter un créneau</button>
-        </div>
-      </div>`;
+        <input class="slotNote" type="text" placeholder="note" value="${escapeAttr(s.note)}" oninput="STATE.planning.days[${di}].slots[${si}].note=this.value">
+      </div>`;}).join('');
+    return `<div class="dayCard ${di===ti?'today':''}">
+      <div class="dayHead"><span>${escapeHtml(d.day)}</span>${di===ti?'<span class="todayTag">AUJOURD’HUI</span>':''}</div>
+      <div class="dayBody">${slots||'<div style="font-size:11.5px;color:var(--text-muted);padding:3px 2px;">Rien de prévu.</div>'}
+        <button class="addSlot" onclick="addSlot(${di})">+ Créneau</button></div></div>`;
   }).join('');
-
-  const counts = {};
-  p.days.forEach(d=>d.slots.forEach(s=>{ if(s.act!=='Repos'){ counts[s.act]=(counts[s.act]||0)+1; } }));
-  const legend = Object.keys(counts).sort().map(k=>
-    `<span class="chip" style="background:${actColor(k)}">${escapeHtml(k)} × ${counts[k]}</span>`).join('') ||
-    '<span style="font-size:11.5px;color:var(--muted)">Aucune séance placée.</span>';
-  const nbSeances = Object.values(counts).reduce((a,b)=>a+b,0);
-  const nbRepos = p.days.filter(d=>d.slots.every(s=>s.act==='Repos')).length;
-  const testBanner = STATE.semaine===TEST_WEEK
-    ? `<div class="banner test"><b>Semaine test (S8)</b> — sur chaque séance : ${escapeHtml(STATE.test.series)} séries au max, ${escapeHtml(STATE.test.repos)} de repos. Logue les résultats, les Max réf. se mettent à jour tout seuls.</div>` : '';
-
-  return `
-    <div class="card">
-      <div class="accentbar" style="background:#37474F"></div>
-      <h2>Planning hebdomadaire — semaine S${STATE.semaine}${STATE.semaine===TEST_WEEK?' (TEST)':''}</h2>
-      ${freshBanner()}
-      ${testBanner}
-      <div class="sub">Un créneau = une séance. Change le contenu dans le menu déroulant, ajoute-en autant que tu veux, et clique sur ↗ pour ouvrir la séance correspondante.</div>
-      <div class="statGrid">
-        <div class="stat"><div class="v">${nbSeances}</div><div class="l">Créneaux actifs</div></div>
-        <div class="stat"><div class="v">${nbRepos}</div><div class="l">Jours 100% repos</div></div>
-        <div class="stat"><div class="v">S${STATE.semaine}/${WEEKS}</div><div class="l">Semaine du cycle</div></div>
-      </div>
+  const c={};
+  p.days.forEach(d=>d.slots.forEach(s=>{ if(s.act!=='Repos') c[s.act]=(c[s.act]||0)+1; }));
+  const legend=Object.keys(c).sort().map(k=>`<span class="chip" style="background:${actColor(k)}">${escapeHtml(k)} × ${c[k]}</span>`).join('')
+    ||'<span style="font-size:11.5px;color:var(--text-muted)">Aucune séance placée.</span>';
+  return `<div class="card" style="--acc:var(--s1)">
+      <div class="eyebrow">Semaine type</div>
+      <h2>Planning</h2>
+      <div class="sub">${escapeHtml(p.note)}</div>
       <div class="weekGrid">${days}</div>
-      <div class="legend" style="margin-top:12px;">${legend}</div>
-      <label style="font-size:11.5px;color:var(--muted);display:block;margin-top:12px;">Note de la semaine</label>
-      <textarea rows="2" oninput="STATE.planning.note=this.value">${escapeHtml(p.note)}</textarea>
-      <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:10px;">
-        <button class="btn small" onclick="clearWeek()">Vider la semaine</button>
+      <div class="legend">${legend}</div>
+      <div class="row" style="margin-top:14px;">
+        <button class="btn small" onclick="clearWeek()">Vider</button>
         <button class="btn small" onclick="shiftWeek()">Décaler d'un jour →</button>
       </div>
     </div>`;
 }
-function setSlotAct(di,si,val){ STATE.planning.days[di].slots[si].act = val; renderPage(); }
-function addSlot(di){ STATE.planning.days[di].slots.push({act:'Libre / au feeling', note:''}); renderPage(); }
-function removeSlot(di,si){ STATE.planning.days[di].slots.splice(si,1); renderPage(); }
-function clearWeek(){
-  if(confirm('Vider tous les créneaux de la semaine ?')){
-    STATE.planning.days.forEach(d=>d.slots=[{act:'Repos',note:''}]);
-    renderPage();
-  }
-}
-function shiftWeek(){
-  const d = STATE.planning.days;
-  const slots = d.map(x=>x.slots);
-  slots.unshift(slots.pop());
-  d.forEach((x,i)=>x.slots=slots[i]);
-  renderPage();
-}
+function setSlotAct(d,s,v){ STATE.planning.days[d].slots[s].act=v; renderPage(); }
+function addSlot(d){ STATE.planning.days[d].slots.push({act:'Libre / au feeling',note:''}); renderPage(); }
+function removeSlot(d,s){ STATE.planning.days[d].slots.splice(s,1); renderPage(); }
+function clearWeek(){ if(confirm('Vider tous les créneaux ?')){ STATE.planning.days.forEach(d=>d.slots=[{act:'Repos',note:''}]); renderPage(); } }
+function shiftWeek(){ const d=STATE.planning.days, s=d.map(x=>x.slots); s.unshift(s.pop()); d.forEach((x,i)=>x.slots=s[i]); renderPage(); }
 
-/* ===================== Séances à progression par réussite ===================== */
-function exNames(key){
-  const s = STATE.seances[key];
-  if(!s) return [];
-  if(s.type === 'progressive') return s.exercises.map(e=>e.name).filter(Boolean);
-  const out = [];
-  s.blocks.forEach(b=>b.exercises.forEach(e=>{ if(e.name) out.push(e.name); }));
-  return out;
-}
+/* ===================== Séances progressives ===================== */
 function objectifStr(s){ return s.exercises.map(e=>e.reps).join(' / '); }
-function tousAuPlafond(s){ return s.exercises.every(e => Number(e.reps) >= Number(e.plafond)); }
-function chargeDuPalier(i){
-  const p = (STATE.courbePoids && STATE.courbePoids.paliers) || [];
-  if(!p.length) return 0;
-  return Number(p[Math.max(0, Math.min(i, p.length-1))]) || 0;
-}
-function semainesDepuis(iso){
-  if(!iso) return null;
-  const d = new Date(iso); if(isNaN(d)) return null;
-  return Math.floor((Date.now() - d.getTime()) / (7*24*3600*1000));
-}
+function tousAuPlafond(s){ return s.exercises.every(e=>nombre(e.reps)>=nombre(e.plafond)); }
+function paliers(){ return (STATE.courbePoids&&STATE.courbePoids.paliers)||[]; }
+function chargeDe(i){ const p=paliers(); if(!p.length) return 0; return nombre(p[Math.max(0,Math.min(i,p.length-1))]); }
+function reussites(s){ return (s.history||[]).filter(h=>h.reussi).length; }
 
-function renderProgHtml(key){
-  const s = STATE.seances[key];
-  const leste = !!(s.lest && s.lest.actif);
-  const nom = leste ? (key==='streetOriginal' ? 'Street Original Plus' : 'Street Plus') : s.label;
-  const cible = Number(s.toursCible)||5;
+function renderProg(key){
+  const s=STATE.seances[key], acc=s.accent, cible=nombre(s.toursCible)||5;
+  const leste=!!s.leste;
+  const charge=leste?chargeDe(s.palier||0):0;
 
-  const tuiles = s.exercises.map((e,i)=>`
-    <div class="exTile" style="border-left-color:${s.accent}">
+  const tiles=s.exercises.map((e,i)=>{
+    const max=!leste&&nombre(e.reps)>=nombre(e.plafond);
+    return `<div class="exTile ${max?'max':''}">
       <div class="exName">${escapeHtml(e.name)}</div>
-      <div class="exReps">${escapeHtml(e.reps)}<span>reps</span></div>
-      <div class="exCap">plafond ${escapeHtml(e.plafond)}${Number(e.reps)>=Number(e.plafond)?' · atteint ✓':''}</div>
-    </div>`).join('');
+      <div class="exReps num">${escapeHtml(e.reps)}</div>
+      <div class="exU">reps</div>
+      <div class="exMeta">repos ${escapeHtml(e.repos||'—')}${leste?'':' · max '+escapeHtml(e.plafond)}${max?' ✓':''}</div>
+    </div>`;}).join('');
 
-  const regles = s.exercises.map((e,i)=>`
-    <tr>
+  const chips=leste?paliers().map((v,i)=>{
+    const cls=i===(s.palier||0)?'cur':(i<(s.palier||0)?'done':'');
+    return `<span class="chipP ${cls}">${fmtKg(v)}</span>`;}).join(''):'';
+
+  const hist=(s.history||[]).slice(0,12).map(h=>`<tr>
+      <td>${escapeHtml(h.date)}</td>
+      <td class="num">${escapeHtml(h.tours)}/${escapeHtml(h.cible)}</td>
+      <td class="num">${escapeHtml(h.objectif)}</td>
+      <td class="num">${h.charge?fmtKg(h.charge)+' kg':'—'}</td>
+      <td>${h.reussi?'<span style="color:var(--good);font-weight:700;">✓</span>':'—'}</td>
+    </tr>`).join('')||'<tr><td colspan="5" style="color:var(--text-muted);">Aucune séance enregistrée.</td></tr>';
+
+  const reglages=s.exercises.map((e,i)=>`<tr>
       <td class="name"><input type="text" value="${escapeAttr(e.name)}" oninput="STATE.seances['${key}'].exercises[${i}].name=this.value" onchange="renderPage()"></td>
-      <td><input type="number" value="${escapeAttr(e.reps)}" oninput="STATE.seances['${key}'].exercises[${i}].reps=parseFloat(this.value)||0"></td>
-      <td><input type="number" value="${escapeAttr(e.plafond)}" oninput="STATE.seances['${key}'].exercises[${i}].plafond=parseFloat(this.value)||0"></td>
+      <td><input type="number" value="${escapeAttr(e.reps)}" oninput="STATE.seances['${key}'].exercises[${i}].reps=nombre(this.value)"></td>
+      ${leste?'':`<td><input type="number" value="${escapeAttr(e.plafond)}" oninput="STATE.seances['${key}'].exercises[${i}].plafond=nombre(this.value)"></td>`}
+      <td><input type="text" style="width:86px;" value="${escapeAttr(e.repos)}" oninput="STATE.seances['${key}'].exercises[${i}].repos=this.value"></td>
       <td><button class="delbtn" onclick="removeProgEx('${key}',${i})">🗑</button></td>
     </tr>`).join('');
 
-  const hist = (s.history||[]).slice(0,15).map((h,i)=>`
-    <tr>
-      <td>${escapeHtml(h.date)}</td>
-      <td>${escapeHtml(h.tours)} / ${escapeHtml(h.cible!==undefined?h.cible:cible)}</td>
-      <td>${escapeHtml(h.objectif)}</td>
-      <td>${h.mode==='lesté'?('+'+escapeHtml(h.charge)+' kg'):'PDC'}</td>
-      <td>${h.progression?'<span style="color:var(--green);font-weight:700;">↑</span>':'—'}${h.bascule?' 🏋️':''}</td>
-    </tr>`).join('') || '<tr><td colspan="5" style="color:var(--muted);">Aucune séance enregistrée.</td></tr>';
+  let bascule='';
+  if(!leste && s.plusDe && tousAuPlafond(s)){
+    bascule=`<div class="banner accent">🏋️ <b>Plafond atteint sur tous les mouvements.</b> Tu peux passer à la version lestée.
+      <button class="btn small warm" style="margin-left:8px;" onclick="basculerVersPlus('${key}')">Ouvrir ${escapeHtml(STATE.seances[s.plusDe].label)}</button></div>`;
+  }
 
-  const paliers = ((STATE.courbePoids&&STATE.courbePoids.paliers)||[]).map((v,i)=>`
-    <span class="palierChip ${leste && i===s.lest.palier?'cur':''}">${escapeHtml(v)}<span class="u">kg</span></span>`).join('');
-
-  const sem = semainesDepuis(STATE.test && STATE.test.dernier);
-  const dueTest = (STATE.test && (!STATE.test.dernier || (sem!==null && sem >= Number(STATE.test.intervalleSemaines||8))));
-  const testBanner = dueTest
-    ? `<div class="banner test">🎯 <b>Test conseillé.</b> ${STATE.test.dernier?('Dernier test il y a '+sem+' semaines.'):'Aucun test enregistré.'} Protocole : ${escapeHtml(STATE.test.series)} séries au max, ${escapeHtml(STATE.test.repos)} de repos. <button class="btn small" style="margin-left:6px;" onclick="toggleTestCard('${key}')">Ouvrir le test</button></div>`
-    : `<div class="sub">Dernier test il y a ${sem} semaine(s) — prochain conseillé à ${escapeHtml(STATE.test.intervalleSemaines)}. <button class="btn small" onclick="toggleTestCard('${key}')">Ouvrir le test</button></div>`;
-
-  const chartOpts = exNames(key).map(n=>`<option value="${escapeAttr(n)}" ${n===seanceChartSel[key]?'selected':''}>${escapeHtml(n)}</option>`).join('');
-  if(!seanceChartSel[key] || exNames(key).indexOf(seanceChartSel[key])<0) seanceChartSel[key] = exNames(key)[0] || null;
+  const sem=semainesDepuis(STATE.test.dernier);
+  const due=!STATE.test.dernier||(sem!==null&&sem>=nombre(STATE.test.intervalleSemaines||8));
 
   return `
-    <div class="card">
-      <div class="accentbar" style="background:${leste?'#0D47A1':s.accent}"></div>
-      <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;">
-        <h2 style="margin:0;">${escapeHtml(nom)}</h2>
-        <span class="modeBadge" style="background:${leste?'#0D47A1':s.accent}">${leste?('🏋️ Lesté +'+escapeHtml(s.lest.charge)+' kg'):'Poids du corps'}</span>
+  <div class="card" style="--acc:${acc}">
+    <div class="seanceHead">
+      <div>
+        <div class="eyebrow">${leste?'Version lestée':'Poids du corps'}</div>
+        <h2>${escapeHtml(s.label)}</h2>
       </div>
-      <textarea class="sub" rows="2" style="margin-top:8px;" oninput="STATE.seances['${key}'].subtitle=this.value">${escapeHtml(s.subtitle)}</textarea>
-      <div class="exGrid">${tuiles}</div>
-      <div class="objLine"><b>${cible} tours</b> · repos <input type="text" value="${escapeAttr(s.repos)}" style="width:120px;display:inline-block;" oninput="STATE.seances['${key}'].repos=this.value"></div>
-      <div class="banner info">${leste
-        ? `Les reps ne bougent plus : elles restent à ${escapeHtml(objectifStr(s))}. À chaque séance où tu tiens les ${cible} tours, tu passes au <b>palier de charge suivant</b>.`
-        : `À chaque séance où tu tiens les ${cible} tours à ces valeurs, <b>chaque exercice prend +1 rep</b> pour la fois suivante. Quand tous les exercices atteignent leur plafond (${escapeHtml(s.exercises.map(e=>e.plafond).join(' / '))}), la séance bascule automatiquement en <b>mode lesté</b> : reps figées, charge progressive.`}</div>
+      <span class="badge">${leste?('+ '+fmtKg(charge)+' kg'):(cible+' tours')}</span>
     </div>
-
-    <div class="card">
-      <div class="accentbar" style="background:var(--green)"></div>
-      <h2>Valider la séance</h2>
-      <div class="perfControls">
-        <div><label>Date</label><input type="date" id="vDate_${key}"></div>
-        <div><label>Tours réalisés</label><input type="number" id="vTours_${key}" value="${cible}"></div>
-        <div><button class="btn primary" onclick="validerSeance('${key}')">✅ Enregistrer</button></div>
-        <div><button class="btn" onclick="annulerDerniere('${key}')">↶ Annuler la dernière</button></div>
-      </div>
-      <div class="sub" style="margin-bottom:0;">Objectif du jour : <b>${escapeHtml(objectifStr(s))}</b> sur ${cible} tours. Si tu fais moins de ${cible} tours, la séance est enregistrée mais les valeurs ne bougent pas.</div>
-      ${testBanner}
+    <textarea class="sub" rows="2" style="margin-top:8px;" oninput="STATE.seances['${key}'].subtitle=this.value">${escapeHtml(s.subtitle)}</textarea>
+    <div class="exGrid">${tiles}</div>
+    <div class="kpiRow">
+      <div class="kpi"><div class="v num">${cible}</div><div class="l">Tours cible</div></div>
+      <div class="kpi"><div class="v num">${reussites(s)}</div><div class="l">Séances réussies</div></div>
+      ${leste?`<div class="kpi"><div class="v num">${fmtKg(charge)} kg</div><div class="l">Palier ${(s.palier||0)+1}/${paliers().length}</div></div>`
+             :`<div class="kpi"><div class="v num">${s.exercises.map(e=>e.plafond).join('/')}</div><div class="l">Plafonds</div></div>`}
     </div>
+    ${bascule}
+    <div class="banner">${leste
+      ? `Les reps ne bougent plus. Chaque séance où tu tiens les <b>${cible} tours</b> te fait passer au <b>palier de charge suivant</b>.`
+      : `Chaque séance où tu tiens les <b>${cible} tours</b> ajoute <b>+1 rep à chaque mouvement</b>. Au plafond, on passe au lesté.`}</div>
+  </div>
 
-    <div id="testCard_${key}" style="display:none;">${renderTestCard(key)}</div>
-
-    <div class="card">
-      <div class="accentbar" style="background:${s.accent}"></div>
-      <h2>Historique</h2>
-      <div class="tablewrap">
-        <table>
-          <thead><tr><th>Date</th><th>Tours</th><th>Objectif</th><th>Mode</th><th>Prog.</th></tr></thead>
-          <tbody>${hist}</tbody>
-        </table>
-      </div>
+  <div class="card" style="--acc:var(--good)">
+    <h2>Valider la séance</h2>
+    <div class="sub">Objectif du jour : <b class="num">${escapeHtml(objectifStr(s))}</b> sur ${cible} tours${leste?(' à +'+fmtKg(charge)+' kg'):''}.</div>
+    <div class="row">
+      <div><label class="lbl">Date</label><input type="date" id="vDate_${key}"></div>
+      <div><label class="lbl">Tours réalisés</label><input type="number" id="vTours_${key}" value="${cible}"></div>
     </div>
-
-    <div class="card">
-      <div class="accentbar" style="background:#546E7A"></div>
-      <h2>Réglages</h2>
-      <div class="paramsRow">
-        <div><label>Tours cible</label><input type="number" value="${cible}" oninput="STATE.seances['${key}'].toursCible=parseFloat(this.value)||1"></div>
-        <div><label>Mode lesté</label><label style="font-size:12.5px;"><input type="checkbox" ${leste?'checked':''} style="width:auto;margin-right:6px;" onchange="STATE.seances['${key}'].lest.actif=this.checked;renderPage()">forcer</label></div>
-        <div><label>Charge actuelle (kg)</label><input type="number" value="${escapeAttr(s.lest.charge)}" oninput="STATE.seances['${key}'].lest.charge=parseFloat(this.value)||0"></div>
-      </div>
-      <div class="tablewrap">
-        <table>
-          <thead><tr><th style="text-align:left;">Exercice</th><th>Reps actuelles</th><th>Plafond</th><th></th></tr></thead>
-          <tbody>${regles}</tbody>
-        </table>
-      </div>
-      <button class="btn small" style="margin-top:6px;" onclick="addProgEx('${key}')">+ Ajouter un exercice</button>
+    <div class="row" style="margin-top:10px;">
+      <button class="btn go" onclick="validerSeance('${key}')">✓ Enregistrer la séance</button>
+      <button class="btn ghost" onclick="annulerDerniere('${key}')">↶ Annuler la dernière</button>
     </div>
+    <div class="banner ${due?'warn':''}" style="margin-bottom:0;">${due
+      ? `🎯 <b>Test de max conseillé.</b> ${STATE.test.dernier?('Dernier test il y a '+sem+' semaines.'):'Aucun test enregistré.'}`
+      : `Dernier test il y a ${sem} semaine(s). Prochain conseillé à ${escapeHtml(STATE.test.intervalleSemaines)}.`}
+      <button class="btn small" style="margin-left:6px;" onclick="toggleTest('${key}')">Ouvrir le test</button></div>
+  </div>
 
-    <div class="card">
-      <div class="accentbar" style="background:#0D47A1"></div>
-      <h2>Courbe de poids</h2>
-      <textarea class="sub" rows="2" oninput="STATE.courbePoids.note=this.value">${escapeHtml(STATE.courbePoids.note)}</textarea>
-      <div class="palierRow">${paliers}</div>
-      <label style="font-size:11.5px;color:var(--muted);display:block;margin-top:8px;">Paliers, séparés par des virgules</label>
-      <input type="text" value="${escapeAttr(((STATE.courbePoids&&STATE.courbePoids.paliers)||[]).join(', '))}" onchange="setPaliers(this.value)">
-      <div class="sub" style="margin-top:8px;margin-bottom:0;">${leste?`Palier courant : <b>${s.lest.palier+1}</b> sur ${((STATE.courbePoids.paliers)||[]).length}.`:'Cette courbe s’appliquera dès la bascule en mode lesté.'}</div>
+  <div id="testCard_${key}" style="display:none;">${renderTestCard(key)}</div>
+
+  <div class="card" style="--acc:${acc}">
+    <h2>Historique</h2>
+    <div class="tablewrap"><table>
+      <thead><tr><th>Date</th><th>Tours</th><th>Objectif</th><th>Charge</th><th>OK</th></tr></thead>
+      <tbody>${hist}</tbody></table></div>
+  </div>
+
+  ${leste?`<div class="card" style="--acc:${acc}">
+    <h2>Courbe de poids</h2>
+    <div class="sub">${escapeHtml(STATE.courbePoids.note)} — ${paliers().length} paliers, de ${fmtKg(paliers()[0])} à ${fmtKg(paliers()[paliers().length-1])} kg.</div>
+    <div class="palierRow">${chips}</div>
+    <label class="lbl" style="margin-top:12px;">Paliers (séparés par des virgules)</label>
+    <input type="text" value="${escapeAttr(paliers().map(v=>fmtKg(v)).join(', '))}" onchange="setPaliers(this.value)">
+    <div class="row" style="margin-top:10px;">
+      <button class="btn small" onclick="bougePalier('${key}',-1)">← Palier précédent</button>
+      <button class="btn small" onclick="bougePalier('${key}',1)">Palier suivant →</button>
     </div>
+  </div>`:''}
 
-    <div class="card">
-      <div class="accentbar" style="background:${s.accent}"></div>
-      <h2>Courbe de progression</h2>
-      <div class="sub">Historique de tes maxima par exercice — alimenté par les tests et par la saisie manuelle.</div>
-      <div class="perfControls">
-        <div><label>Exercice</label><select id="sChartSel_${key}" onchange="seanceChartSel['${key}']=this.value;drawSeanceChart('${key}')">${chartOpts}</select></div>
-        <div><label>Date</label><input type="date" id="sChartDate_${key}"></div>
-        <div><label>Reps / sec</label><input type="number" id="sChartVal_${key}"></div>
-        <div><button class="btn primary" onclick="addSeancePerf('${key}')">+ Ajouter</button></div>
-      </div>
-      <canvas id="sChart_${key}" height="180"></canvas>
-    </div>`;
+  <div class="card" style="--acc:${acc}">
+    <h2>Réglages</h2>
+    <div class="row" style="margin-bottom:12px;">
+      <div><label class="lbl">Tours cible</label><input type="number" value="${cible}" oninput="STATE.seances['${key}'].toursCible=nombre(this.value)||1"></div>
+    </div>
+    <div class="tablewrap"><table>
+      <thead><tr><th style="text-align:left;">Exercice</th><th>Reps</th>${leste?'':'<th>Plafond</th>'}<th>Repos</th><th></th></tr></thead>
+      <tbody>${reglages}</tbody></table></div>
+    <button class="btn small" style="margin-top:10px;" onclick="addProgEx('${key}')">+ Exercice</button>
+  </div>`;
 }
-function toggleTestCard(key){
-  const el = document.getElementById('testCard_'+key);
-  if(!el) return;
-  el.style.display = (el.style.display==='none') ? 'block' : 'none';
-  if(el.style.display==='block'){
-    const d = document.getElementById('testDate_'+key);
-    if(d && !d.value) d.value = today();
-    el.scrollIntoView({behavior:'smooth', block:'start'});
-  }
+function afterProg(key){
+  const d=document.getElementById('vDate_'+key); if(d&&!d.value) d.value=today();
+  const t=document.getElementById('testDate_'+key); if(t&&!t.value) t.value=today();
 }
+function addProgEx(k){ const s=STATE.seances[k]; s.exercises.push(s.leste?{name:'Nouvel exercice',reps:8,repos:'2 min'}:{name:'Nouvel exercice',reps:5,plafond:8,repos:'2 min'}); renderPage(); }
+function removeProgEx(k,i){ STATE.seances[k].exercises.splice(i,1); renderPage(); }
 function setPaliers(str){
-  const arr = String(str).split(',').map(x=>parseFloat(String(x).replace(',','.').trim())).filter(v=>!isNaN(v));
-  if(!arr.length){ alert('Entre au moins une valeur, par exemple : 2.5, 5, 7.5'); return; }
-  STATE.courbePoids.paliers = arr;
+  const a=String(str).split(',').map(x=>parseFloat(String(x).replace(',','.').trim())).filter(v=>!isNaN(v));
+  if(!a.length){ alert('Entre au moins une valeur, par exemple 1,25 · 2 · 2,5'); return; }
+  STATE.courbePoids.paliers=a; renderPage(); saveNow();
+}
+function bougePalier(k,d){
+  const s=STATE.seances[k];
+  s.palier=Math.max(0,Math.min((s.palier||0)+d,paliers().length-1));
   renderPage(); saveNow();
 }
-function addProgEx(key){
-  STATE.seances[key].exercises.push({name:'Nouvel exercice', reps:5, plafond:8});
-  renderPage();
+function basculerVersPlus(key){
+  const s=STATE.seances[key], plus=STATE.seances[s.plusDe];
+  plus.exercises=s.exercises.map(e=>({name:e.name, reps:nombre(e.plafond), repos:e.repos}));
+  plus.toursCible=s.toursCible;
+  saveNow(); switchTab(s.plusDe);
+  toast('Reps reprises du plafond. La charge démarre au palier 1.');
 }
-function removeProgEx(key,i){ STATE.seances[key].exercises.splice(i,1); renderPage(); }
 function validerSeance(key){
-  const s = STATE.seances[key];
-  const dEl = document.getElementById('vDate_'+key);
-  const date = (dEl && dEl.value) ? dEl.value : today();
-  const tours = parseFloat(document.getElementById('vTours_'+key).value);
+  const s=STATE.seances[key], cible=nombre(s.toursCible)||5, leste=!!s.leste;
+  const dEl=document.getElementById('vDate_'+key);
+  const date=(dEl&&dEl.value)?dEl.value:today();
+  const tours=parseFloat(document.getElementById('vTours_'+key).value);
   if(isNaN(tours)){ alert('Entre le nombre de tours réalisés.'); return; }
-  const cible = Number(s.toursCible)||5;
-  const entry = {
-    date, tours, cible,
-    objectif: objectifStr(s),
-    mode: s.lest.actif ? 'lesté' : 'PDC',
-    charge: s.lest.charge,
-    progression: false,
-    bascule: false,
-    avant: {reps: s.exercises.map(e=>Number(e.reps)), lest: deepClone(s.lest)}
-  };
-  let msg = 'Séance enregistrée. Objectif inchangé : ' + objectifStr(s) + '.';
-  if(tours >= cible){
-    if(s.lest.actif){
-      const p = (STATE.courbePoids.paliers)||[];
-      if(s.lest.palier < p.length-1){
-        s.lest.palier += 1;
-        s.lest.charge = chargeDuPalier(s.lest.palier);
-        entry.progression = true;
-        msg = 'Réussi. Prochaine séance : +' + s.lest.charge + ' kg.';
-      }else{
-        msg = 'Réussi, mais tu es au dernier palier de la courbe de poids. Ajoute des paliers pour continuer.';
-      }
+  const reussi=tours>=cible;
+  const entry={date,tours,cible,objectif:objectifStr(s),charge:leste?chargeDe(s.palier||0):0,reussi,
+               avant:{reps:s.exercises.map(e=>nombre(e.reps)),palier:s.palier||0}};
+  let msg;
+  if(reussi){
+    if(leste){
+      if((s.palier||0)<paliers().length-1){ s.palier=(s.palier||0)+1; msg='Réussi. Prochaine séance à +'+fmtKg(chargeDe(s.palier))+' kg.'; }
+      else msg='Réussi, mais tu es au dernier palier. Ajoute des paliers pour continuer.';
     }else{
-      s.exercises.forEach(e=>{ if(Number(e.reps) < Number(e.plafond)) e.reps = Number(e.reps)+1; });
-      entry.progression = true;
-      msg = 'Réussi. Prochaine séance : ' + objectifStr(s) + '.';
-      if(tousAuPlafond(s)){
-        s.lest.actif = true;
-        s.lest.palier = 0;
-        s.lest.charge = chargeDuPalier(0);
-        entry.bascule = true;
-        msg = 'Plafond atteint sur tous les exercices. La séance passe en mode lesté : ' + objectifStr(s) + ' avec +' + s.lest.charge + ' kg.';
-      }
+      s.exercises.forEach(e=>{ if(nombre(e.reps)<nombre(e.plafond)) e.reps=nombre(e.reps)+1; });
+      msg='Réussi. Prochaine séance : '+objectifStr(s)+'.';
+      if(tousAuPlafond(s)) msg='Plafond atteint partout. Passe sur '+STATE.seances[s.plusDe].label+'.';
     }
   }else{
-    msg = 'Séance enregistrée (' + tours + '/' + cible + ' tours). Objectif inchangé : ' + objectifStr(s) + '.';
+    msg='Séance enregistrée ('+tours+'/'+cible+'). Objectif inchangé.';
   }
-  if(!s.history) s.history = [];
+  if(!s.history) s.history=[];
   s.history.unshift(entry);
-  renderPage(); saveNow();
-  toast(msg);
+  renderPage(); saveNow(); toast(msg);
 }
 function annulerDerniere(key){
-  const s = STATE.seances[key];
-  if(!s.history || !s.history.length){ alert('Aucune séance à annuler.'); return; }
-  const h = s.history[0];
-  if(!confirm('Annuler la séance du ' + h.date + ' et revenir à l\'objectif ' + h.objectif + ' ?')) return;
+  const s=STATE.seances[key];
+  if(!s.history||!s.history.length){ alert('Aucune séance à annuler.'); return; }
+  const h=s.history[0];
+  if(!confirm('Annuler la séance du '+h.date+' ?')) return;
   if(h.avant){
-    s.exercises.forEach((e,i)=>{ if(h.avant.reps[i]!==undefined) e.reps = h.avant.reps[i]; });
-    s.lest = deepClone(h.avant.lest);
+    s.exercises.forEach((e,i)=>{ if(h.avant.reps[i]!==undefined) e.reps=h.avant.reps[i]; });
+    s.palier=h.avant.palier;
   }
-  s.history.shift();
-  renderPage(); saveNow();
-  toast('Dernière séance annulée.');
+  s.history.shift(); renderPage(); saveNow(); toast('Séance annulée.');
 }
-
-/* ===================== Séances en circuit (Abdo) ===================== */
-function visibleWeeks(){
-  if(!compactWeeks) { const a=[]; for(let n=1;n<=WEEKS;n++) a.push(n); return a; }
-  const cur = STATE.semaine;
-  return cur===TEST_WEEK ? [TEST_WEEK] : [cur, TEST_WEEK];
-}
-function renderSeanceHtml(key){
-  const s = STATE.seances[key];
-  const cur = STATE.semaine;
-  const wks = visibleWeeks();
-  const weekHeaders = wks.map(n=>`<th class="${n===TEST_WEEK?'testcol':(n===cur?'curweek':'')}">S${n}${n===TEST_WEEK?' TEST':''}</th>`).join('');
-
-  const blocksHtml = s.blocks.map((b, bi) => {
-    const rows = b.exercises.map((ex, ei) => {
-      const cells = wks.map(n => {
-        if(n===TEST_WEEK) return `<td class="testcol">MAX ×${escapeHtml(STATE.test.series)}</td>`;
-        const v = computeWeekVal(ex.ref, s.basePct, s.growthPct, n);
-        return `<td class="computed ${n===cur?'curweek':''}" id="w_${key}_${bi}_${ei}_${n}">${fmtCell(v)}</td>`;
-      }).join('');
-      const auto = ex.auto !== false;
-      const pd = perfDate(ex.name);
-      const syncTitle = auto
-        ? (pd ? `Synchronisé avec ta dernière perf (${pd}). Clic = passer en manuel.` : 'Synchro auto activée : dès que tu logges une perf pour cet exercice, la valeur se met à jour.')
-        : 'Valeur manuelle. Clic = réactiver la synchro avec tes perfs.';
-      return `<tr>
-        <td class="name"><input type="text" value="${escapeAttr(ex.name)}" oninput="STATE.seances['${key}'].blocks[${bi}].exercises[${ei}].name=this.value" onchange="renderPage()"></td>
-        <td><div class="refCell">
-          <input type="number" value="${escapeAttr(ex.ref)}" oninput="setRefManual('${key}',${bi},${ei},this.value)">
-          <button class="syncbtn" title="${escapeAttr(syncTitle)}" onclick="toggleAuto('${key}',${bi},${ei})">${auto?'🔄':'🔒'}</button>
-        </div></td>
-        ${cells}
-        <td><input type="text" value="${escapeAttr(ex.repos)}" style="width:96px;" oninput="STATE.seances['${key}'].blocks[${bi}].exercises[${ei}].repos=this.value"></td>
-        <td><button class="delbtn" onclick="removeExercise('${key}',${bi},${ei})">🗑</button></td>
-      </tr>`;
-    }).join('');
-    const totalCells = wks.map(n => n===TEST_WEEK
-      ? `<td class="testcol">—</td>`
-      : `<td class="${n===cur?'curweek':''}" id="total_${key}_${bi}_${n}"></td>`).join('');
-    return `
-      <div style="margin-bottom:14px;">
-        ${b.label ? `<div style="display:flex;gap:8px;align-items:center;">
-            <input type="text" style="flex:1;font-weight:700;border:none;background:transparent;color:${s.accent};font-size:13.5px;" value="${escapeAttr(b.label)}" oninput="STATE.seances['${key}'].blocks[${bi}].label=this.value">
-            <button class="delbtn" onclick="removeBlock('${key}',${bi})">🗑 bloc</button>
-          </div>` : ''}
-        ${b.note!==null && b.note!==undefined ? `<textarea rows="1" style="font-size:11.5px;color:var(--muted);border:none;background:transparent;" oninput="STATE.seances['${key}'].blocks[${bi}].note=this.value">${escapeHtml(b.note)}</textarea>` : ''}
-        <div class="tablewrap">
-          <table>
-            <thead><tr><th style="text-align:left;">Exercice</th><th>Max réf.</th>${weekHeaders}<th>Repos</th><th></th></tr></thead>
-            <tbody>${rows}<tr class="total"><td class="name">TOTAL / tour</td><td></td>${totalCells}<td></td><td></td></tr></tbody>
-          </table>
-        </div>
-        <button class="btn small" style="margin-top:6px;" onclick="addExercise('${key}',${bi})">+ Ajouter un exercice</button>
-      </div>`;
-  }).join('');
-
-  const exNames = [];
-  s.blocks.forEach(b=>b.exercises.forEach(ex=>{ if(ex.name) exNames.push(ex.name); }));
-  if(!seanceChartSel[key] || !exNames.includes(seanceChartSel[key])) seanceChartSel[key] = exNames[0] || null;
-  const chartOpts = exNames.map(n=>`<option value="${escapeAttr(n)}" ${n===seanceChartSel[key]?'selected':''}>${escapeHtml(n)}</option>`).join('');
-
-  const testCard = (cur===TEST_WEEK) ? renderTestCard(key) : '';
-
-  return `
-    <div class="card">
-      <div class="accentbar" style="background:${s.accent}"></div>
-      <h2>${escapeHtml(s.label)} — circuit</h2>
-      <textarea class="sub" rows="2" oninput="STATE.seances['${key}'].subtitle=this.value">${escapeHtml(s.subtitle)}</textarea>
-      ${freshBanner()}
-      <div class="banner info">🔄 <b>Max réf. synchronisé</b> : la valeur suit automatiquement ta dernière perf loggée pour cet exercice (onglet Performances ou carte ci-dessous). Le cadenas 🔒 fige une valeur à la main.</div>
-      <div class="paramsRow">
-        <div><label>Base % (S1)</label><input type="number" min="0" max="100" value="${Math.round(s.basePct*100)}" oninput="STATE.seances['${key}'].basePct=(parseFloat(this.value)||0)/100;recomputeSeance('${key}')"> %</div>
-        <div><label>Progression / semaine</label><input type="number" min="0" max="100" value="${Math.round(s.growthPct*100)}" oninput="STATE.seances['${key}'].growthPct=(parseFloat(this.value)||0)/100;recomputeSeance('${key}')"> %</div>
-        <div><button class="btn small" onclick="compactWeeks=!compactWeeks;renderPage()">${compactWeeks?'Voir les 8 semaines':'Vue mobile (semaine en cours)'}</button></div>
-      </div>
-      ${blocksHtml}
-      <button class="btn" onclick="addBlock('${key}')">+ Ajouter un bloc</button>
-    </div>
-    ${testCard}
-    <div class="card">
-      <div class="accentbar" style="background:${s.accent}"></div>
-      <h2>Courbe de progression</h2>
-      <div class="sub">Logue une perf : la courbe et le Max réf. se mettent à jour immédiatement, ici et dans l'onglet Performances.</div>
-      <div class="perfControls">
-        <div><label>Exercice</label><select id="sChartSel_${key}" onchange="seanceChartSel['${key}']=this.value;drawSeanceChart('${key}')">${chartOpts}</select></div>
-        <div><label>Date</label><input type="date" id="sChartDate_${key}"></div>
-        <div><label>Reps / sec</label><input type="number" id="sChartVal_${key}"></div>
-        <div><button class="btn primary" onclick="addSeancePerf('${key}')">+ Ajouter</button></div>
-      </div>
-      <canvas id="sChart_${key}" height="180"></canvas>
-    </div>`;
+function toggleTest(key){
+  const el=document.getElementById('testCard_'+key); if(!el) return;
+  el.style.display=(el.style.display==='none')?'block':'none';
+  if(el.style.display==='block'){
+    const d=document.getElementById('testDate_'+key); if(d&&!d.value) d.value=today();
+    el.scrollIntoView({behavior:'smooth',block:'start'});
+  }
 }
 function renderTestCard(key){
-  const s = STATE.seances[key];
-  const t = STATE.test;
-  const rows = exNames(key).map((n,i)=>`<tr>
+  const t=STATE.test;
+  const rows=exNames(key).map((n,i)=>`<tr>
       <td class="name">${escapeHtml(n)}</td>
       <td><input type="number" id="t1_${key}_${i}" placeholder="—"></td>
       <td><input type="number" id="t2_${key}_${i}" placeholder="—"></td>
-      <td style="color:var(--muted);">${escapeHtml(t.repos)}</td>
     </tr>`).join('');
-  return `
-    <div class="card">
-      <div class="accentbar" style="background:var(--test)"></div>
-      <h2>Test de max — toutes les ${escapeHtml(t.intervalleSemaines)} semaines</h2>
-      <textarea class="sub" rows="2" oninput="STATE.test.note=this.value">${escapeHtml(t.note)}</textarea>
-      <div class="paramsRow">
-        <div><label>Séries</label><input type="text" style="width:60px;" value="${escapeAttr(t.series)}" oninput="STATE.test.series=this.value"></div>
-        <div><label>Repos</label><input type="text" style="width:80px;" value="${escapeAttr(t.repos)}" oninput="STATE.test.repos=this.value"></div>
-        <div><label>Intervalle (semaines)</label><input type="number" style="width:70px;" value="${escapeAttr(t.intervalleSemaines)}" oninput="STATE.test.intervalleSemaines=parseFloat(this.value)||8"></div>
-        <div><label>Date du test</label><input type="date" id="testDate_${key}"></div>
-      </div>
-      <div class="tablewrap">
-        <table>
-          <thead><tr><th style="text-align:left;">Exercice</th><th>Série 1 (max)</th><th>Série 2 (max)</th><th>Repos</th></tr></thead>
-          <tbody>${rows}</tbody>
-        </table>
-      </div>
-      <button class="btn test" style="margin-top:8px;" onclick="saveTest('${key}')">✔ Enregistrer le test (garde le meilleur des 2)</button>
-    </div>`;
+  return `<div class="card" style="--acc:var(--s2)">
+    <div class="eyebrow">Toutes les ${escapeHtml(t.intervalleSemaines)} semaines</div>
+    <h2>Test de max</h2>
+    <textarea class="sub" rows="2" oninput="STATE.test.note=this.value">${escapeHtml(t.note)}</textarea>
+    <div class="row" style="margin-bottom:12px;">
+      <div><label class="lbl">Séries</label><input type="text" value="${escapeAttr(t.series)}" oninput="STATE.test.series=this.value"></div>
+      <div><label class="lbl">Repos</label><input type="text" value="${escapeAttr(t.repos)}" oninput="STATE.test.repos=this.value"></div>
+      <div><label class="lbl">Date</label><input type="date" id="testDate_${key}"></div>
+    </div>
+    <div class="tablewrap"><table>
+      <thead><tr><th style="text-align:left;">Exercice</th><th>Série 1</th><th>Série 2</th></tr></thead>
+      <tbody>${rows}</tbody></table></div>
+    <button class="btn warm" style="margin-top:10px;" onclick="saveTest('${key}')">Enregistrer le test</button>
+  </div>`;
 }
 function saveTest(key){
-  const dateEl = document.getElementById('testDate_'+key);
-  const date = (dateEl && dateEl.value) ? dateEl.value : today();
-  let n = 0;
+  const dEl=document.getElementById('testDate_'+key);
+  const date=(dEl&&dEl.value)?dEl.value:today();
+  let n=0;
   exNames(key).forEach((nom,i)=>{
-    const a = parseFloat((document.getElementById('t1_'+key+'_'+i)||{}).value);
-    const c = parseFloat((document.getElementById('t2_'+key+'_'+i)||{}).value);
-    const vals = [a,c].filter(v=>!isNaN(v));
-    if(!vals.length) return;
-    const best = Math.max.apply(null, vals);
-    if(!STATE.performances[nom]) STATE.performances[nom] = [];
-    STATE.performances[nom] = STATE.performances[nom].filter(e=>e.date!==date);
-    STATE.performances[nom].push({date, reps:best});
+    const a=parseFloat((document.getElementById('t1_'+key+'_'+i)||{}).value);
+    const b=parseFloat((document.getElementById('t2_'+key+'_'+i)||{}).value);
+    const v=[a,b].filter(x=>!isNaN(x));
+    if(!v.length) return;
+    if(!STATE.performances[nom]) STATE.performances[nom]=[];
+    STATE.performances[nom]=STATE.performances[nom].filter(e=>e.date!==date);
+    STATE.performances[nom].push({date,reps:Math.max.apply(null,v)});
     STATE.performances[nom].sort((x,y)=>String(x.date).localeCompare(String(y.date)));
     n++;
   });
   if(!n){ alert('Aucune valeur saisie.'); return; }
-  STATE.test.dernier = date;
+  STATE.test.dernier=date;
   syncRefs(); renderPage(); saveNow();
-  toast(n + ' test(s) enregistré(s). Prochain test dans ' + STATE.test.intervalleSemaines + ' semaines.');
+  toast(n+' test(s) enregistré(s).');
 }
-function setRefManual(key,bi,ei,val){
-  const ex = STATE.seances[key].blocks[bi].exercises[ei];
-  ex.ref = parseFloat(val)||0;
-  ex.auto = false;
-  recomputeSeance(key);
-  const btn = document.querySelector(`#w_${key}_${bi}_${ei}_1`);
-  scheduleSave();
+
+/* ===================== Abdo (circuit S1-S7) ===================== */
+function computeWeekVal(ref,base,growth,w){ const r=nombre(ref); if(r<=0) return null; return Math.round(r*base*Math.pow(1+growth,w-1)); }
+function renderAbdo(){
+  const s=STATE.seances.abdo, cur=nombre(s.semaine)||1;
+  const compact=window.innerWidth<640;
+  const wks=compact?[cur]:[1,2,3,4,5,6,7];
+  const heads=wks.map(n=>`<th style="${n===cur?'color:var(--s5);':''}">S${n}</th>`).join('');
+  const rows=s.blocks[0].exercises.map((ex,i)=>{
+    const cells=wks.map(n=>`<td class="num" id="w_${i}_${n}" style="${n===cur?'color:var(--text-primary);font-weight:700;':'color:var(--text-secondary);'}">—</td>`).join('');
+    const auto=ex.auto!==false;
+    return `<tr>
+      <td class="name"><input type="text" value="${escapeAttr(ex.name)}" oninput="STATE.seances.abdo.blocks[0].exercises[${i}].name=this.value" onchange="renderPage()"></td>
+      <td><div style="display:flex;gap:3px;align-items:center;justify-content:center;">
+        <input type="number" value="${escapeAttr(ex.ref)}" oninput="setAbdoRef(${i},this.value)">
+        <button class="iconbtn" title="${auto?'Suit ta dernière perf':'Valeur figée'}" onclick="toggleAbdoAuto(${i})">${auto?'🔄':'🔒'}</button>
+      </div></td>
+      ${cells}
+      <td><input type="text" style="width:78px;" value="${escapeAttr(ex.repos)}" oninput="STATE.seances.abdo.blocks[0].exercises[${i}].repos=this.value"></td>
+      <td><button class="delbtn" onclick="removeAbdoEx(${i})">🗑</button></td>
+    </tr>`;}).join('');
+  return `<div class="card" style="--acc:var(--s5)">
+      <div class="seanceHead">
+        <div><div class="eyebrow">Circuit AMRAP</div><h2>Abdo</h2></div>
+        <span class="badge">Semaine ${cur}</span>
+      </div>
+      <textarea class="sub" rows="2" style="margin-top:8px;" oninput="STATE.seances.abdo.subtitle=this.value">${escapeHtml(s.subtitle)}</textarea>
+      <div class="row" style="margin-bottom:12px;">
+        <div><label class="lbl">Semaine du cycle</label>
+          <select onchange="STATE.seances.abdo.semaine=nombre(this.value);renderPage()">
+            ${[1,2,3,4,5,6,7].map(n=>`<option value="${n}" ${n===cur?'selected':''}>Semaine ${n}</option>`).join('')}
+          </select></div>
+        <div><label class="lbl">Base % (S1)</label><input type="number" value="${Math.round(s.basePct*100)}" oninput="STATE.seances.abdo.basePct=nombre(this.value)/100;recomputeAbdo()"></div>
+        <div><label class="lbl">Progression / sem.</label><input type="number" value="${Math.round(s.growthPct*100)}" oninput="STATE.seances.abdo.growthPct=nombre(this.value)/100;recomputeAbdo()"></div>
+      </div>
+      <div class="banner">🔄 Le <b>Max réf.</b> suit automatiquement ta dernière performance loggée pour le même exercice. Le cadenas fige une valeur à la main.</div>
+      <div class="tablewrap"><table>
+        <thead><tr><th style="text-align:left;">Exercice</th><th>Max réf.</th>${heads}<th>Repos</th><th></th></tr></thead>
+        <tbody>${rows}</tbody></table></div>
+      <div class="row" style="margin-top:10px;">
+        <button class="btn small" onclick="addAbdoEx()">+ Exercice</button>
+        <button class="btn small" onclick="toggleTest('abdo')">Ouvrir le test</button>
+      </div>
+    </div>
+    <div id="testCard_abdo" style="display:none;">${renderTestCard('abdo')}</div>`;
 }
-function toggleAuto(key,bi,ei){
-  const ex = STATE.seances[key].blocks[bi].exercises[ei];
-  ex.auto = (ex.auto === false);
-  renderPage();
+function recomputeAbdo(){
+  const s=STATE.seances.abdo, cur=nombre(s.semaine)||1;
+  const wks=window.innerWidth<640?[cur]:[1,2,3,4,5,6,7];
+  s.blocks[0].exercises.forEach((ex,i)=>wks.forEach(n=>{
+    const c=document.getElementById('w_'+i+'_'+n);
+    if(c){ const v=computeWeekVal(ex.ref,s.basePct,s.growthPct,n); c.textContent=(v===null?'—':v); }
+  }));
 }
-function recomputeSeance(key){
-  const s = STATE.seances[key];
-  const wks = visibleWeeks();
-  s.blocks.forEach((b,bi)=>{
-    const totals={}, counts={};
-    wks.forEach(n=>{ totals[n]=0; counts[n]=0; });
-    b.exercises.forEach((ex,ei)=>{
-      wks.forEach(n=>{
-        if(n===TEST_WEEK) return;
-        const v = computeWeekVal(ex.ref, s.basePct, s.growthPct, n);
-        const cell = document.getElementById(`w_${key}_${bi}_${ei}_${n}`);
-        if(cell) cell.textContent = fmtCell(v);
-        if(v!==null){ totals[n]+=v; counts[n]++; }
-      });
-    });
-    wks.forEach(n=>{
-      if(n===TEST_WEEK) return;
-      const t = document.getElementById(`total_${key}_${bi}_${n}`);
-      if(t) t.textContent = counts[n]>0 ? totals[n] : '—';
-    });
+function setAbdoRef(i,v){ const ex=STATE.seances.abdo.blocks[0].exercises[i]; ex.ref=nombre(v); ex.auto=false; recomputeAbdo(); scheduleSave(); }
+function toggleAbdoAuto(i){ const ex=STATE.seances.abdo.blocks[0].exercises[i]; ex.auto=(ex.auto===false); renderPage(); }
+function addAbdoEx(){ STATE.seances.abdo.blocks[0].exercises.push({name:'Nouvel exercice',ref:0,repos:'45s',auto:true}); renderPage(); }
+function removeAbdoEx(i){ STATE.seances.abdo.blocks[0].exercises.splice(i,1); renderPage(); }
+
+/* ===================== Performances ===================== */
+const PR_COLORS=['#3987e5','#d95926','#199e70','#c98500','#d55181','#9085e9'];
+function renderPerf(){
+  const principaux=STATE.perfPrincipaux.filter(Boolean);
+  const cards=principaux.map((n,i)=>{
+    const serie=perfSerie(n), last=serie.length?serie[serie.length-1].reps:null;
+    const prev=serie.length>1?serie[serie.length-2].reps:null;
+    let delta='<div class="prDelta flat">—</div>';
+    if(last!==null&&prev!==null){
+      const d=last-prev;
+      const cls=d>0?'up':(d<0?'down':'flat');
+      delta=`<div class="prDelta ${cls}">${d>0?'▲ +':(d<0?'▼ ':'= ')}${d===0?'':Math.abs(d)}${d===0?'stable':''}</div>`;
+    }else if(last!==null){ delta='<div class="prDelta flat">1re mesure</div>'; }
+    const col=PR_COLORS[i%PR_COLORS.length];
+    const vide = (last===null);
+    return `<div class="prCard ${n===selectedPerf?'sel':''}" style="--acc:${col}" onclick="selectPerf('${jsStr(n)}')">
+      <div class="prName"><span class="dot" style="background:${col}"></span>${escapeHtml(n)}</div>
+      <div class="prVal num" ${vide?'style="color:var(--text-muted)"':''}>${vide?'—':escapeHtml(last)}${vide?'':'<span class="prUnit">reps</span>'}</div>
+      ${vide?'<div class="prDelta flat">aucune mesure</div>':delta}
+      ${vide?'<div class="prSpark"></div>':`<canvas class="prSpark" id="spark_${i}" data-col="${col}"></canvas>`}
+    </div>`;}).join('');
+
+  const tous=tousExercices();
+  if(!selectedPerf||tous.indexOf(selectedPerf)<0) selectedPerf=principaux[0]||tous[0]||null;
+  const serie=selectedPerf?perfSerie(selectedPerf):[];
+  const rows=serie.slice().reverse().map((e,ri)=>{
+    const i=serie.length-1-ri;
+    return `<tr><td>${escapeHtml(e.date)}</td><td class="num">${escapeHtml(e.reps)}</td>
+      <td><button class="delbtn" onclick="removePerf('${jsStr(selectedPerf)}',${i})">🗑</button></td></tr>`;
+  }).join('')||'<tr><td colspan="3" style="color:var(--text-muted);">Aucune mesure.</td></tr>';
+
+  return `<div class="card" style="--acc:var(--s1)">
+      <div class="eyebrow">Records par mouvement</div>
+      <h2>Performances</h2>
+      <div class="sub">Chaque carte montre ton dernier max et son évolution. Clique une carte pour ouvrir le détail.</div>
+      <div class="prGrid">${cards}</div>
+      <label class="lbl" style="margin-top:14px;">Mouvements suivis</label>
+      <input type="text" value="${escapeAttr(principaux.join(', '))}" onchange="setPrincipaux(this.value)">
+    </div>
+
+    <div class="card" style="--acc:var(--s1);position:relative;">
+      <h2>${escapeHtml(selectedPerf||'Aucun exercice')}</h2>
+      <div class="sub">Historique complet. Survole la courbe pour lire une valeur.</div>
+      <canvas class="mainChart" id="perfChart"></canvas>
+      <div id="chartTip"></div>
+      <div class="row" style="margin-top:14px;">
+        <div><label class="lbl">Exercice</label>
+          <select id="perfSel" onchange="selectPerf(this.value)">
+            ${tous.map(n=>`<option value="${escapeAttr(n)}" ${n===selectedPerf?'selected':''}>${escapeHtml(n)}</option>`).join('')}
+          </select></div>
+        <div><label class="lbl">Ou nouveau</label><input type="text" id="perfNew" placeholder="nom"></div>
+        <div><label class="lbl">Date</label><input type="date" id="perfDate"></div>
+        <div><label class="lbl">Reps / sec</label><input type="number" id="perfReps"></div>
+        <div style="display:flex;align-items:flex-end;"><button class="btn primary block" onclick="addPerf()">+ Ajouter</button></div>
+      </div>
+      <div class="tablewrap" style="margin-top:14px;">
+        <table><thead><tr><th>Date</th><th>Valeur</th><th></th></tr></thead><tbody>${rows}</tbody></table>
+      </div>
+    </div>`;
+}
+function afterPerf(){
+  const d=document.getElementById('perfDate'); if(d&&!d.value) d.value=today();
+  STATE.perfPrincipaux.forEach((n,i)=>{
+    const c=document.getElementById('spark_'+i);
+    if(c) drawSpark(c, perfSerie(n).map(e=>e.reps), c.dataset.col);
   });
+  const tip=document.getElementById('chartTip'); if(tip) tip.style.display='none';
+  const canvas=document.getElementById('perfChart');
+  if(canvas&&selectedPerf) drawChart(canvas, perfSerie(selectedPerf), '#3987e5');
 }
-function drawSeanceChart(key){
-  const canvas = document.getElementById('sChart_'+key);
-  if(!canvas) return;
-  const d = document.getElementById('sChartDate_'+key);
-  if(d && !d.value) d.value = today();
-  const td = document.getElementById('testDate_'+key);
-  if(td && !td.value) td.value = today();
-  const vd = document.getElementById('vDate_'+key);
-  if(vd && !vd.value) vd.value = today();
-  const name = seanceChartSel[key];
-  const entries = (name && STATE.performances[name]) ? STATE.performances[name] : [];
-  drawLineChart(canvas, entries.map(e=>e.date), entries.map(e=>e.reps), STATE.seances[key].accent);
+function selectPerf(n){ selectedPerf=n; renderPage(); }
+function setPrincipaux(v){
+  STATE.perfPrincipaux=String(v).split(',').map(x=>x.trim()).filter(Boolean);
+  renderPage(); saveNow();
 }
-function addSeancePerf(key){
-  const name = seanceChartSel[key];
-  const date = document.getElementById('sChartDate_'+key).value;
-  const val = parseFloat(document.getElementById('sChartVal_'+key).value);
-  if(!name){ alert("Aucun exercice sélectionné."); return; }
+function addPerf(){
+  const nn=document.getElementById('perfNew').value.trim();
+  const n=nn||selectedPerf;
+  const date=document.getElementById('perfDate').value;
+  const r=parseFloat(document.getElementById('perfReps').value);
+  if(!n){ alert("Choisis ou tape un nom d'exercice."); return; }
   if(!date){ alert('Choisis une date.'); return; }
-  if(isNaN(val)){ alert('Entre un nombre de reps/secondes.'); return; }
-  if(!STATE.performances[name]) STATE.performances[name] = [];
-  STATE.performances[name].push({date, reps:val});
-  STATE.performances[name].sort((a,b)=>String(a.date).localeCompare(String(b.date)));
-  syncRefs(); renderPage(); saveNow();
+  if(isNaN(r)){ alert('Entre une valeur.'); return; }
+  if(!STATE.performances[n]) STATE.performances[n]=[];
+  STATE.performances[n].push({date,reps:r});
+  STATE.performances[n].sort((a,b)=>String(a.date).localeCompare(String(b.date)));
+  selectedPerf=n; syncRefs(); renderPage(); saveNow();
 }
-function addExercise(key,bi){
-  STATE.seances[key].blocks[bi].exercises.push({name:'Nouvel exercice', ref:0, repos:'—', auto:true});
-  renderPage();
+function removePerf(n,i){ STATE.performances[n].splice(i,1); syncRefs(); renderPage(); saveNow(); }
+
+/* --- Graphiques : canvas natif, aucune dépendance --- */
+function setupCanvas(c,h){
+  const dpr=window.devicePixelRatio||1;
+  const w=c.clientWidth||300; h=h||c.clientHeight||200;
+  c.width=w*dpr; c.height=h*dpr;
+  const ctx=c.getContext('2d'); ctx.setTransform(dpr,0,0,dpr,0,0); ctx.clearRect(0,0,w,h);
+  return {ctx,w,h};
 }
-function removeExercise(key,bi,ei){ STATE.seances[key].blocks[bi].exercises.splice(ei,1); renderPage(); }
-function addBlock(key){ STATE.seances[key].blocks.push({label:'Nouveau bloc', note:'', exercises:[]}); renderPage(); }
-function removeBlock(key,bi){
-  if(confirm('Supprimer ce bloc et tous ses exercices ?')){ STATE.seances[key].blocks.splice(bi,1); renderPage(); }
+function drawSpark(c,vals,col){
+  const {ctx,w,h}=setupCanvas(c,34);
+  if(vals.length<2){
+    if(vals.length){
+      ctx.beginPath(); ctx.arc(w/2,h/2,3.5,0,Math.PI*2); ctx.fillStyle=col; ctx.fill();
+      ctx.fillStyle='#77766E'; ctx.font='10px system-ui'; ctx.textAlign='center'; ctx.textBaseline='top';
+      ctx.fillText('1 mesure',w/2,h/2+7);
+    }
+    return;
+  }
+  const max=Math.max.apply(null,vals), min=Math.min.apply(null,vals), r=(max-min)||1;
+  const pts=vals.map((v,i)=>({x:i/(vals.length-1)*(w-6)+3, y:h-4-((v-min)/r)*(h-10)}));
+  const g=ctx.createLinearGradient(0,0,0,h);
+  g.addColorStop(0,col+'44'); g.addColorStop(1,col+'00');
+  ctx.beginPath(); pts.forEach((p,i)=>i?ctx.lineTo(p.x,p.y):ctx.moveTo(p.x,p.y));
+  ctx.lineTo(pts[pts.length-1].x,h); ctx.lineTo(pts[0].x,h); ctx.closePath();
+  ctx.fillStyle=g; ctx.fill();
+  ctx.beginPath(); pts.forEach((p,i)=>i?ctx.lineTo(p.x,p.y):ctx.moveTo(p.x,p.y));
+  ctx.strokeStyle=col; ctx.lineWidth=2; ctx.lineJoin='round'; ctx.stroke();
+  const last=pts[pts.length-1];
+  ctx.beginPath(); ctx.arc(last.x,last.y,3,0,Math.PI*2);
+  ctx.fillStyle=col; ctx.fill();
+  ctx.strokeStyle='#232322'; ctx.lineWidth=2; ctx.stroke();
+}
+let chartPts=[], chartData=[];
+function drawChart(c,serie,col){
+  const {ctx,w,h}=setupCanvas(c,250);
+  chartPts=[]; chartData=serie;
+  if(!serie.length){
+    ctx.fillStyle='#77766E'; ctx.font='13px system-ui'; ctx.textAlign='center';
+    ctx.fillText('Aucune mesure enregistrée.',w/2,h/2);
+    return;
+  }
+  const vals=serie.map(e=>e.reps);
+  const padL=36,padR=14,padT=28,padB=28;
+  const pw=w-padL-padR, ph=h-padT-padB;
+  const max=Math.max.apply(null,vals), min=Math.min.apply(null,[0].concat(vals)), r=(max-min)||1;
+  ctx.font='10px system-ui'; ctx.textAlign='right'; ctx.textBaseline='middle';
+  for(let i=0;i<=4;i++){
+    const v=min+r*i/4, y=padT+ph-(v-min)/r*ph;
+    ctx.strokeStyle='#26262A'; ctx.lineWidth=1;
+    ctx.beginPath(); ctx.moveTo(padL,y); ctx.lineTo(padL+pw,y); ctx.stroke();
+    ctx.fillStyle='#77766E'; ctx.fillText(Math.round(v),padL-8,y);
+  }
+  const n=vals.length, step=n>1?pw/(n-1):0;
+  const pts=vals.map((v,i)=>({x:padL+(n>1?i*step:pw/2), y:padT+ph-(v-min)/r*ph}));
+  chartPts=pts;
+  const g=ctx.createLinearGradient(0,padT,0,padT+ph);
+  g.addColorStop(0,col+'3a'); g.addColorStop(1,col+'00');
+  ctx.beginPath(); pts.forEach((p,i)=>i?ctx.lineTo(p.x,p.y):ctx.moveTo(p.x,p.y));
+  ctx.lineTo(pts[n-1].x,padT+ph); ctx.lineTo(pts[0].x,padT+ph); ctx.closePath();
+  ctx.fillStyle=g; ctx.fill();
+  ctx.beginPath(); pts.forEach((p,i)=>i?ctx.lineTo(p.x,p.y):ctx.moveTo(p.x,p.y));
+  ctx.strokeStyle=col; ctx.lineWidth=2; ctx.lineJoin='round'; ctx.stroke();
+  pts.forEach((p,i)=>{
+    ctx.beginPath(); ctx.arc(p.x,p.y,4,0,Math.PI*2);
+    ctx.fillStyle=col; ctx.fill();
+    ctx.strokeStyle='#1a1a19'; ctx.lineWidth=2; ctx.stroke();
+  });
+  // étiquette du dernier point uniquement
+  const lp=pts[n-1];
+  ctx.fillStyle='#F6F5F1'; ctx.font='700 12px system-ui'; ctx.textAlign='center'; ctx.textBaseline='bottom';
+  ctx.fillText(vals[n-1], lp.x, lp.y-9);
+  ctx.fillStyle='#77766E'; ctx.font='9.5px system-ui'; ctx.textBaseline='top'; ctx.textAlign='center';
+  const every=Math.max(1,Math.ceil(n/6));
+  serie.forEach((e,i)=>{ if(i%every!==0&&i!==n-1) return; ctx.fillText(String(e.date).slice(5),pts[i].x,padT+ph+8); });
+  c.onmousemove=ev=>{
+    const rect=c.getBoundingClientRect(), x=ev.clientX-rect.left;
+    let bi=0,bd=1e9;
+    chartPts.forEach((p,i)=>{ const d=Math.abs(p.x-x); if(d<bd){bd=d;bi=i;} });
+    const tip=document.getElementById('chartTip');
+    if(!tip||bd>40){ if(tip) tip.style.display='none'; return; }
+    tip.style.display='block';
+    tip.innerHTML='<b>'+escapeHtml(chartData[bi].reps)+'</b> · '+escapeHtml(chartData[bi].date);
+    tip.style.left=Math.min(rect.width-110,Math.max(0,chartPts[bi].x-50))+'px';
+    tip.style.top=(c.offsetTop+chartPts[bi].y-42)+'px';
+  };
+  c.onmouseleave=()=>{ const t=document.getElementById('chartTip'); if(t) t.style.display='none'; };
 }
 
 /* ===================== Front Lever ===================== */
-function renderFrontLeverHtml(){
-  const f = STATE.frontLever;
-  const warm = f.echauffement.items.map((it,i)=>`
-    <div class="warmItem">
-      <input type="text" style="border:none;background:transparent;padding:0;font-weight:700;font-size:12.5px;" value="${escapeAttr(it.name)}" oninput="STATE.frontLever.echauffement.items[${i}].name=this.value">
-      <input type="text" style="border:none;background:transparent;padding:0;font-size:11.5px;color:var(--muted);" value="${escapeAttr(it.dose)}" oninput="STATE.frontLever.echauffement.items[${i}].dose=this.value">
+function renderFrontLever(){
+  const f=STATE.frontLever;
+  const warm=f.echauffement.items.map((it,i)=>`<div class="warmItem">
+      <input type="text" style="border:none;background:transparent;padding:0;font-weight:650;font-size:12.5px;" value="${escapeAttr(it.name)}" oninput="STATE.frontLever.echauffement.items[${i}].name=this.value">
+      <input type="text" style="border:none;background:transparent;padding:0;font-size:11.5px;color:var(--text-muted);" value="${escapeAttr(it.dose)}" oninput="STATE.frontLever.echauffement.items[${i}].dose=this.value">
     </div>`).join('');
-
-  const seances = f.seances.map((s,si)=>{
-    const rows = s.exercises.map((ex,ei)=>`
-      <tr>
+  const seances=f.seances.map((s,si)=>{
+    const rows=s.exercises.map((ex,ei)=>`<tr>
         <td class="name"><input type="text" value="${escapeAttr(ex.name)}" oninput="STATE.frontLever.seances[${si}].exercises[${ei}].name=this.value"></td>
-        <td><input type="text" style="width:52px;" value="${escapeAttr(ex.series)}" oninput="STATE.frontLever.seances[${si}].exercises[${ei}].series=this.value"></td>
-        <td><input type="text" style="width:78px;" value="${escapeAttr(ex.dose)}" oninput="STATE.frontLever.seances[${si}].exercises[${ei}].dose=this.value"></td>
-        <td><input type="text" style="width:70px;" value="${escapeAttr(ex.repos)}" oninput="STATE.frontLever.seances[${si}].exercises[${ei}].repos=this.value"></td>
-        <td style="text-align:left;white-space:normal;"><input type="text" style="min-width:160px;" value="${escapeAttr(ex.note)}" oninput="STATE.frontLever.seances[${si}].exercises[${ei}].note=this.value"></td>
+        <td><input type="text" style="width:50px;" value="${escapeAttr(ex.series)}" oninput="STATE.frontLever.seances[${si}].exercises[${ei}].series=this.value"></td>
+        <td><input type="text" style="width:74px;" value="${escapeAttr(ex.dose)}" oninput="STATE.frontLever.seances[${si}].exercises[${ei}].dose=this.value"></td>
+        <td><input type="text" style="width:66px;" value="${escapeAttr(ex.repos)}" oninput="STATE.frontLever.seances[${si}].exercises[${ei}].repos=this.value"></td>
+        <td style="text-align:left;"><input type="text" style="min-width:150px;" value="${escapeAttr(ex.note)}" oninput="STATE.frontLever.seances[${si}].exercises[${ei}].note=this.value"></td>
         <td><button class="delbtn" onclick="removeFlEx(${si},${ei})">🗑</button></td>
       </tr>`).join('');
-    return `
-      <div class="card">
-        <div class="accentbar" style="background:${s.accent}"></div>
-        <div class="flHead">
-          <div class="flBadge" style="background:${s.accent}">${si+1}</div>
-          <div style="flex:1;">
-            <input type="text" style="border:none;background:transparent;padding:0;font-weight:700;color:var(--dark);font-size:15px;" value="${escapeAttr(s.label)}" oninput="STATE.frontLever.seances[${si}].label=this.value">
-            <input type="text" style="border:none;background:transparent;padding:0;color:var(--muted);font-size:11.5px;" value="${escapeAttr(s.goal)}" oninput="STATE.frontLever.seances[${si}].goal=this.value">
-          </div>
+    return `<div class="card" style="--acc:var(--s6)">
+      <div class="flHead">
+        <div class="flBadge">${si+1}</div>
+        <div style="flex:1;min-width:0;">
+          <input type="text" style="border:none;background:transparent;padding:0;font-weight:650;font-size:14.5px;" value="${escapeAttr(s.label)}" oninput="STATE.frontLever.seances[${si}].label=this.value">
+          <input type="text" style="border:none;background:transparent;padding:0;color:var(--text-muted);font-size:11.5px;" value="${escapeAttr(s.goal)}" oninput="STATE.frontLever.seances[${si}].goal=this.value">
         </div>
-        <div class="tablewrap" style="margin-top:8px;">
-          <table style="min-width:600px;">
-            <thead><tr><th style="text-align:left;">Exercice</th><th>Séries</th><th>Reps / temps</th><th>Repos</th><th style="text-align:left;">Note</th><th></th></tr></thead>
-            <tbody>${rows}</tbody>
-          </table>
-        </div>
-        <button class="btn small" style="margin-top:6px;" onclick="addFlEx(${si})">+ Ajouter un exercice</button>
-      </div>`;
-  }).join('');
-
-  const paliers = f.paliers.map((row,i)=>`
-    <tr>
-      <td class="name"><input type="text" value="${escapeAttr(row.palier)}" oninput="STATE.frontLever.paliers[${i}].palier=this.value"></td>
-      <td style="white-space:normal;min-width:180px;"><textarea rows="3" oninput="STATE.frontLever.paliers[${i}].objectif=this.value">${escapeHtml(row.objectif)}</textarea></td>
-      <td><input type="text" style="width:110px;" value="${escapeAttr(row.duree)}" oninput="STATE.frontLever.paliers[${i}].duree=this.value"></td>
-      <td style="white-space:normal;min-width:180px;"><textarea rows="3" oninput="STATE.frontLever.paliers[${i}].exercices=this.value">${escapeHtml(row.exercices)}</textarea></td>
-      <td style="white-space:normal;min-width:170px;"><textarea rows="3" oninput="STATE.frontLever.paliers[${i}].critere=this.value">${escapeHtml(row.critere)}</textarea></td>
+      </div>
+      <div class="tablewrap" style="margin-top:12px;"><table style="min-width:580px;">
+        <thead><tr><th style="text-align:left;">Exercice</th><th>Séries</th><th>Dose</th><th>Repos</th><th style="text-align:left;">Note</th><th></th></tr></thead>
+        <tbody>${rows}</tbody></table></div>
+      <button class="btn small" style="margin-top:10px;" onclick="addFlEx(${si})">+ Exercice</button>
+    </div>`;}).join('');
+  const paliersHtml=f.paliers.map((r,i)=>`<tr>
+      <td class="name"><input type="text" value="${escapeAttr(r.palier)}" oninput="STATE.frontLever.paliers[${i}].palier=this.value"></td>
+      <td style="white-space:normal;min-width:170px;"><textarea rows="3" oninput="STATE.frontLever.paliers[${i}].objectif=this.value">${escapeHtml(r.objectif)}</textarea></td>
+      <td><input type="text" style="width:82px;" value="${escapeAttr(r.duree)}" oninput="STATE.frontLever.paliers[${i}].duree=this.value"></td>
+      <td style="white-space:normal;min-width:160px;"><textarea rows="3" oninput="STATE.frontLever.paliers[${i}].exercices=this.value">${escapeHtml(r.exercices)}</textarea></td>
+      <td style="white-space:normal;min-width:160px;"><textarea rows="3" oninput="STATE.frontLever.paliers[${i}].critere=this.value">${escapeHtml(r.critere)}</textarea></td>
       <td><select onchange="STATE.frontLever.paliers[${i}].valide=this.value">
-        <option value="" ${row.valide===''?'selected':''}>—</option>
-        <option value="OUI" ${row.valide==='OUI'?'selected':''}>OUI</option>
-        <option value="EN COURS" ${row.valide==='EN COURS'?'selected':''}>EN COURS</option>
-        <option value="NON" ${row.valide==='NON'?'selected':''}>NON</option>
+        ${['','OUI','EN COURS','NON'].map(v=>`<option value="${v}" ${r.valide===v?'selected':''}>${v||'—'}</option>`).join('')}
       </select></td>
     </tr>`).join('');
-
-  const safety = f.safetyItems.map((it,i)=>`
-    <div style="display:flex;gap:6px;margin-bottom:4px;">
-      <input type="text" style="flex:1;" value="${escapeAttr(it)}" oninput="STATE.frontLever.safetyItems[${i}]=this.value">
-      <button class="delbtn" onclick="removeSafetyItem('frontLever',${i})">✕</button>
-    </div>`).join('');
-
-  return `
-    <div class="card">
-      <div class="accentbar" style="background:#4527A0"></div>
-      <h2>Front Lever</h2>
+  const safety=f.safetyItems.map((it,i)=>`<div style="display:flex;gap:6px;margin-bottom:5px;">
+      <input type="text" value="${escapeAttr(it)}" oninput="STATE.frontLever.safetyItems[${i}]=this.value">
+      <button class="delbtn" onclick="removeSafetyItem('frontLever',${i})">✕</button></div>`).join('');
+  return `<div class="card" style="--acc:var(--s6)">
+      <div class="eyebrow">Figure</div><h2>Front Lever</h2>
       <textarea class="sub" rows="3" oninput="STATE.frontLever.subtitle=this.value">${escapeHtml(f.subtitle)}</textarea>
     </div>
-    <div class="card">
-      <div class="accentbar" style="background:#00838F"></div>
+    <div class="card" style="--acc:var(--s3)">
       <h2>Échauffement</h2>
       <textarea class="sub" rows="2" oninput="STATE.frontLever.echauffement.note=this.value">${escapeHtml(f.echauffement.note)}</textarea>
       <div class="warmGrid">${warm}</div>
     </div>
     ${seances}
-    <div class="card">
-      <div class="accentbar" style="background:#4527A0"></div>
-      <h2>Paliers de progression</h2>
-      <div class="tablewrap">
-        <table style="min-width:820px;">
-          <thead><tr><th style="text-align:left;">Palier</th><th>Objectif technique</th><th>Durée</th><th>Exercices clés</th><th>Critère de passage</th><th>Validé</th></tr></thead>
-          <tbody>${paliers}</tbody>
-        </table>
-      </div>
+    <div class="card" style="--acc:var(--s6)">
+      <h2>Paliers</h2>
+      <div class="tablewrap"><table style="min-width:780px;">
+        <thead><tr><th style="text-align:left;">Palier</th><th>Objectif</th><th>Durée</th><th>Exercices</th><th>Critère</th><th>Validé</th></tr></thead>
+        <tbody>${paliersHtml}</tbody></table></div>
     </div>
-    <div class="card">
-      <input type="text" style="font-weight:700;color:#4527A0;border:none;background:transparent;font-size:14px;width:100%;margin-bottom:6px;" value="${escapeAttr(f.safetyTitle)}" oninput="STATE.frontLever.safetyTitle=this.value">
-      ${safety}
+    <div class="card" style="--acc:var(--s6)">
+      <h2>${escapeHtml(f.safetyTitle)}</h2>
+      <div style="margin-top:10px;">${safety}</div>
       <button class="btn small" onclick="addSafetyItem('frontLever')">+ Ligne</button>
-      <div class="sub" style="margin-top:10px;">Repère</div>
+      <div class="sub" style="margin:12px 0 4px;">Repère</div>
       <textarea rows="2" oninput="STATE.frontLever.source=this.value">${escapeHtml(f.source)}</textarea>
     </div>`;
 }
@@ -1324,528 +1272,313 @@ function addFlEx(si){ STATE.frontLever.seances[si].exercises.push({name:'Nouvel 
 function removeFlEx(si,ei){ STATE.frontLever.seances[si].exercises.splice(ei,1); renderPage(); }
 
 /* ===================== Full Planche ===================== */
-function renderPhaseHtml(key, title, accent){
-  const p = STATE[key];
-  const rows = p.paliers.map((row,i) => `
-    <tr>
-      <td class="name"><input type="text" value="${escapeAttr(row.palier)}" oninput="STATE['${key}'].paliers[${i}].palier=this.value"></td>
-      <td style="white-space:normal;min-width:180px;"><textarea rows="3" oninput="STATE['${key}'].paliers[${i}].objectif=this.value">${escapeHtml(row.objectif)}</textarea></td>
-      <td><input type="text" style="width:110px;" value="${escapeAttr(row.duree)}" oninput="STATE['${key}'].paliers[${i}].duree=this.value"></td>
-      <td><input type="text" style="width:50px;" value="${escapeAttr(row.seances)}" oninput="STATE['${key}'].paliers[${i}].seances=this.value"></td>
-      <td style="white-space:normal;min-width:180px;"><textarea rows="3" oninput="STATE['${key}'].paliers[${i}].exercices=this.value">${escapeHtml(row.exercices)}</textarea></td>
-      <td style="white-space:normal;min-width:170px;"><textarea rows="3" oninput="STATE['${key}'].paliers[${i}].critere=this.value">${escapeHtml(row.critere)}</textarea></td>
+function renderPhase(key,title,accent){
+  const p=STATE[key];
+  const rows=p.paliers.map((r,i)=>`<tr>
+      <td class="name"><input type="text" value="${escapeAttr(r.palier)}" oninput="STATE['${key}'].paliers[${i}].palier=this.value"></td>
+      <td style="white-space:normal;min-width:170px;"><textarea rows="3" oninput="STATE['${key}'].paliers[${i}].objectif=this.value">${escapeHtml(r.objectif)}</textarea></td>
+      <td><input type="text" style="width:82px;" value="${escapeAttr(r.duree)}" oninput="STATE['${key}'].paliers[${i}].duree=this.value"></td>
+      <td style="white-space:normal;min-width:160px;"><textarea rows="3" oninput="STATE['${key}'].paliers[${i}].exercices=this.value">${escapeHtml(r.exercices)}</textarea></td>
+      <td style="white-space:normal;min-width:160px;"><textarea rows="3" oninput="STATE['${key}'].paliers[${i}].critere=this.value">${escapeHtml(r.critere)}</textarea></td>
       <td><select onchange="STATE['${key}'].paliers[${i}].valide=this.value">
-        <option value="" ${row.valide===''?'selected':''}>—</option>
-        <option value="OUI" ${row.valide==='OUI'?'selected':''}>OUI</option>
-        <option value="EN COURS" ${row.valide==='EN COURS'?'selected':''}>EN COURS</option>
-        <option value="NON" ${row.valide==='NON'?'selected':''}>NON</option>
+        ${['','OUI','EN COURS','NON'].map(v=>`<option value="${v}" ${r.valide===v?'selected':''}>${v||'—'}</option>`).join('')}
       </select></td>
-      <td><button class="delbtn" onclick="removePalier('${key}',${i})">🗑</button></td>
     </tr>`).join('');
-  const safety = p.safetyItems.map((it,i) => `
-    <div style="display:flex;gap:6px;margin-bottom:4px;">
-      <input type="text" style="flex:1;" value="${escapeAttr(it)}" oninput="STATE['${key}'].safetyItems[${i}]=this.value">
-      <button class="delbtn" onclick="removeSafetyItem('${key}',${i})">✕</button>
-    </div>`).join('');
-  return `
-    <div class="card">
-      <div class="accentbar" style="background:${accent}"></div>
-      <h2>${escapeHtml(title)} — plan de progression par phases</h2>
+  const safety=p.safetyItems.map((it,i)=>`<div style="display:flex;gap:6px;margin-bottom:5px;">
+      <input type="text" value="${escapeAttr(it)}" oninput="STATE['${key}'].safetyItems[${i}]=this.value">
+      <button class="delbtn" onclick="removeSafetyItem('${key}',${i})">✕</button></div>`).join('');
+  return `<div class="card" style="--acc:${accent}">
+      <div class="eyebrow">Figure</div><h2>${escapeHtml(title)}</h2>
       <textarea class="sub" rows="3" oninput="STATE['${key}'].subtitle=this.value">${escapeHtml(p.subtitle)}</textarea>
-      <div class="tablewrap">
-        <table style="min-width:860px;">
-          <thead><tr><th style="text-align:left;">Palier</th><th>Objectif technique</th><th>Durée</th><th>Séances/sem</th><th>Exercices clés</th><th>Critère de passage</th><th>Validé</th><th></th></tr></thead>
-          <tbody>${rows}</tbody>
-        </table>
-      </div>
-      <button class="btn small" style="margin-top:8px;" onclick="addPalier('${key}')">+ Ajouter un palier</button>
+      <div class="tablewrap"><table style="min-width:780px;">
+        <thead><tr><th style="text-align:left;">Palier</th><th>Objectif</th><th>Durée</th><th>Exercices</th><th>Critère</th><th>Validé</th></tr></thead>
+        <tbody>${rows}</tbody></table></div>
     </div>
-    <div class="card">
-      <input type="text" style="font-weight:700;color:${accent};border:none;background:transparent;font-size:14px;width:100%;margin-bottom:6px;" value="${escapeAttr(p.safetyTitle)}" oninput="STATE['${key}'].safetyTitle=this.value">
-      ${safety}
+    <div class="card" style="--acc:${accent}">
+      <h2>${escapeHtml(p.safetyTitle)}</h2>
+      <div style="margin-top:10px;">${safety}</div>
       <button class="btn small" onclick="addSafetyItem('${key}')">+ Ligne</button>
-      <div class="sub" style="margin-top:10px;">Repère</div>
+      <div class="sub" style="margin:12px 0 4px;">Repère</div>
       <textarea rows="2" oninput="STATE['${key}'].source=this.value">${escapeHtml(p.source)}</textarea>
     </div>`;
 }
-function addPalier(key){
-  STATE[key].paliers.push({palier:'Nouveau palier',objectif:'',duree:'',seances:'',exercices:'',critere:'',valide:''});
-  renderPage();
-}
-function removePalier(key,i){ STATE[key].paliers.splice(i,1); renderPage(); }
-function addSafetyItem(key){ STATE[key].safetyItems.push(''); renderPage(); }
-function removeSafetyItem(key,i){ STATE[key].safetyItems.splice(i,1); renderPage(); }
-
-/* ===================== Performances ===================== */
-function allKnownExerciseNames(){
-  const names = new Set(Object.keys(STATE.performances));
-  SEANCE_KEYS.forEach(k=>{ exNames(k).forEach(n=>names.add(n)); });
-  STATE.frontLever.seances.forEach(s=>s.exercises.forEach(ex=>names.add(ex.name)));
-  return Array.from(names).filter(Boolean).sort((a,b)=>a.localeCompare(b,'fr'));
-}
-function renderPerformancesHtml(){
-  const names = allKnownExerciseNames();
-  if(!selectedPerfExercise || !names.includes(selectedPerfExercise)) selectedPerfExercise = names[0] || null;
-  const options = names.map(n=>`<option value="${escapeAttr(n)}" ${n===selectedPerfExercise?'selected':''}>${escapeHtml(n)}</option>`).join('');
-  const used = selectedPerfExercise ? seancesUsing(selectedPerfExercise) : [];
-  const link = used.length
-    ? `<div class="banner info">🔄 Cet exercice alimente automatiquement le <b>Max réf.</b> de : ${escapeHtml(used.join(', '))}. La dernière perf loggée devient la référence du cycle.</div>`
-    : `<div class="banner info">Cet exercice n'est utilisé dans aucune séance — il est juste suivi ici. Ajoute-le à une séance avec exactement le même nom pour synchroniser le Max réf.</div>`;
-  return `
-    <div class="card">
-      <div class="accentbar" style="background:#283593"></div>
-      <h2>Performances — historique &amp; progression</h2>
-      <div class="sub">Logue une date + un nombre de reps (ou de secondes pour les holds). Tout se propage instantanément aux séances.</div>
-      <div class="perfControls">
-        <div><label>Exercice</label><select id="perfExerciseSelect" onchange="onPerfSelectChange(this.value)">${options}</select></div>
-        <div><label>Ou nouvel exercice</label><input type="text" id="perfNewName" placeholder="nom de l'exercice"></div>
-        <div><label>Date</label><input type="date" id="perfDate"></div>
-        <div><label>Reps / sec</label><input type="number" id="perfReps"></div>
-        <div><button class="btn primary" onclick="addPerfEntry()">+ Ajouter</button></div>
-      </div>
-      ${link}
-    </div>
-    <div class="card">
-      <h2 id="perfChartTitle">${selectedPerfExercise? escapeHtml(selectedPerfExercise):'Aucune donnée'}</h2>
-      <canvas id="perfChart" height="180"></canvas>
-      <div class="tablewrap" style="margin-top:12px;">
-        <table id="perfHistTable">
-          <thead><tr><th>Date</th><th>Reps / sec</th><th></th></tr></thead>
-          <tbody id="perfHistBody"></tbody>
-        </table>
-      </div>
-    </div>`;
-}
-function initPerfPage(){
-  const d = document.getElementById('perfDate');
-  if(d) d.value = today();
-  drawPerfChart();
-}
-function onPerfSelectChange(name){
-  selectedPerfExercise = name;
-  const n = document.getElementById('perfNewName'); if(n) n.value='';
-  renderPage();
-}
-function addPerfEntry(){
-  const newName = document.getElementById('perfNewName').value.trim();
-  const name = newName || selectedPerfExercise;
-  const date = document.getElementById('perfDate').value;
-  const reps = parseFloat(document.getElementById('perfReps').value);
-  if(!name){ alert("Choisis ou tape un nom d'exercice."); return; }
-  if(!date){ alert('Choisis une date.'); return; }
-  if(isNaN(reps)){ alert('Entre un nombre de reps/secondes.'); return; }
-  if(!STATE.performances[name]) STATE.performances[name] = [];
-  STATE.performances[name].push({date, reps});
-  STATE.performances[name].sort((a,b)=>String(a.date).localeCompare(String(b.date)));
-  selectedPerfExercise = name;
-  syncRefs(); renderPage(); saveNow();
-}
-function removePerfEntry(name, idx){ STATE.performances[name].splice(idx,1); syncRefs(); renderPage(); saveNow(); }
-function drawPerfChart(){
-  const name = selectedPerfExercise;
-  const titleEl = document.getElementById('perfChartTitle');
-  if(titleEl) titleEl.textContent = name || 'Aucune donnée';
-  const entries = (name && STATE.performances[name]) ? STATE.performances[name] : [];
-  const tbody = document.getElementById('perfHistBody');
-  if(tbody){
-    tbody.innerHTML = entries.map((e,i)=>`
-      <tr><td>${escapeHtml(e.date)}</td><td>${escapeHtml(e.reps)}</td>
-      <td><button class="delbtn" onclick="removePerfEntry('${jsStr(name)}',${i})">🗑</button></td></tr>`
-    ).join('') || '<tr><td colspan="3" style="color:var(--muted);">Aucune perf loggée pour cet exercice.</td></tr>';
-  }
-  const canvas = document.getElementById('perfChart');
-  if(canvas) drawLineChart(canvas, entries.map(e=>e.date), entries.map(e=>e.reps), '#283593');
-}
-
-/* Graphique canvas maison — aucune dépendance externe. */
-function drawLineChart(canvas, labels, values, color){
-  const dpr = window.devicePixelRatio || 1;
-  const w = canvas.clientWidth || 320, h = canvas.clientHeight || 220;
-  canvas.width = w*dpr; canvas.height = h*dpr;
-  const ctx = canvas.getContext('2d');
-  ctx.setTransform(dpr,0,0,dpr,0,0);
-  ctx.clearRect(0,0,w,h);
-  if(!values.length){
-    ctx.fillStyle = '#6B7280'; ctx.font='13px Arial';
-    ctx.fillText('Aucune perf loggée pour le moment.', 10, h/2);
-    return;
-  }
-  const padL=38, padR=14, padT=16, padB=26;
-  const plotW = w-padL-padR, plotH = h-padT-padB;
-  const maxV = Math.max.apply(null, values), minV = Math.min.apply(null, [0].concat(values));
-  const range = (maxV-minV) || 1;
-  ctx.strokeStyle = '#E2E5EA'; ctx.lineWidth = 1;
-  ctx.beginPath(); ctx.moveTo(padL,padT); ctx.lineTo(padL,padT+plotH); ctx.lineTo(padL+plotW,padT+plotH); ctx.stroke();
-  ctx.font = '10px Arial'; ctx.textAlign='right'; ctx.textBaseline='middle';
-  for(let i=0;i<=4;i++){
-    const v = minV + range*i/4;
-    const y = padT+plotH - (v-minV)/range*plotH;
-    ctx.strokeStyle = '#F0F1F3'; ctx.beginPath(); ctx.moveTo(padL,y); ctx.lineTo(padL+plotW,y); ctx.stroke();
-    ctx.fillStyle = '#6B7280'; ctx.fillText(Math.round(v), padL-6, y);
-  }
-  const n = values.length;
-  const stepX = n>1 ? plotW/(n-1) : 0;
-  const pts = values.map((v,i)=>({x: padL + (n>1 ? i*stepX : plotW/2), y: padT+plotH-(v-minV)/range*plotH}));
-  ctx.strokeStyle = color; ctx.lineWidth = 2.5; ctx.beginPath();
-  pts.forEach((p,i)=> i===0 ? ctx.moveTo(p.x,p.y) : ctx.lineTo(p.x,p.y));
-  ctx.stroke();
-  ctx.lineTo(pts[pts.length-1].x, padT+plotH); ctx.lineTo(pts[0].x, padT+plotH); ctx.closePath();
-  ctx.fillStyle = color + '22'; ctx.fill();
-  ctx.textAlign = 'center';
-  pts.forEach((p,i)=>{
-    ctx.fillStyle = color; ctx.beginPath(); ctx.arc(p.x,p.y,3.5,0,Math.PI*2); ctx.fill();
-    ctx.fillStyle = '#1F2937'; ctx.font = '10px Arial'; ctx.textBaseline='bottom';
-    ctx.fillText(values[i], p.x, p.y-6);
-  });
-  ctx.fillStyle = '#6B7280'; ctx.font = '9.5px Arial'; ctx.textBaseline = 'top';
-  const showEvery = Math.max(1, Math.ceil(n/6));
-  labels.forEach((lab,i)=>{
-    if(i%showEvery!==0 && i!==n-1) return;
-    ctx.fillText(String(lab).slice(5), pts[i].x, padT+plotH+6);
-  });
-}
+function addSafetyItem(k){ STATE[k].safetyItems.push(''); renderPage(); }
+function removeSafetyItem(k,i){ STATE[k].safetyItems.splice(i,1); renderPage(); }
 
 /* ===================== Défi Pompes ===================== */
-function renderDefiHtml(){
-  const d = STATE.defiPompes;
-  const rows = d.days.map((day,i) => `
-    <tr>
-      <td>J-${day.jour}</td>
-      <td>${escapeHtml(day.jourSemaine)}</td>
-      <td><input type="number" value="${escapeAttr(day.objectif)}" style="width:58px;" oninput="STATE.defiPompes.days[${i}].objectif=parseFloat(this.value)||0;recomputeDefi()"></td>
-      <td><select class="realise-${day.realise}" onchange="STATE.defiPompes.days[${i}].realise=this.value;recomputeDefi();this.className='realise-'+this.value">
-        <option value="" ${day.realise===''?'selected':''}>—</option>
-        <option value="OUI" ${day.realise==='OUI'?'selected':''}>OUI</option>
-        <option value="NON" ${day.realise==='NON'?'selected':''}>NON</option>
+function renderDefi(){
+  const d=STATE.defiPompes;
+  const rows=d.days.map((day,i)=>`<tr>
+      <td>J${day.jour}</td><td>${escapeHtml(day.jourSemaine)}</td>
+      <td><input type="number" value="${escapeAttr(day.objectif)}" oninput="STATE.defiPompes.days[${i}].objectif=nombre(this.value);recomputeDefi()"></td>
+      <td><select onchange="STATE.defiPompes.days[${i}].realise=this.value;recomputeDefi()">
+        ${['','OUI','NON'].map(v=>`<option value="${v}" ${day.realise===v?'selected':''}>${v||'—'}</option>`).join('')}
       </select></td>
-      <td><input type="number" value="${day.reps===null||day.reps===undefined?'':day.reps}" style="width:58px;" oninput="STATE.defiPompes.days[${i}].reps=this.value===''?null:parseFloat(this.value);recomputeDefi()"></td>
-      <td id="ecart_${i}">—</td>
-    </tr>`).join('');
-  return `
-    <div class="card">
-      <div class="accentbar" style="background:#AD1457"></div>
-      <h2>Défi Pompes — 30 jours</h2>
+      <td><input type="number" value="${day.reps==null?'':day.reps}" oninput="STATE.defiPompes.days[${i}].reps=this.value===''?null:nombre(this.value);recomputeDefi()"></td>
+      <td class="num" id="ec_${i}">—</td></tr>`).join('');
+  return `<div class="card" style="--acc:var(--s5)">
+      <div class="eyebrow">30 jours</div><h2>Défi Pompes</h2>
       <textarea class="sub" rows="1" oninput="STATE.defiPompes.note=this.value">${escapeHtml(d.note)}</textarea>
-      <div class="statGrid" id="defiStats"></div>
-      <div class="tablewrap">
-        <table>
-          <thead><tr><th>Jour</th><th>Jour sem.</th><th>Objectif</th><th>Réalisé</th><th>Reps réelles</th><th>Écart</th></tr></thead>
-          <tbody>${rows}</tbody>
-        </table>
-      </div>
+      <div class="kpiRow" id="defiStats"></div>
+      <div class="tablewrap" style="margin-top:12px;"><table>
+        <thead><tr><th>Jour</th><th>Sem.</th><th>Objectif</th><th>Fait</th><th>Reps</th><th>Écart</th></tr></thead>
+        <tbody>${rows}</tbody></table></div>
     </div>`;
 }
 function recomputeDefi(){
-  const d = STATE.defiPompes;
-  let done=0, failed=0, totalReps=0;
+  const d=STATE.defiPompes; let ok=0,ko=0,tot=0;
   d.days.forEach((day,i)=>{
-    if(day.realise==='OUI') done++;
-    if(day.realise==='NON') failed++;
-    if(typeof day.reps==='number') totalReps += day.reps;
-    const c = document.getElementById(`ecart_${i}`);
-    if(c) c.textContent = (day.reps===null||day.reps===undefined) ? '—' : (day.reps-day.objectif);
+    if(day.realise==='OUI') ok++;
+    if(day.realise==='NON') ko++;
+    if(typeof day.reps==='number') tot+=day.reps;
+    const c=document.getElementById('ec_'+i);
+    if(c) c.textContent=(day.reps==null)?'—':(day.reps-day.objectif);
   });
-  const rate = Math.round(done/d.days.length*100);
-  const stats = document.getElementById('defiStats');
-  if(stats){
-    stats.innerHTML = `
-      <div class="stat"><div class="v">${done}</div><div class="l">Jours complétés</div></div>
-      <div class="stat"><div class="v">${failed}</div><div class="l">Jours ratés</div></div>
-      <div class="stat"><div class="v">${totalReps}</div><div class="l">Total reps</div></div>
-      <div class="stat"><div class="v">${rate}%</div><div class="l">Taux de complétion</div></div>`;
-  }
+  const s=document.getElementById('defiStats');
+  if(s) s.innerHTML=`
+    <div class="kpi"><div class="v num">${ok}</div><div class="l">Complétés</div></div>
+    <div class="kpi"><div class="v num">${ko}</div><div class="l">Ratés</div></div>
+    <div class="kpi"><div class="v num">${tot}</div><div class="l">Total reps</div></div>
+    <div class="kpi"><div class="v num">${Math.round(ok/d.days.length*100)}%</div><div class="l">Complétion</div></div>`;
 }
 
-/* ===================== Page Synchro ===================== */
-function humanError(msg){
-  msg = String(msg||'');
-  if(isQuotaError(msg)) return "Quota GitHub atteint. L'appli se met en pause et reprend toute seule.";
-  if(/^401/.test(msg)) return "Token refusé. Il est peut-être expiré, révoqué, ou mal collé.";
-  if(/^403/.test(msg)) return "Token sans la permission « gist ». Recrée-en un en cochant cette case.";
-  if(/^404/.test(msg)) return "Gist introuvable. Vide le champ Identifiant du Gist pour en recréer un.";
-  if(/Failed to fetch|NetworkError/i.test(msg)) return "Pas de connexion à GitHub.";
-  return msg;
+/* ===================== Synchro (page) ===================== */
+function humanError(m){
+  m=String(m||'');
+  if(isQuotaError(m)) return "Quota GitHub atteint. L'appli se met en pause et reprend seule.";
+  if(/^401/.test(m)) return "Token refusé : expiré, révoqué, ou mal collé.";
+  if(/^403/.test(m)) return "Token sans la permission « gist ». Recrée-en un en cochant cette case.";
+  if(/^404/.test(m)) return "Gist introuvable. Vide le champ Identifiant pour en recréer un.";
+  if(/Failed to fetch|NetworkError/i.test(m)) return "Pas de connexion à GitHub.";
+  return m;
 }
 function etatSync(){
-  if(!SYNC.token) return {icone:'⚙️', titre:'Pas encore configuré', detail:"Colle un token GitHub ci-dessous pour synchroniser tes appareils.", ton:'warn'};
-  if(!SYNC.enabled) return {icone:'⏸️', titre:'Synchro en pause', detail:"Tes données restent sur cet appareil. Coche « Activer » pour reprendre.", ton:'warn'};
-  if(!navigator.onLine) return {icone:'📴', titre:'Hors-ligne', detail:"L'appli continue de fonctionner. La synchro reprendra au retour du réseau.", ton:'warn'};
-  if(Date.now() < pushCooldownUntil) return {icone:'⏳', titre:'En pause '+Math.ceil((pushCooldownUntil-Date.now())/60000)+' min', detail:"Quota GitHub atteint. Reprise automatique, rien à faire.", ton:'warn'};
-  if(SYNC.lastError) return {icone:'⚠️', titre:'Problème', detail:humanError(SYNC.lastError), ton:'test'};
-  if(!SYNC.lastSyncAt) return {icone:'🔄', titre:'Jamais synchronisé', detail:"Clique sur Synchroniser pour créer ta sauvegarde en ligne.", ton:'warn'};
-  const min = Math.round((Date.now() - new Date(SYNC.lastSyncAt).getTime())/60000);
-  const quand = min < 1 ? "à l'instant" : (min < 60 ? 'il y a '+min+' min' : 'le '+fmtDT(SYNC.lastSyncAt));
-  return {icone:'✅', titre:'Synchronisé '+quand, detail:"Tes modifications partent automatiquement. Rien à faire.", ton:'ok'};
+  if(!SYNC.token) return {i:'⚙️',t:'Pas encore configuré',d:"Colle un token GitHub ci-dessous pour relier tes appareils.",c:'warn'};
+  if(!SYNC.enabled) return {i:'⏸️',t:'Synchro en pause',d:"Tes données restent sur cet appareil.",c:'warn'};
+  if(!navigator.onLine) return {i:'📴',t:'Hors-ligne',d:"L'appli fonctionne. La synchro reprendra avec le réseau.",c:'warn'};
+  if(Date.now()<pushCooldownUntil) return {i:'⏳',t:'En pause '+Math.ceil((pushCooldownUntil-Date.now())/60000)+' min',d:"Quota GitHub atteint. Reprise automatique.",c:'warn'};
+  if(SYNC.lastError) return {i:'⚠️',t:'Problème',d:humanError(SYNC.lastError),c:'bad'};
+  if(!SYNC.lastSyncAt) return {i:'🌐',t:'Jamais synchronisé',d:"Clique sur Synchroniser pour créer ta sauvegarde en ligne.",c:'warn'};
+  const min=Math.round((Date.now()-new Date(SYNC.lastSyncAt).getTime())/60000);
+  return {i:'✅',t:'Synchronisé '+(min<1?"à l'instant":(min<60?'il y a '+min+' min':'le '+fmtDT(SYNC.lastSyncAt))),
+          d:"Tes modifications partent automatiquement.",c:'ok'};
 }
-function renderSyncHtml(){
-  const e = etatSync();
-  const configure = !!SYNC.token;
-  return `
-    <div class="card">
-      <div class="accentbar" style="background:#0F1F3D"></div>
+function renderSync(){
+  const e=etatSync(), conf=!!SYNC.token;
+  return `<div class="card ${e.c==='ok'?'':''}" style="--acc:${e.c==='ok'?'var(--good)':(e.c==='bad'?'var(--bad)':'var(--warn)')}">
       <div class="syncHero">
-        <div class="syncIcon">${e.icone}</div>
-        <div>
-          <div class="syncTitle">${escapeHtml(e.titre)}</div>
-          <div class="syncDetail">${escapeHtml(e.detail)}</div>
-        </div>
+        <div class="syncIcon">${e.i}</div>
+        <div><div class="syncTitle">${escapeHtml(e.t)}</div><div class="syncDetail">${escapeHtml(e.d)}</div></div>
       </div>
-      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px;">
-        <button class="btn primary" style="flex:1;min-width:170px;padding:10px;" onclick="syncNow()">🔄 Synchroniser maintenant</button>
-        <button class="btn" style="flex:1;min-width:150px;padding:10px;" onclick="pairFlow()">📱 Lier un téléphone</button>
+      <div class="row" style="margin-top:14px;">
+        <button class="btn primary" onclick="syncNow()">Synchroniser maintenant</button>
+        <button class="btn" onclick="pairFlow()">📱 Lier un téléphone</button>
       </div>
-      <div class="sub" style="margin:10px 0 0;">Dernière modification sur cet appareil : ${escapeHtml(fmtDT(STATE.meta && STATE.meta.updatedAt))}.</div>
+      <div class="sub" style="margin:12px 0 0;">Dernière modification ici : ${escapeHtml(fmtDT(STATE.meta&&STATE.meta.updatedAt))}.</div>
     </div>
 
-    <div class="card">
-      <div class="accentbar" style="background:#00838F"></div>
-      <h2>${configure?'Réglages':'Configurer en 2 minutes'}</h2>
-      ${configure?'':`<ol class="steps" style="margin-top:0;">
-        <li>Crée un token GitHub — le lien ci-dessous coche déjà la bonne permission, tu n'as qu'à valider en bas de page.</li>
-        <li>Copie-le, colle-le ici, coche <b>Activer</b>, puis <b>Enregistrer</b>.</li>
+    <div class="card" style="--acc:var(--s3)">
+      <h2>${conf?'Réglages':'Configurer'}</h2>
+      ${conf?'':`<ol class="steps" style="margin:6px 0 12px;">
+        <li>Crée un token GitHub — le lien coche déjà la bonne permission, tu valides en bas de page.</li>
+        <li>Colle-le ici, coche <b>Activer</b>, puis <b>Enregistrer</b>.</li>
       </ol>
-      <a class="btn primary" style="display:inline-block;text-decoration:none;margin-bottom:10px;" href="https://github.com/settings/tokens/new?scopes=gist&description=Calisthenie" target="_blank" rel="noopener">Créer mon token GitHub ↗</a>`}
+      <a class="btn primary" style="display:inline-block;text-decoration:none;margin-bottom:14px;" href="https://github.com/settings/tokens/new?scopes=gist&description=Calisthenie" target="_blank" rel="noopener">Créer mon token ↗</a>`}
       <div class="kv">
-        <div class="k">Token</div>
-        <div><input type="password" id="syncToken" placeholder="ghp_… ou github_pat_…" value="${escapeAttr(SYNC.token)}" autocomplete="off"></div>
-        <div class="k">Synchro auto</div>
-        <div><label style="font-size:12.5px;"><input type="checkbox" id="syncOn" ${SYNC.enabled?'checked':''} style="width:auto;margin-right:6px;">Activer</label></div>
+        <div class="k">Token</div><div><input type="password" id="syncToken" placeholder="ghp_…" value="${escapeAttr(SYNC.token)}" autocomplete="off"></div>
+        <div class="k">Synchro auto</div><div><label style="font-size:12.5px;"><input type="checkbox" id="syncOn" ${SYNC.enabled?'checked':''} style="width:auto;margin-right:7px;">Activer</label></div>
       </div>
-      <button class="btn primary" style="margin-top:10px;" onclick="applySyncSettings()">Enregistrer</button>
-      <div class="sub" style="margin:10px 0 0;">Le token est stocké sur cet appareil uniquement. Il n'apparaît ni dans la sauvegarde en ligne, ni dans l'export JSON.</div>
+      <button class="btn primary" style="margin-top:12px;" onclick="applySyncSettings()">Enregistrer</button>
+      <div class="sub" style="margin:12px 0 0;">Le token reste sur cet appareil. Il n'apparaît ni dans la sauvegarde en ligne, ni dans l'export.</div>
     </div>
 
-    <details class="card" ${SYNC.lastError?'open':''}>
-      <summary style="cursor:pointer;font-weight:700;color:var(--dark);font-size:15px;">Avancé</summary>
-      <div class="kv" style="margin-top:12px;">
-        <div class="k">Identifiant du Gist</div>
-        <div><input type="text" id="syncGist" placeholder="vide = création automatique" value="${escapeAttr(SYNC.gistId)}"></div>
-        <div class="k">Sauvegarde en ligne</div>
-        <div class="mono">${SYNC.gistId?`<a href="https://gist.github.com/${escapeAttr(SYNC.gistId)}" target="_blank" rel="noopener">gist.github.com/${escapeHtml(SYNC.gistId)}</a>`:'—'}</div>
+    <details class="card" style="--acc:var(--line)" ${SYNC.lastError?'open':''}>
+      <summary>Avancé</summary>
+      <div class="kv" style="margin-top:14px;">
+        <div class="k">Identifiant Gist</div><div><input type="text" id="syncGist" placeholder="vide = création auto" value="${escapeAttr(SYNC.gistId)}"></div>
+        <div class="k">Sauvegarde</div><div class="mono">${SYNC.gistId?`<a href="https://gist.github.com/${escapeAttr(SYNC.gistId)}" target="_blank" rel="noopener" style="color:var(--s1)">gist.github.com/${escapeHtml(SYNC.gistId)}</a>`:'—'}</div>
         <div class="k">Dernier échange</div><div>${escapeHtml(fmtDT(SYNC.lastSyncAt))}</div>
         <div class="k">Message brut</div><div class="mono">${escapeHtml(SYNC.lastError||'aucun')}</div>
       </div>
-      <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:12px;">
-        <button class="btn" onclick="pushRemote(false)">⬆ Forcer l'envoi</button>
-        <button class="btn" onclick="pullRemote(true)">⬇ Forcer la récupération</button>
-        <button class="btn" onclick="exportData()">💾 Export JSON</button>
-        <button class="btn" onclick="document.getElementById('importFile').click()">📂 Import JSON</button>
-        <button class="btn danger" onclick="forgetSync()">Oublier le token</button>
+      <div class="row" style="margin-top:14px;">
+        <button class="btn small" onclick="pushRemote(false)">⬆ Forcer l'envoi</button>
+        <button class="btn small" onclick="pullRemote(true)">⬇ Forcer la récupération</button>
+        <button class="btn small" onclick="exportData()">💾 Export</button>
+        <button class="btn small" onclick="document.getElementById('importFile').click()">📂 Import</button>
+        <button class="btn small danger" onclick="forgetSync()">Oublier le token</button>
+        <button class="btn small danger" onclick="resetData()">↺ Réinitialiser</button>
       </div>
-      <div class="sub" style="margin-top:12px;">En cas de conflit, l'appli compare les dates et refuse d'écraser une version plus récente : elle te propose de la récupérer. Le dernier appareil à enregistrer gagne, il n'y a pas de fusion.</div>
-      <textarea id="pairLink" rows="3" class="mono" style="margin-top:8px;display:none;" readonly></textarea>
+      <div class="sub" style="margin-top:14px;">En cas de conflit, l'appli compare les dates et refuse d'écraser une version plus récente. Le dernier appareil à enregistrer gagne, il n'y a pas de fusion.</div>
+      <textarea id="pairLink" rows="3" class="mono" style="margin-top:10px;display:none;" readonly></textarea>
     </details>`;
 }
 async function syncNow(){
-  if(!SYNC.token){ alert("Colle d'abord un token GitHub, puis clique Enregistrer."); return; }
-  if(!SYNC.enabled){ SYNC.enabled = true; saveSync(); }
+  if(!SYNC.token){ alert("Colle d'abord un token, puis Enregistrer."); return; }
+  if(!SYNC.enabled){ SYNC.enabled=true; saveSync(); }
   if(!SYNC.gistId){ await pushRemote(false); renderPage(); return; }
   await pullRemote(false);
-  if(stateFingerprint() !== lastPushedFP) await pushRemote(false);
+  if(stateFingerprint()!==lastPushedFP) await pushRemote(false);
   renderPage();
 }
-function pairFlow(){
-  const l = makePairLink();
-  if(!l){ alert("Clique d'abord sur « Synchroniser maintenant » pour créer ta sauvegarde en ligne."); return; }
-  const el = document.getElementById('pairLink');
-  if(el){ el.style.display='block'; el.value = l; }
-  copyPairLink();
-  alert("Lien copié.\n\n1. Envoie-le-toi par un canal privé (note perso, message à toi-même).\n2. Ouvre-le sur le téléphone : la synchro s'y configure toute seule.\n3. Supprime le lien ensuite — il contient ton token.");
-}
 function applySyncSettings(){
-  SYNC.token = document.getElementById('syncToken').value.trim();
-  const gEl = document.getElementById('syncGist');
-  if(gEl) SYNC.gistId = gEl.value.trim().replace(/^.*gist\.github\.com\//,'');
-  SYNC.enabled = document.getElementById('syncOn').checked;
-  SYNC.lastError = '';
-  if(SYNC.enabled && !SYNC.token){ SYNC.enabled = false; alert('Il faut un token pour activer la synchro.'); }
+  SYNC.token=document.getElementById('syncToken').value.trim();
+  const g=document.getElementById('syncGist');
+  if(g) SYNC.gistId=g.value.trim().replace(/^.*gist\.github\.com\//,'');
+  SYNC.enabled=document.getElementById('syncOn').checked;
+  SYNC.lastError='';
+  if(SYNC.enabled&&!SYNC.token){ SYNC.enabled=false; alert('Il faut un token pour activer la synchro.'); }
   saveSync(); refreshSyncPill(); renderPage();
-  if(SYNC.enabled) toast('Réglages enregistrés. Clique sur 🔄 Synchroniser.');
+  if(SYNC.enabled) toast('Enregistré. Clique sur Synchroniser.');
 }
-function b64urlEncode(str){
-  return btoa(unescape(encodeURIComponent(str))).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
-}
-function b64urlDecode(str){
-  const s = str.replace(/-/g,'+').replace(/_/g,'/');
-  return decodeURIComponent(escape(atob(s)));
-}
+function b64urlEncode(s){ return btoa(unescape(encodeURIComponent(s))).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,''); }
+function b64urlDecode(s){ return decodeURIComponent(escape(atob(s.replace(/-/g,'+').replace(/_/g,'/')))); }
 function makePairLink(){
-  if(!SYNC.token || !SYNC.gistId) return null;
-  const payload = b64urlEncode(JSON.stringify({t:SYNC.token, g:SYNC.gistId}));
-  return location.origin + location.pathname + '#pair=' + payload;
-}
-function showPairLink(){
-  const l = makePairLink();
-  if(!l){ alert("Configure d'abord le token, puis clique sur ⬆ Envoyer maintenant pour créer le Gist."); return; }
-  const el = document.getElementById('pairLink');
-  el.value = l; el.focus(); el.select();
+  if(!SYNC.token||!SYNC.gistId) return null;
+  return location.origin+location.pathname+'#pair='+b64urlEncode(JSON.stringify({t:SYNC.token,g:SYNC.gistId}));
 }
 function copyPairLink(){
-  const l = makePairLink();
-  if(!l){ alert("Configure d'abord le token, puis clique sur ⬆ Envoyer maintenant pour créer le Gist."); return; }
-  document.getElementById('pairLink').value = l;
-  const done = ()=>toast('Lien copié — ouvre-le sur l\'autre appareil.');
-  if(navigator.clipboard && navigator.clipboard.writeText){
-    navigator.clipboard.writeText(l).then(done).catch(()=>{
-      const el=document.getElementById('pairLink'); el.select(); document.execCommand('copy'); done();
-    });
-  }else{
-    const el=document.getElementById('pairLink'); el.select(); document.execCommand('copy'); done();
-  }
+  const l=makePairLink(); if(!l) return;
+  const el=document.getElementById('pairLink');
+  if(el){ el.style.display='block'; el.value=l; }
+  if(navigator.clipboard&&navigator.clipboard.writeText) navigator.clipboard.writeText(l).catch(()=>{ if(el){el.select();document.execCommand('copy');} });
+  else if(el){ el.select(); document.execCommand('copy'); }
+}
+function pairFlow(){
+  const l=makePairLink();
+  if(!l){ alert("Clique d'abord sur Synchroniser maintenant pour créer ta sauvegarde en ligne."); return; }
+  copyPairLink();
+  alert("Lien copié.\n\n1. Envoie-le-toi par un canal privé.\n2. Ouvre-le sur le téléphone : la synchro s'y configure toute seule.\n3. Supprime le lien ensuite — il contient ton token.");
 }
 function consumePairLink(){
-  const h = location.hash || '';
-  const m = h.match(/pair=([A-Za-z0-9\-_]+)/);
+  const m=(location.hash||'').match(/pair=([A-Za-z0-9\-_]+)/);
   if(!m) return false;
   try{
-    const o = JSON.parse(b64urlDecode(m[1]));
-    if(!o.t || !o.g) return false;
-    SYNC.token = o.t; SYNC.gistId = o.g; SYNC.enabled = true;
+    const o=JSON.parse(b64urlDecode(m[1]));
+    if(!o.t||!o.g) return false;
+    SYNC.token=o.t; SYNC.gistId=o.g; SYNC.enabled=true;
     SYNC.lastRemoteAt=''; SYNC.lastSyncAt=''; SYNC.lastError='';
-    saveSync();
-    history.replaceState(null, '', location.pathname);
+    saveSync(); history.replaceState(null,'',location.pathname);
     return true;
   }catch(e){ return false; }
 }
 function forgetSync(){
-  if(!confirm('Effacer le token et l\'identifiant du Gist de cet appareil ? Le Gist lui-même reste intact sur GitHub.')) return;
-  SYNC = {enabled:false, token:'', gistId:'', lastRemoteAt:'', lastSyncAt:'', lastError:''};
+  if(!confirm("Effacer le token de cet appareil ? Le Gist reste intact sur GitHub.")) return;
+  SYNC={enabled:false,token:'',gistId:'',lastRemoteAt:'',lastSyncAt:'',lastError:''};
   saveSync(); refreshSyncPill(); renderPage();
 }
 
 /* ===================== Export / Import / Reset ===================== */
 function exportData(){
-  const blob = new Blob([JSON.stringify(STATE, null, 1)], {type:'application/json'});
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
-  a.download = `planning-calisthenie-${today()}.json`;
+  const b=new Blob([JSON.stringify(STATE,null,1)],{type:'application/json'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(b); a.download='calisthenie-'+today()+'.json';
   document.body.appendChild(a); a.click(); a.remove();
 }
 function importData(evt){
-  const file = evt.target.files[0];
-  if(!file) return;
-  const reader = new FileReader();
-  reader.onload = e => {
+  const f=evt.target.files[0]; if(!f) return;
+  const r=new FileReader();
+  r.onload=e=>{
     try{
-      const obj = JSON.parse(e.target.result);
-      if(!obj.seances || !obj.planning) throw new Error('structure inattendue');
-      if(!obj.planning.days || !obj.planning.days[0] || !obj.planning.days[0].slots) throw new Error('ancien format de planning');
-      STATE = obj;
-      migrate();
-      selectedPerfExercise = null; seanceChartSel = {};
-      renderWeekSelect(); renderPage(); saveNow();
-      alert('Données chargées ✅');
-    }catch(err){ alert('Fichier invalide : ' + err.message); }
+      const o=JSON.parse(e.target.result);
+      if(!o.seances||!o.planning) throw new Error('structure inattendue');
+      STATE=o; migrate(); syncRefs(); selectedPerf=null;
+      renderPage(); saveNow(); toast('Données chargées ✓');
+    }catch(err){ alert('Fichier invalide : '+err.message); }
   };
-  reader.readAsText(file);
-  evt.target.value = '';
+  r.readAsText(f); evt.target.value='';
 }
 function resetData(){
-  if(confirm("Repartir des données d'origine ? Tout ce qui est enregistré sur cet appareil sera effacé.")){
-    STATE = deepClone(SEED);
-    selectedPerfExercise = null; seanceChartSel = {};
-    if(storageOK){ try{ window.localStorage.removeItem(STORE_KEY); }catch(e){} }
-    renderWeekSelect(); renderPage(); saveNow();
-  }
+  if(!confirm("Repartir de zéro ? Tout ce qui est enregistré sur cet appareil sera effacé.")) return;
+  STATE=deepClone(SEED); selectedPerf=null;
+  if(storageOK){ try{ window.localStorage.removeItem(STORE_KEY); }catch(e){} }
+  renderPage(); saveNow();
 }
 
-/* ===================== Migration / Init ===================== */
+/* ===================== Migration ===================== */
 function migrate(){
-  if(!STATE.semaine) STATE.semaine = 1;
-  if(!STATE.performances) STATE.performances = {};
-  if(!STATE.courbePoids) STATE.courbePoids = deepClone(SEED.courbePoids);
-  if(!STATE.test) STATE.test = deepClone(SEED.test);
-  if(STATE.testProtocol){                       // ancien format
-    STATE.test.series = STATE.testProtocol.series || STATE.test.series;
-    STATE.test.repos  = STATE.testProtocol.repos  || STATE.test.repos;
-    delete STATE.testProtocol;
-  }
-  if(!STATE.seances) STATE.seances = {};
-  // v2 -> v3 : "Street Plus" devient "Street"
-  if(STATE.seances.streetPlus && !STATE.seances.street){
-    STATE.seances.street = STATE.seances.streetPlus;
-    delete STATE.seances.streetPlus;
-  }
+  if(!STATE.performances) STATE.performances={};
+  if(!STATE.courbePoids||!STATE.courbePoids.paliers||!STATE.courbePoids.paliers.length) STATE.courbePoids=deepClone(SEED.courbePoids);
+  if(!STATE.test) STATE.test=deepClone(SEED.test);
+  if(STATE.testProtocol) delete STATE.testProtocol;
+  if(!STATE.perfPrincipaux||!STATE.perfPrincipaux.length) STATE.perfPrincipaux=SEED.perfPrincipaux.slice();
+  if(!STATE.seances) STATE.seances={};
   ['jambes','complement','endurance','explosivite','super6b'].forEach(k=>{ delete STATE.seances[k]; });
 
   PROG_KEYS.forEach(k=>{
-    const ref = SEED.seances[k];
-    let s0 = STATE.seances[k];
-    if(!s0){ STATE.seances[k] = deepClone(ref); return; }
-    if(s0.type !== 'progressive'){                       // conversion depuis l'ancien format circuit
-      const noms = [];
-      (s0.blocks||[]).forEach(b=>(b.exercises||[]).forEach(e=>{ if(e.name) noms.push(e.name); }));
-      const conv = deepClone(ref);
-      if(noms.length){
-        conv.exercises = noms.map((n,i)=>{
-          const modele = ref.exercises[Math.min(i, ref.exercises.length-1)];
-          return {name:n, reps:modele.reps, plafond:modele.plafond};
-        });
-      }
-      conv.subtitle = s0.subtitle || conv.subtitle;
-      conv.label = ref.label;
-      STATE.seances[k] = conv;
-    }else{
-      if(!s0.lest) s0.lest = {actif:false, charge:0, palier:0};
-      if(!s0.history) s0.history = [];
-      if(!s0.toursCible) s0.toursCible = 5;
-      if(!s0.exercises) s0.exercises = deepClone(ref.exercises);
-      s0.label = ref.label;
-      s0.type = 'progressive';
+    const ref=SEED.seances[k];
+    let s=STATE.seances[k];
+    if(!s||s.type!=='progressive'||!Array.isArray(s.exercises)){
+      const hist=(s&&Array.isArray(s.history))?s.history:[];
+      STATE.seances[k]=deepClone(ref);
+      STATE.seances[k].history=hist;
+      return;
     }
+    s.label=ref.label; s.accent=ref.accent; s.leste=ref.leste; s.plusDe=ref.plusDe;
+    s.type='progressive';
+    if(!s.history) s.history=[];
+    if(!s.toursCible) s.toursCible=5;
+    if(s.leste&&typeof s.palier!=='number') s.palier=0;
+    s.exercises.forEach((e,i)=>{
+      const m=ref.exercises[Math.min(i,ref.exercises.length-1)];
+      if(!e.repos) e.repos=m.repos;
+      if(!s.leste&&!e.plafond) e.plafond=m.plafond;
+      if(e.reps===undefined) e.reps=m.reps;
+    });
   });
+  // ancien objet lest {actif,charge,palier}
+  PROG_KEYS.forEach(k=>{ const s=STATE.seances[k]; if(s&&s.lest){ if(s.leste&&typeof s.lest.palier==='number') s.palier=s.lest.palier; delete s.lest; } });
+  delete STATE.seances.streetOriginalPlus_old;
 
-  if(!STATE.seances.abdo) STATE.seances.abdo = deepClone(SEED.seances.abdo);
-  STATE.seances.abdo.type = 'circuit';
-  (STATE.seances.abdo.blocks||[]).forEach(b=>b.exercises.forEach(ex=>{ if(ex.auto===undefined) ex.auto = true; }));
+  if(!STATE.seances.abdo||!STATE.seances.abdo.blocks) STATE.seances.abdo=deepClone(SEED.seances.abdo);
+  STATE.seances.abdo.type='circuit';
+  if(!STATE.seances.abdo.semaine) STATE.seances.abdo.semaine=nombre(STATE.semaine)||1;
+  delete STATE.semaine;
+  STATE.seances.abdo.blocks[0].exercises.forEach(ex=>{ if(ex.auto===undefined) ex.auto=true; });
 
-  // planning : renommages
+  ['frontLever','fullPlanche','defiPompes','planning'].forEach(k=>{ if(!STATE[k]) STATE[k]=deepClone(SEED[k]); });
+  (STATE.frontLever.seances||[]).forEach(s=>{ if(s.accent) delete s.accent; });
   (STATE.planning.days||[]).forEach(d=>(d.slots||[]).forEach(sl=>{
-    if(sl.act === 'Souplesse') sl.act = 'Mobilité';
-    if(sl.act === 'Street Plus' && !STATE.seances.streetPlus) sl.act = 'Street';
+    if(sl.act==='Souplesse') sl.act='Mobilité';
   }));
-  STATE.version = 3;
+  STATE.version=4;
 }
-migrate();migrate();
+
+/* ===================== Init ===================== */
+migrate();
 loadSync();
 syncRefs();
-lastLocalFP = stateFingerprint();
+lastLocalFP=stateFingerprint();
 
-const paired = consumePairLink();
-const hash = (location.hash||'').replace('#','');
-if(TABS.some(t=>t.id===hash)) currentTab = hash;
-if(paired) currentTab = 'sync';
+const paired=consumePairLink();
+const h=(location.hash||'').replace('#','');
+if(TABS.some(t=>t.id===h)) currentTab=h;
+if(paired) currentTab='sync';
 
-renderWeekSelect();
 renderNav();
 renderPage();
 refreshSyncPill();
 
-document.addEventListener('input', scheduleSave, true);
-document.addEventListener('change', scheduleSave, true);
-window.addEventListener('pagehide', ()=>saveNow());
-document.addEventListener('visibilitychange', ()=>{
-  if(document.visibilityState==='hidden'){ saveNow(); }
-  else if(SYNC.enabled){ pullRemote(false); }
+document.addEventListener('input',scheduleSave,true);
+document.addEventListener('change',scheduleSave,true);
+window.addEventListener('pagehide',()=>saveNow());
+window.addEventListener('resize',()=>{ if(currentTab==='performances'||currentTab==='abdo') renderPage(); });
+document.addEventListener('visibilitychange',()=>{
+  if(document.visibilityState==='hidden') saveNow();
+  else if(SYNC.enabled) pullRemote(false);
 });
-window.addEventListener('online', ()=>{ refreshSyncPill(); if(SYNC.enabled) pullRemote(false); });
-window.addEventListener('offline', refreshSyncPill);
-if(paired){ toast('Appareil lié ✓ récupération en cours…'); pullRemote(true); }
+window.addEventListener('online',()=>{ refreshSyncPill(); if(SYNC.enabled) pullRemote(false); });
+window.addEventListener('offline',refreshSyncPill);
+if(paired){ toast('Appareil lié ✓ récupération…'); pullRemote(true); }
 else if(SYNC.enabled) pullRemote(false);
 
-/* Service worker : l'appli s'ouvre hors-ligne et se met à jour toute seule. */
 if('serviceWorker' in navigator){
-  window.addEventListener('load', ()=>{
+  window.addEventListener('load',()=>{
     navigator.serviceWorker.register('sw.js').then(reg=>{
-      reg.addEventListener('updatefound', ()=>{
-        const nw = reg.installing;
-        if(!nw) return;
-        nw.addEventListener('statechange', ()=>{
-          if(nw.state === 'installed' && navigator.serviceWorker.controller){
-            toast('Nouvelle version disponible.', 'Recharger', ()=>{
-              nw.postMessage('SKIP_WAITING');
-              setTimeout(()=>location.reload(), 200);
-            });
+      reg.addEventListener('updatefound',()=>{
+        const nw=reg.installing; if(!nw) return;
+        nw.addEventListener('statechange',()=>{
+          if(nw.state==='installed'&&navigator.serviceWorker.controller){
+            toast('Nouvelle version disponible.','Recharger',()=>{ nw.postMessage('SKIP_WAITING'); setTimeout(()=>location.reload(),200); });
           }
         });
       });
