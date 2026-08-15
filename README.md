@@ -7,8 +7,9 @@ Application web personnelle de suivi calisthénie. Un seul fichier HTML, aucune 
 ## Ce que fait l'appli
 
 - **Planning hebdomadaire** par créneaux : chaque jour est une pile de séances qu'on ajoute, remplace ou supprime en deux clics.
-- **Séances** Street Original, Street Plus, Abdo : tableau de progression S1 → S7 calculé à partir d'un *Max réf.*, plus **S8 = semaine test** (2 séries au max, 4 min de repos) qui remet les références à jour et relance le cycle.
-- **Max réf. synchronisé** : la référence de chaque exercice suit automatiquement la dernière performance loggée pour le même nom d'exercice. Un cadenas permet de figer une valeur à la main.
+- **Street Original** et **Street** : circuits à progression par réussite. Un objectif de reps par exercice et un nombre de tours cible. Chaque séance validée au nombre de tours cible ajoute **+1 rep à chaque exercice** pour la fois suivante. Quand tous les exercices atteignent leur plafond, la séance bascule en mode **lesté** (`Street Original Plus` / `Street Plus`) : les reps se figent et c'est la **courbe de poids** qui progresse, un palier par séance réussie.
+- **Test de max** toutes les 8 semaines : 2 séries au maximum, 4 min de repos, on garde le meilleur des deux. Alimente l'onglet Performances.
+- **Abdo** : tableau de progression S1 → S7 calculé à partir d'un *Max réf.* qui suit automatiquement la dernière perf loggée.
 - **Front Lever** : échauffement dédié, 4 séances, paliers de progression.
 - **Full Planche**, **Défi Pompes 30 jours**, **Performances** avec courbes dessinées en canvas natif.
 - **Vue mobile** : sur écran étroit, les séances n'affichent que la semaine en cours et la semaine test au lieu des huit colonnes.
@@ -21,6 +22,16 @@ Ouvrir l'adresse ci-dessus dans le navigateur, puis :
 - **iOS / Safari** : bouton Partager → *Sur l'écran d'accueil*.
 
 L'appli s'ouvre ensuite en plein écran, avec son icône, et **fonctionne sans réseau** grâce au service worker.
+
+## Premier lancement
+
+L'appli est livrée **vierge** : les exercices, les séances et les paliers sont là, mais aucun *Max réf.* ni aucun historique de performance. Les colonnes S1-S7 affichent « — » tant qu'une référence n'est pas renseignée. Trois façons de démarrer :
+
+- taper un nombre dans la colonne **Max réf.** de chaque exercice ;
+- logger une perf dans la carte **Courbe de progression** (le Max réf. se remplit tout seul) ;
+- charger une sauvegarde existante avec **📂 Import**, ou activer l'onglet **☁ Synchro**.
+
+Aucune donnée personnelle n'est présente dans ce dépôt. Les sauvegardes JSON sont exclues par `.gitignore` : ne les commite pas si le dépôt est public.
 
 ## Données
 

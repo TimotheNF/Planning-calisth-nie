@@ -111,6 +111,27 @@ ol.steps code{background:#F3F4F6;border-radius:4px;padding:1px 5px;font-size:11.
 .stat .v{font-size:20px;font-weight:700;color:var(--dark);}
 .stat .l{font-size:11px;color:var(--muted);}
 
+.syncHero{display:flex;gap:12px;align-items:center;}
+.syncIcon{font-size:30px;line-height:1;flex:none;}
+.syncTitle{font-size:16px;font-weight:700;color:var(--dark);}
+.syncDetail{font-size:12.5px;color:var(--muted);line-height:1.45;margin-top:2px;}
+details.card summary::-webkit-details-marker{color:var(--muted);}
+.btn.danger{color:var(--danger);border-color:#f0c4bd;}
+
+/* ---------- Séances à progression ---------- */
+.modeBadge{color:#fff;border-radius:20px;padding:4px 11px;font-size:11.5px;font-weight:700;white-space:nowrap;}
+.exGrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;margin:12px 0;}
+.exTile{border:1px solid var(--line);border-left:5px solid #90A4AE;border-radius:10px;padding:10px;background:#FCFCFD;text-align:center;}
+.exTile .exName{font-size:11.5px;color:var(--muted);font-weight:600;line-height:1.3;min-height:30px;}
+.exTile .exReps{font-size:30px;font-weight:800;color:var(--dark);line-height:1.1;}
+.exTile .exReps span{font-size:11px;font-weight:600;color:var(--muted);display:block;margin-top:-2px;}
+.exTile .exCap{font-size:10.5px;color:var(--muted);margin-top:3px;}
+.objLine{font-size:13px;margin-bottom:10px;}
+.palierRow{display:flex;flex-wrap:wrap;gap:5px;margin-top:6px;}
+.palierChip{border:1px solid var(--line);background:#F8F9FB;border-radius:20px;padding:3px 9px;font-size:11.5px;font-weight:700;color:var(--muted);}
+.palierChip .u{font-size:9.5px;font-weight:600;margin-left:1px;}
+.palierChip.cur{background:#0D47A1;color:#fff;border-color:#0D47A1;}
+
 /* ---------- Front Lever ---------- */
 .flHead{display:flex;align-items:center;gap:10px;margin-bottom:2px;}
 .flBadge{width:30px;height:30px;border-radius:9px;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:14px;flex:none;}
@@ -136,7 +157,7 @@ select.realise-NON{background:#FDECEA;}
   <div class="headerRow">
     <h1>🏋️ Planning Calisthénie</h1>
     <div class="hbtns">
-      <span id="saveState">…</span>
+      <span id="saveState" title="Ouvrir la page Synchro" style="cursor:pointer" onclick="switchTab('sync')">…</span>
       <span class="weekSel">Semaine <select id="weekSelect" onchange="setWeek(this.value)"></select></span>
       <button class="hbtn" onclick="exportData()">💾 Export</button>
       <button class="hbtn" onclick="document.getElementById('importFile').click()">📂 Import</button>
@@ -157,7 +178,9 @@ const TEST_WEEK = 8;
 const ACTIVITIES = [
   {name:"Repos",                     color:"#78909C", tab:null},
   {name:"Street Original",           color:"#1565C0", tab:"streetOriginal"},
-  {name:"Street Plus",               color:"#6A1B9A", tab:"streetPlus"},
+  {name:"Street Original Plus",      color:"#0D47A1", tab:"streetOriginal"},
+  {name:"Street",                    color:"#6A1B9A", tab:"street"},
+  {name:"Street Plus",               color:"#4A148C", tab:"street"},
   {name:"Abdo",                      color:"#F57F17", tab:"abdo"},
   {name:"Front Lever — Séance 1",    color:"#4527A0", tab:"frontLever"},
   {name:"Front Lever — Séance 2",    color:"#4527A0", tab:"frontLever"},
@@ -165,58 +188,72 @@ const ACTIVITIES = [
   {name:"Front Lever — Séance 4",    color:"#4527A0", tab:"frontLever"},
   {name:"Full Planche",              color:"#C62828", tab:"fullPlanche"},
   {name:"Défi Pompes",               color:"#AD1457", tab:"defiPompes"},
-  {name:"Souplesse",                 color:"#00838F", tab:null},
+  {name:"Mobilité",                  color:"#00838F", tab:null},
   {name:"Libre / au feeling",        color:"#90A4AE", tab:null}
 ];
 
 const SEED = {
   version: 2,
   semaine: 1,
-  testProtocol: {series:"2", repos:"4 min", note:"Semaine 8 = semaine test. Chaque exercice : 2 séries au max de reps (ou de secondes pour les holds), 4 min de repos entre les séries. On garde le meilleur des 2, on le logge, et le nouveau cycle S1-S7 repart sur cette base."},
   planning: {
     note: "Chaque jour = une pile de créneaux. Ajoute, change ou supprime un créneau en 2 clics : le planning s'adapte à ta semaine, pas l'inverse.",
     days: [
       {day:"LUNDI",    slots:[{act:"Street Original", note:""},{act:"Abdo", note:"10 min en fin de séance"}]},
       {day:"MARDI",    slots:[{act:"Front Lever — Séance 1", note:"à faire frais, en début de séance"}]},
       {day:"MERCREDI", slots:[{act:"Repos", note:""}]},
-      {day:"JEUDI",    slots:[{act:"Street Plus", note:""},{act:"Abdo", note:"10 min"}]},
-      {day:"VENDREDI", slots:[{act:"Front Lever — Séance 2", note:""},{act:"Souplesse", note:""}]},
+      {day:"JEUDI",    slots:[{act:"Street", note:""},{act:"Abdo", note:"10 min"}]},
+      {day:"VENDREDI", slots:[{act:"Front Lever — Séance 2", note:""},{act:"Mobilité", note:""}]},
       {day:"SAMEDI",   slots:[{act:"Front Lever — Séance 3", note:""},{act:"Abdo", note:"10 min"}]},
       {day:"DIMANCHE", slots:[{act:"Repos", note:""}]}
     ]
   },
   seances: {
     streetOriginal: {
-      label:"Street Original", accent:"#1565C0", basePct:0.6, growthPct:0.07,
-      subtitle:"Le socle : pompes / tractions / dips. Circuit AMRAP, minimum 5 tours visés, transitions immédiates, repos en fin de tour.",
-      blocks:[{label:null, note:null, exercises:[
-        {name:"Pompes", ref:30, repos:"—", auto:true},
-        {name:"Tractions pronation", ref:9, repos:"—", auto:true},
-        {name:"Dips", ref:8, repos:"90s (fin de tour)", auto:true}
-      ]}]
+      label:"Street Original", accent:"#1565C0", type:"progressive", toursCible:5, repos:"90s (fin de tour)",
+      subtitle:"Circuit au poids du corps. Objectif : tenir le nombre de tours cible aux valeurs affichées. Dès que c'est fait, chaque exercice prend +1 rep pour la fois suivante.",
+      exercises:[
+        {name:"Pompes", reps:5, plafond:8},
+        {name:"Tractions pronation", reps:5, plafond:8},
+        {name:"Dips", reps:10, plafond:15}
+      ],
+      lest:{actif:false, charge:0, palier:0},
+      history:[]
     },
-    streetPlus: {
-      label:"Street Plus", accent:"#6A1B9A", basePct:0.6, growthPct:0.07,
-      subtitle:"Variante complète : tirage vertical supination, poussée verticale, dips, tirage horizontal. Circuit AMRAP, minimum 5 tours visés.",
-      blocks:[{label:null, note:null, exercises:[
-        {name:"Tractions supination", ref:7, repos:"—", auto:true},
-        {name:"Dips barre simple", ref:10, repos:"—", auto:true},
-        {name:"Pike push-up", ref:7, repos:"—", auto:true},
-        {name:"Tractions australiennes", ref:11, repos:"90s (fin de tour)", auto:true}
-      ]}]
+    street: {
+      label:"Street", accent:"#6A1B9A", type:"progressive", toursCible:5, repos:"90s (fin de tour)",
+      subtitle:"Circuit au poids du corps, quatre mouvements. Même règle : nombre de tours cible atteint, chaque exercice prend +1 rep pour la fois suivante.",
+      exercises:[
+        {name:"Tractions supination", reps:5, plafond:8},
+        {name:"Dips barre simple", reps:5, plafond:8},
+        {name:"Pike push-up", reps:5, plafond:8},
+        {name:"Tractions australiennes", reps:10, plafond:15}
+      ],
+      lest:{actif:false, charge:0, palier:0},
+      history:[]
     },
     abdo: {
-      label:"Abdo", accent:"#F57F17", basePct:0.6, growthPct:0.07,
+      label:"Abdo", accent:"#F57F17", type:"circuit", basePct:0.6, growthPct:0.07,
       subtitle:"Séance courte, 2-3x/semaine, greffée en fin d'une autre séance. Circuit AMRAP, minimum 4 tours. Unités : reps, sauf « (sec) » = secondes de maintien.",
       blocks:[{label:null, note:null, exercises:[
-        {name:"L-sit hold (sec)", ref:10, repos:"60s", auto:true},
-        {name:"Relevé de jambes suspendu", ref:12, repos:"60s", auto:true},
-        {name:"Roue abdo (ab wheel)", ref:8, repos:"60s", auto:true},
-        {name:"Russian twist lesté", ref:20, repos:"45s", auto:true},
-        {name:"Hollow body hold (sec)", ref:15, repos:"45s", auto:true},
-        {name:"Gainage latéral (sec)", ref:30, repos:"45s", auto:true}
+        {name:"L-sit hold (sec)", ref:0, repos:"60s", auto:true},
+        {name:"Relevé de jambes suspendu", ref:0, repos:"60s", auto:true},
+        {name:"Roue abdo (ab wheel)", ref:0, repos:"60s", auto:true},
+        {name:"Russian twist lesté", ref:0, repos:"45s", auto:true},
+        {name:"Hollow body hold (sec)", ref:0, repos:"45s", auto:true},
+        {name:"Gainage latéral (sec)", ref:0, repos:"45s", auto:true}
       ]}]
     }
+  },
+  courbePoids: {
+    note:"Paliers de charge utilisés dès qu'une séance passe en mode lesté : un palier franchi à chaque séance réussie. Valeurs provisoires — remplace-les par ta courbe.",
+    paliers:[2.5, 5, 7.5, 10, 12.5, 15, 17.5, 20, 22.5, 25]
+  },
+  test: {
+    intervalleSemaines:8,
+    series:"2",
+    repos:"4 min",
+    dernier:"",
+    note:"Tous les 8 semaines : 2 séries au max de reps par exercice, 4 min de repos entre les séries. On garde le meilleur des 2, on le logge dans Performances."
   },
   frontLever: {
     subtitle:"Force isométrique du dos (grand dorsal), des stabilisateurs scapulaires et du tronc. 4 séances rotatives + progression Tuck → Advanced Tuck → One Leg → Straddle → Full. Toujours en début de séance, après l'échauffement.",
@@ -267,7 +304,7 @@ const SEED = {
     ],
     source:"Tenir un Full Front Lever demande souvent une traction lestée à 60-85% du poids de corps."
   },
-  performances: {"Pompes": [{"date": "2026-02-03", "reps": 14}, {"date": "2026-04-06", "reps": 15}, {"date": "2026-06-28", "reps": 30}], "Pompes diamants": [{"date": "2026-02-03", "reps": 6}, {"date": "2026-07-11", "reps": 22}], "Pike push-up": [{"date": "2026-02-03", "reps": 7}], "Traction commando": [{"date": "2026-04-07", "reps": 4}], "Dips barre simple": [{"date": "2026-07-11", "reps": 10}], "Dips": [{"date": "2026-06-28", "reps": 8}], "Traction neutre": [{"date": "2026-07-11", "reps": 5}], "Tractions pronation": [{"date": "2026-04-07", "reps": 6}, {"date": "2026-07-11", "reps": 9}], "Tractions supination": [{"date": "2026-04-07", "reps": 4}, {"date": "2026-07-11", "reps": 7}], "Tractions australiennes": [{"date": "2026-04-07", "reps": 11}], "Hollow body hold (sec)": [{"date": "2026-04-08", "reps": 15}]},
+  performances: {},
   fullPlanche: {
     subtitle:"Objectif long terme : Tuck → Advanced Tuck → Half-Lay/Straddle → Full. 3-4 séances/semaine, poignets et épaules protégés en priorité. Se construit sur plusieurs mois à plusieurs années.",
     paliers:[
@@ -340,7 +377,11 @@ function stampLocal(){
 let applyingRemote = false;
 function saveNow(opts){
   const silent = (opts && opts.silent) || applyingRemote;
+  const fp = stateFingerprint();
+  const changed = (fp !== lastLocalFP);
+  if(!changed && !silent) return;                 // rien n'a bougé : ni horodatage, ni écriture, ni envoi
   if(!silent) stampLocal();
+  lastLocalFP = fp;
   if(storageOK){
     try{
       window.localStorage.setItem(STORE_KEY, JSON.stringify(STATE));
@@ -382,6 +423,19 @@ const GIST_FILE = 'planning-calisthenie.json';
 let SYNC = {enabled:false, token:'', gistId:'', lastRemoteAt:'', lastSyncAt:'', lastError:''};
 let pushTimer = null, syncBusy = false;
 
+/* Garde-fous anti-boucle : on ne parle à GitHub que si le contenu a réellement
+   changé, jamais plus d'une fois par 15 s, et on se met en pause si GitHub
+   renvoie un dépassement de quota. */
+const PUSH_DEBOUNCE = 5000;
+const PUSH_MIN_INTERVAL = 15000;
+let lastLocalFP = null, lastPushedFP = null, lastPushAt = 0, pushCooldownUntil = 0;
+function stateFingerprint(){
+  const c = deepClone(STATE);
+  delete c.meta;
+  return JSON.stringify(c);
+}
+function isQuotaError(msg){ return /rate limit|secondary rate|abuse detection|too many requests/i.test(msg||''); }
+
 function loadSync(){
   if(!storageOK) return;
   try{
@@ -397,6 +451,7 @@ function syncLabel(){
   if(!SYNC.enabled) return storageOK ? '✓ Local' : '⚠ Export requis';
   if(!navigator.onLine) return '☁ hors-ligne';
   if(syncBusy) return '☁ …';
+  if(Date.now() < pushCooldownUntil) return '☁ pause ' + Math.ceil((pushCooldownUntil-Date.now())/60000) + ' min';
   if(SYNC.lastError) return '☁ erreur';
   if(SYNC.lastSyncAt) return '☁ ' + SYNC.lastSyncAt.slice(11,16);
   return '☁ prêt';
@@ -419,12 +474,20 @@ async function ghFetch(path, opts){
   return res.json();
 }
 function schedulePush(){
+  if(!SYNC.enabled) return;
   clearTimeout(pushTimer);
-  pushTimer = setTimeout(()=>pushRemote(true), 2500);
+  const now = Date.now();
+  const wait = Math.max(PUSH_DEBOUNCE, (lastPushAt + PUSH_MIN_INTERVAL) - now, pushCooldownUntil - now);
+  pushTimer = setTimeout(()=>pushRemote(true), wait);
 }
 async function pushRemote(auto){
   if(!SYNC.enabled || !SYNC.token) return;
   if(!navigator.onLine){ SYNC.lastError=''; refreshSyncPill(); return; }
+  const fp = stateFingerprint();
+  if(auto){
+    if(fp === lastPushedFP) return;                    // rien de neuf : aucune requête
+    if(Date.now() < pushCooldownUntil){ schedulePush(); return; }
+  }
   syncBusy = true; refreshSyncPill();
   try{
     const payload = deepClone(STATE);
@@ -459,18 +522,27 @@ async function pushRemote(auto){
     SYNC.lastRemoteAt = g.updated_at;
     SYNC.lastSyncAt = new Date().toISOString();
     SYNC.lastError = '';
+    lastPushedFP = fp; lastPushAt = Date.now(); pushCooldownUntil = 0;
     saveSync(); syncBusy = false; refreshSyncPill();
-    if(currentTab==='sync') renderPage();
+    const gf = document.getElementById('syncGist');      // pas de re-rendu : ça relancerait un cycle
+    if(gf && !gf.value) gf.value = SYNC.gistId;
     if(!auto) toast('Envoyé sur GitHub ✓');
   }catch(e){
-    syncBusy = false; SYNC.lastError = e.message; saveSync(); refreshSyncPill();
-    if(!auto) alert('Échec de l\'envoi : ' + e.message);
-    if(currentTab==='sync') renderPage();
+    syncBusy = false; lastPushAt = Date.now();
+    if(isQuotaError(e.message)){
+      pushCooldownUntil = Date.now() + 20*60*1000;
+      SYNC.lastError = 'Quota GitHub atteint. Pause automatique de 20 min, puis reprise. (' + e.message.slice(0,80) + '…)';
+    }else{
+      SYNC.lastError = e.message;
+    }
+    saveSync(); refreshSyncPill();
+    if(!auto) alert('Échec de l\'envoi : ' + SYNC.lastError);
   }
 }
 async function pullRemote(force){
   if(!SYNC.enabled || !SYNC.token || !SYNC.gistId) return;
   if(!navigator.onLine) return;
+  if(!force && Date.now() < pushCooldownUntil) return;
   syncBusy = true; refreshSyncPill();
   try{
     const g = await ghFetch('/gists/'+SYNC.gistId);
@@ -492,14 +564,19 @@ async function pullRemote(force){
     SYNC.lastError = '';
     applyingRemote = true;
     saveSync(); saveNow({silent:true}); syncBusy = false;
+    lastPushedFP = stateFingerprint(); lastLocalFP = lastPushedFP;
     renderWeekSelect(); renderPage();
     applyingRemote = false;
     refreshSyncPill();
     toast('Données récupérées depuis GitHub ✓');
   }catch(e){
-    syncBusy = false; SYNC.lastError = e.message; saveSync(); refreshSyncPill();
-    if(force) alert('Échec de la récupération : ' + e.message);
-    if(currentTab==='sync') renderPage();
+    syncBusy = false;
+    if(isQuotaError(e.message)){
+      pushCooldownUntil = Date.now() + 20*60*1000;
+      SYNC.lastError = 'Quota GitHub atteint. Pause automatique de 20 min, puis reprise.';
+    }else{ SYNC.lastError = e.message; }
+    saveSync(); refreshSyncPill();
+    if(force) alert('Échec de la récupération : ' + SYNC.lastError);
   }
 }
 function fmtDT(iso){
@@ -531,7 +608,7 @@ let compactWeeks = (typeof window!=='undefined' && window.innerWidth < 640);
 const TABS = [
   {id:'planning',        label:'Planning'},
   {id:'streetOriginal',  label:'Street Original'},
-  {id:'streetPlus',      label:'Street Plus'},
+  {id:'street',          label:'Street'},
   {id:'abdo',            label:'Abdo'},
   {id:'frontLever',      label:'Front Lever'},
   {id:'performances',    label:'Performances'},
@@ -539,7 +616,9 @@ const TABS = [
   {id:'fullPlanche',     label:'Full Planche'},
   {id:'sync',            label:'☁ Synchro'}
 ];
-const SEANCE_KEYS = ['streetOriginal','streetPlus','abdo'];
+const SEANCE_KEYS = ['streetOriginal','street','abdo'];
+const PROG_KEYS   = ['streetOriginal','street'];
+function isProg(k){ return PROG_KEYS.indexOf(k) >= 0; }
 
 /* ===================== Synchronisation perfs → Max réf. ===================== */
 function latestPerf(name){
@@ -558,7 +637,7 @@ function perfDate(name){
 function syncRefs(){
   SEANCE_KEYS.forEach(k=>{
     const s = STATE.seances[k];
-    if(!s) return;
+    if(!s || s.type === 'progressive' || !s.blocks) return;
     s.blocks.forEach(b=>b.exercises.forEach(ex=>{
       if(ex.auto === undefined) ex.auto = true;
       if(ex.auto){
@@ -568,11 +647,19 @@ function syncRefs(){
     }));
   });
 }
+function isFresh(){
+  if(Object.keys(STATE.performances||{}).length) return false;
+  return SEANCE_KEYS.filter(k=>!isProg(k)).every(k=>STATE.seances[k].blocks.every(b=>b.exercises.every(ex=>!Number(ex.ref))));
+}
+function freshBanner(){
+  if(!isFresh()) return '';
+  return `<div class="banner warn">👋 <b>Appli vierge.</b> Les colonnes S1-S7 restent à « — » tant qu'aucun <i>Max réf.</i> n'est renseigné. Trois façons de démarrer : tape un nombre dans la colonne <b>Max réf.</b>, logge une perf dans la carte <b>Courbe de progression</b>, ou récupère une sauvegarde existante via <b>📂 Import</b> / l'onglet <b>☁ Synchro</b>.</div>`;
+}
 function seancesUsing(name){
   const out = [];
   SEANCE_KEYS.forEach(k=>{
     const s = STATE.seances[k];
-    if(s && s.blocks.some(b=>b.exercises.some(ex=>ex.name===name))) out.push(s.label);
+    if(s && exNames(k).indexOf(name) >= 0) out.push(s.label);
   });
   return out;
 }
@@ -603,8 +690,8 @@ function renderPage(){
   syncRefs();
   const main = document.getElementById('mainArea');
   if(SEANCE_KEYS.includes(currentTab)){
-    main.innerHTML = renderSeanceHtml(currentTab);
-    recomputeSeance(currentTab);
+    main.innerHTML = isProg(currentTab) ? renderProgHtml(currentTab) : renderSeanceHtml(currentTab);
+    if(!isProg(currentTab)) recomputeSeance(currentTab);
     drawSeanceChart(currentTab);
   } else if(currentTab === 'planning'){
     main.innerHTML = renderPlanningHtml();
@@ -662,12 +749,13 @@ function renderPlanningHtml(){
   const nbSeances = Object.values(counts).reduce((a,b)=>a+b,0);
   const nbRepos = p.days.filter(d=>d.slots.every(s=>s.act==='Repos')).length;
   const testBanner = STATE.semaine===TEST_WEEK
-    ? `<div class="banner test"><b>Semaine test (S8)</b> — sur chaque séance : ${escapeHtml(STATE.testProtocol.series)} séries au max, ${escapeHtml(STATE.testProtocol.repos)} de repos. Logue les résultats, les Max réf. se mettent à jour tout seuls.</div>` : '';
+    ? `<div class="banner test"><b>Semaine test (S8)</b> — sur chaque séance : ${escapeHtml(STATE.test.series)} séries au max, ${escapeHtml(STATE.test.repos)} de repos. Logue les résultats, les Max réf. se mettent à jour tout seuls.</div>` : '';
 
   return `
     <div class="card">
       <div class="accentbar" style="background:#37474F"></div>
       <h2>Planning hebdomadaire — semaine S${STATE.semaine}${STATE.semaine===TEST_WEEK?' (TEST)':''}</h2>
+      ${freshBanner()}
       ${testBanner}
       <div class="sub">Un créneau = une séance. Change le contenu dans le menu déroulant, ajoute-en autant que tu veux, et clique sur ↗ pour ouvrir la séance correspondante.</div>
       <div class="statGrid">
@@ -702,7 +790,235 @@ function shiftWeek(){
   renderPage();
 }
 
-/* ===================== Séances ===================== */
+/* ===================== Séances à progression par réussite ===================== */
+function exNames(key){
+  const s = STATE.seances[key];
+  if(!s) return [];
+  if(s.type === 'progressive') return s.exercises.map(e=>e.name).filter(Boolean);
+  const out = [];
+  s.blocks.forEach(b=>b.exercises.forEach(e=>{ if(e.name) out.push(e.name); }));
+  return out;
+}
+function objectifStr(s){ return s.exercises.map(e=>e.reps).join(' / '); }
+function tousAuPlafond(s){ return s.exercises.every(e => Number(e.reps) >= Number(e.plafond)); }
+function chargeDuPalier(i){
+  const p = (STATE.courbePoids && STATE.courbePoids.paliers) || [];
+  if(!p.length) return 0;
+  return Number(p[Math.max(0, Math.min(i, p.length-1))]) || 0;
+}
+function semainesDepuis(iso){
+  if(!iso) return null;
+  const d = new Date(iso); if(isNaN(d)) return null;
+  return Math.floor((Date.now() - d.getTime()) / (7*24*3600*1000));
+}
+
+function renderProgHtml(key){
+  const s = STATE.seances[key];
+  const leste = !!(s.lest && s.lest.actif);
+  const nom = leste ? (key==='streetOriginal' ? 'Street Original Plus' : 'Street Plus') : s.label;
+  const cible = Number(s.toursCible)||5;
+
+  const tuiles = s.exercises.map((e,i)=>`
+    <div class="exTile" style="border-left-color:${s.accent}">
+      <div class="exName">${escapeHtml(e.name)}</div>
+      <div class="exReps">${escapeHtml(e.reps)}<span>reps</span></div>
+      <div class="exCap">plafond ${escapeHtml(e.plafond)}${Number(e.reps)>=Number(e.plafond)?' · atteint ✓':''}</div>
+    </div>`).join('');
+
+  const regles = s.exercises.map((e,i)=>`
+    <tr>
+      <td class="name"><input type="text" value="${escapeAttr(e.name)}" oninput="STATE.seances['${key}'].exercises[${i}].name=this.value" onchange="renderPage()"></td>
+      <td><input type="number" value="${escapeAttr(e.reps)}" oninput="STATE.seances['${key}'].exercises[${i}].reps=parseFloat(this.value)||0"></td>
+      <td><input type="number" value="${escapeAttr(e.plafond)}" oninput="STATE.seances['${key}'].exercises[${i}].plafond=parseFloat(this.value)||0"></td>
+      <td><button class="delbtn" onclick="removeProgEx('${key}',${i})">🗑</button></td>
+    </tr>`).join('');
+
+  const hist = (s.history||[]).slice(0,15).map((h,i)=>`
+    <tr>
+      <td>${escapeHtml(h.date)}</td>
+      <td>${escapeHtml(h.tours)} / ${escapeHtml(h.cible!==undefined?h.cible:cible)}</td>
+      <td>${escapeHtml(h.objectif)}</td>
+      <td>${h.mode==='lesté'?('+'+escapeHtml(h.charge)+' kg'):'PDC'}</td>
+      <td>${h.progression?'<span style="color:var(--green);font-weight:700;">↑</span>':'—'}${h.bascule?' 🏋️':''}</td>
+    </tr>`).join('') || '<tr><td colspan="5" style="color:var(--muted);">Aucune séance enregistrée.</td></tr>';
+
+  const paliers = ((STATE.courbePoids&&STATE.courbePoids.paliers)||[]).map((v,i)=>`
+    <span class="palierChip ${leste && i===s.lest.palier?'cur':''}">${escapeHtml(v)}<span class="u">kg</span></span>`).join('');
+
+  const sem = semainesDepuis(STATE.test && STATE.test.dernier);
+  const dueTest = (STATE.test && (!STATE.test.dernier || (sem!==null && sem >= Number(STATE.test.intervalleSemaines||8))));
+  const testBanner = dueTest
+    ? `<div class="banner test">🎯 <b>Test conseillé.</b> ${STATE.test.dernier?('Dernier test il y a '+sem+' semaines.'):'Aucun test enregistré.'} Protocole : ${escapeHtml(STATE.test.series)} séries au max, ${escapeHtml(STATE.test.repos)} de repos. <button class="btn small" style="margin-left:6px;" onclick="toggleTestCard('${key}')">Ouvrir le test</button></div>`
+    : `<div class="sub">Dernier test il y a ${sem} semaine(s) — prochain conseillé à ${escapeHtml(STATE.test.intervalleSemaines)}. <button class="btn small" onclick="toggleTestCard('${key}')">Ouvrir le test</button></div>`;
+
+  const chartOpts = exNames(key).map(n=>`<option value="${escapeAttr(n)}" ${n===seanceChartSel[key]?'selected':''}>${escapeHtml(n)}</option>`).join('');
+  if(!seanceChartSel[key] || exNames(key).indexOf(seanceChartSel[key])<0) seanceChartSel[key] = exNames(key)[0] || null;
+
+  return `
+    <div class="card">
+      <div class="accentbar" style="background:${leste?'#0D47A1':s.accent}"></div>
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;">
+        <h2 style="margin:0;">${escapeHtml(nom)}</h2>
+        <span class="modeBadge" style="background:${leste?'#0D47A1':s.accent}">${leste?('🏋️ Lesté +'+escapeHtml(s.lest.charge)+' kg'):'Poids du corps'}</span>
+      </div>
+      <textarea class="sub" rows="2" style="margin-top:8px;" oninput="STATE.seances['${key}'].subtitle=this.value">${escapeHtml(s.subtitle)}</textarea>
+      <div class="exGrid">${tuiles}</div>
+      <div class="objLine"><b>${cible} tours</b> · repos <input type="text" value="${escapeAttr(s.repos)}" style="width:120px;display:inline-block;" oninput="STATE.seances['${key}'].repos=this.value"></div>
+      <div class="banner info">${leste
+        ? `Les reps ne bougent plus : elles restent à ${escapeHtml(objectifStr(s))}. À chaque séance où tu tiens les ${cible} tours, tu passes au <b>palier de charge suivant</b>.`
+        : `À chaque séance où tu tiens les ${cible} tours à ces valeurs, <b>chaque exercice prend +1 rep</b> pour la fois suivante. Quand tous les exercices atteignent leur plafond (${escapeHtml(s.exercises.map(e=>e.plafond).join(' / '))}), la séance bascule automatiquement en <b>mode lesté</b> : reps figées, charge progressive.`}</div>
+    </div>
+
+    <div class="card">
+      <div class="accentbar" style="background:var(--green)"></div>
+      <h2>Valider la séance</h2>
+      <div class="perfControls">
+        <div><label>Date</label><input type="date" id="vDate_${key}"></div>
+        <div><label>Tours réalisés</label><input type="number" id="vTours_${key}" value="${cible}"></div>
+        <div><button class="btn primary" onclick="validerSeance('${key}')">✅ Enregistrer</button></div>
+        <div><button class="btn" onclick="annulerDerniere('${key}')">↶ Annuler la dernière</button></div>
+      </div>
+      <div class="sub" style="margin-bottom:0;">Objectif du jour : <b>${escapeHtml(objectifStr(s))}</b> sur ${cible} tours. Si tu fais moins de ${cible} tours, la séance est enregistrée mais les valeurs ne bougent pas.</div>
+      ${testBanner}
+    </div>
+
+    <div id="testCard_${key}" style="display:none;">${renderTestCard(key)}</div>
+
+    <div class="card">
+      <div class="accentbar" style="background:${s.accent}"></div>
+      <h2>Historique</h2>
+      <div class="tablewrap">
+        <table>
+          <thead><tr><th>Date</th><th>Tours</th><th>Objectif</th><th>Mode</th><th>Prog.</th></tr></thead>
+          <tbody>${hist}</tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="accentbar" style="background:#546E7A"></div>
+      <h2>Réglages</h2>
+      <div class="paramsRow">
+        <div><label>Tours cible</label><input type="number" value="${cible}" oninput="STATE.seances['${key}'].toursCible=parseFloat(this.value)||1"></div>
+        <div><label>Mode lesté</label><label style="font-size:12.5px;"><input type="checkbox" ${leste?'checked':''} style="width:auto;margin-right:6px;" onchange="STATE.seances['${key}'].lest.actif=this.checked;renderPage()">forcer</label></div>
+        <div><label>Charge actuelle (kg)</label><input type="number" value="${escapeAttr(s.lest.charge)}" oninput="STATE.seances['${key}'].lest.charge=parseFloat(this.value)||0"></div>
+      </div>
+      <div class="tablewrap">
+        <table>
+          <thead><tr><th style="text-align:left;">Exercice</th><th>Reps actuelles</th><th>Plafond</th><th></th></tr></thead>
+          <tbody>${regles}</tbody>
+        </table>
+      </div>
+      <button class="btn small" style="margin-top:6px;" onclick="addProgEx('${key}')">+ Ajouter un exercice</button>
+    </div>
+
+    <div class="card">
+      <div class="accentbar" style="background:#0D47A1"></div>
+      <h2>Courbe de poids</h2>
+      <textarea class="sub" rows="2" oninput="STATE.courbePoids.note=this.value">${escapeHtml(STATE.courbePoids.note)}</textarea>
+      <div class="palierRow">${paliers}</div>
+      <label style="font-size:11.5px;color:var(--muted);display:block;margin-top:8px;">Paliers, séparés par des virgules</label>
+      <input type="text" value="${escapeAttr(((STATE.courbePoids&&STATE.courbePoids.paliers)||[]).join(', '))}" onchange="setPaliers(this.value)">
+      <div class="sub" style="margin-top:8px;margin-bottom:0;">${leste?`Palier courant : <b>${s.lest.palier+1}</b> sur ${((STATE.courbePoids.paliers)||[]).length}.`:'Cette courbe s’appliquera dès la bascule en mode lesté.'}</div>
+    </div>
+
+    <div class="card">
+      <div class="accentbar" style="background:${s.accent}"></div>
+      <h2>Courbe de progression</h2>
+      <div class="sub">Historique de tes maxima par exercice — alimenté par les tests et par la saisie manuelle.</div>
+      <div class="perfControls">
+        <div><label>Exercice</label><select id="sChartSel_${key}" onchange="seanceChartSel['${key}']=this.value;drawSeanceChart('${key}')">${chartOpts}</select></div>
+        <div><label>Date</label><input type="date" id="sChartDate_${key}"></div>
+        <div><label>Reps / sec</label><input type="number" id="sChartVal_${key}"></div>
+        <div><button class="btn primary" onclick="addSeancePerf('${key}')">+ Ajouter</button></div>
+      </div>
+      <canvas id="sChart_${key}" height="180"></canvas>
+    </div>`;
+}
+function toggleTestCard(key){
+  const el = document.getElementById('testCard_'+key);
+  if(!el) return;
+  el.style.display = (el.style.display==='none') ? 'block' : 'none';
+  if(el.style.display==='block'){
+    const d = document.getElementById('testDate_'+key);
+    if(d && !d.value) d.value = today();
+    el.scrollIntoView({behavior:'smooth', block:'start'});
+  }
+}
+function setPaliers(str){
+  const arr = String(str).split(',').map(x=>parseFloat(String(x).replace(',','.').trim())).filter(v=>!isNaN(v));
+  if(!arr.length){ alert('Entre au moins une valeur, par exemple : 2.5, 5, 7.5'); return; }
+  STATE.courbePoids.paliers = arr;
+  renderPage(); saveNow();
+}
+function addProgEx(key){
+  STATE.seances[key].exercises.push({name:'Nouvel exercice', reps:5, plafond:8});
+  renderPage();
+}
+function removeProgEx(key,i){ STATE.seances[key].exercises.splice(i,1); renderPage(); }
+function validerSeance(key){
+  const s = STATE.seances[key];
+  const dEl = document.getElementById('vDate_'+key);
+  const date = (dEl && dEl.value) ? dEl.value : today();
+  const tours = parseFloat(document.getElementById('vTours_'+key).value);
+  if(isNaN(tours)){ alert('Entre le nombre de tours réalisés.'); return; }
+  const cible = Number(s.toursCible)||5;
+  const entry = {
+    date, tours, cible,
+    objectif: objectifStr(s),
+    mode: s.lest.actif ? 'lesté' : 'PDC',
+    charge: s.lest.charge,
+    progression: false,
+    bascule: false,
+    avant: {reps: s.exercises.map(e=>Number(e.reps)), lest: deepClone(s.lest)}
+  };
+  let msg = 'Séance enregistrée. Objectif inchangé : ' + objectifStr(s) + '.';
+  if(tours >= cible){
+    if(s.lest.actif){
+      const p = (STATE.courbePoids.paliers)||[];
+      if(s.lest.palier < p.length-1){
+        s.lest.palier += 1;
+        s.lest.charge = chargeDuPalier(s.lest.palier);
+        entry.progression = true;
+        msg = 'Réussi. Prochaine séance : +' + s.lest.charge + ' kg.';
+      }else{
+        msg = 'Réussi, mais tu es au dernier palier de la courbe de poids. Ajoute des paliers pour continuer.';
+      }
+    }else{
+      s.exercises.forEach(e=>{ if(Number(e.reps) < Number(e.plafond)) e.reps = Number(e.reps)+1; });
+      entry.progression = true;
+      msg = 'Réussi. Prochaine séance : ' + objectifStr(s) + '.';
+      if(tousAuPlafond(s)){
+        s.lest.actif = true;
+        s.lest.palier = 0;
+        s.lest.charge = chargeDuPalier(0);
+        entry.bascule = true;
+        msg = 'Plafond atteint sur tous les exercices. La séance passe en mode lesté : ' + objectifStr(s) + ' avec +' + s.lest.charge + ' kg.';
+      }
+    }
+  }else{
+    msg = 'Séance enregistrée (' + tours + '/' + cible + ' tours). Objectif inchangé : ' + objectifStr(s) + '.';
+  }
+  if(!s.history) s.history = [];
+  s.history.unshift(entry);
+  renderPage(); saveNow();
+  toast(msg);
+}
+function annulerDerniere(key){
+  const s = STATE.seances[key];
+  if(!s.history || !s.history.length){ alert('Aucune séance à annuler.'); return; }
+  const h = s.history[0];
+  if(!confirm('Annuler la séance du ' + h.date + ' et revenir à l\'objectif ' + h.objectif + ' ?')) return;
+  if(h.avant){
+    s.exercises.forEach((e,i)=>{ if(h.avant.reps[i]!==undefined) e.reps = h.avant.reps[i]; });
+    s.lest = deepClone(h.avant.lest);
+  }
+  s.history.shift();
+  renderPage(); saveNow();
+  toast('Dernière séance annulée.');
+}
+
+/* ===================== Séances en circuit (Abdo) ===================== */
 function visibleWeeks(){
   if(!compactWeeks) { const a=[]; for(let n=1;n<=WEEKS;n++) a.push(n); return a; }
   const cur = STATE.semaine;
@@ -717,7 +1033,7 @@ function renderSeanceHtml(key){
   const blocksHtml = s.blocks.map((b, bi) => {
     const rows = b.exercises.map((ex, ei) => {
       const cells = wks.map(n => {
-        if(n===TEST_WEEK) return `<td class="testcol">MAX ×${escapeHtml(STATE.testProtocol.series)}</td>`;
+        if(n===TEST_WEEK) return `<td class="testcol">MAX ×${escapeHtml(STATE.test.series)}</td>`;
         const v = computeWeekVal(ex.ref, s.basePct, s.growthPct, n);
         return `<td class="computed ${n===cur?'curweek':''}" id="w_${key}_${bi}_${ei}_${n}">${fmtCell(v)}</td>`;
       }).join('');
@@ -769,6 +1085,7 @@ function renderSeanceHtml(key){
       <div class="accentbar" style="background:${s.accent}"></div>
       <h2>${escapeHtml(s.label)} — circuit</h2>
       <textarea class="sub" rows="2" oninput="STATE.seances['${key}'].subtitle=this.value">${escapeHtml(s.subtitle)}</textarea>
+      ${freshBanner()}
       <div class="banner info">🔄 <b>Max réf. synchronisé</b> : la valeur suit automatiquement ta dernière perf loggée pour cet exercice (onglet Performances ou carte ci-dessous). Le cadenas 🔒 fige une valeur à la main.</div>
       <div class="paramsRow">
         <div><label>Base % (S1)</label><input type="number" min="0" max="100" value="${Math.round(s.basePct*100)}" oninput="STATE.seances['${key}'].basePct=(parseFloat(this.value)||0)/100;recomputeSeance('${key}')"> %</div>
@@ -794,59 +1111,53 @@ function renderSeanceHtml(key){
 }
 function renderTestCard(key){
   const s = STATE.seances[key];
-  const tp = STATE.testProtocol;
-  const rows = [];
-  s.blocks.forEach((b,bi)=>b.exercises.forEach((ex,ei)=>{
-    const id = key+'_'+bi+'_'+ei;
-    rows.push(`<tr>
-      <td class="name">${escapeHtml(ex.name)}</td>
-      <td><input type="number" id="t1_${id}" placeholder="—"></td>
-      <td><input type="number" id="t2_${id}" placeholder="—"></td>
-      <td style="color:var(--muted);">${escapeHtml(tp.repos)}</td>
-      <td style="color:var(--muted);">actuel : ${escapeHtml(ex.ref)}</td>
-    </tr>`);
-  }));
+  const t = STATE.test;
+  const rows = exNames(key).map((n,i)=>`<tr>
+      <td class="name">${escapeHtml(n)}</td>
+      <td><input type="number" id="t1_${key}_${i}" placeholder="—"></td>
+      <td><input type="number" id="t2_${key}_${i}" placeholder="—"></td>
+      <td style="color:var(--muted);">${escapeHtml(t.repos)}</td>
+    </tr>`).join('');
   return `
     <div class="card">
       <div class="accentbar" style="background:var(--test)"></div>
-      <h2>S8 — Semaine test</h2>
-      <textarea class="sub" rows="2" oninput="STATE.testProtocol.note=this.value">${escapeHtml(tp.note)}</textarea>
+      <h2>Test de max — toutes les ${escapeHtml(t.intervalleSemaines)} semaines</h2>
+      <textarea class="sub" rows="2" oninput="STATE.test.note=this.value">${escapeHtml(t.note)}</textarea>
       <div class="paramsRow">
-        <div><label>Séries</label><input type="text" style="width:60px;" value="${escapeAttr(tp.series)}" oninput="STATE.testProtocol.series=this.value"></div>
-        <div><label>Repos entre séries</label><input type="text" style="width:80px;" value="${escapeAttr(tp.repos)}" oninput="STATE.testProtocol.repos=this.value"></div>
+        <div><label>Séries</label><input type="text" style="width:60px;" value="${escapeAttr(t.series)}" oninput="STATE.test.series=this.value"></div>
+        <div><label>Repos</label><input type="text" style="width:80px;" value="${escapeAttr(t.repos)}" oninput="STATE.test.repos=this.value"></div>
+        <div><label>Intervalle (semaines)</label><input type="number" style="width:70px;" value="${escapeAttr(t.intervalleSemaines)}" oninput="STATE.test.intervalleSemaines=parseFloat(this.value)||8"></div>
         <div><label>Date du test</label><input type="date" id="testDate_${key}"></div>
       </div>
       <div class="tablewrap">
         <table>
-          <thead><tr><th style="text-align:left;">Exercice</th><th>Série 1 (max)</th><th>Série 2 (max)</th><th>Repos</th><th>Max réf.</th></tr></thead>
-          <tbody>${rows.join('')}</tbody>
+          <thead><tr><th style="text-align:left;">Exercice</th><th>Série 1 (max)</th><th>Série 2 (max)</th><th>Repos</th></tr></thead>
+          <tbody>${rows}</tbody>
         </table>
       </div>
       <button class="btn test" style="margin-top:8px;" onclick="saveTest('${key}')">✔ Enregistrer le test (garde le meilleur des 2)</button>
     </div>`;
 }
 function saveTest(key){
-  const s = STATE.seances[key];
   const dateEl = document.getElementById('testDate_'+key);
   const date = (dateEl && dateEl.value) ? dateEl.value : today();
   let n = 0;
-  s.blocks.forEach((b,bi)=>b.exercises.forEach((ex,ei)=>{
-    const id = key+'_'+bi+'_'+ei;
-    const a = parseFloat((document.getElementById('t1_'+id)||{}).value);
-    const c = parseFloat((document.getElementById('t2_'+id)||{}).value);
+  exNames(key).forEach((nom,i)=>{
+    const a = parseFloat((document.getElementById('t1_'+key+'_'+i)||{}).value);
+    const c = parseFloat((document.getElementById('t2_'+key+'_'+i)||{}).value);
     const vals = [a,c].filter(v=>!isNaN(v));
     if(!vals.length) return;
     const best = Math.max.apply(null, vals);
-    if(!STATE.performances[ex.name]) STATE.performances[ex.name] = [];
-    STATE.performances[ex.name] = STATE.performances[ex.name].filter(e=>e.date!==date);
-    STATE.performances[ex.name].push({date, reps:best});
-    STATE.performances[ex.name].sort((x,y)=>String(x.date).localeCompare(String(y.date)));
-    ex.auto = true;
+    if(!STATE.performances[nom]) STATE.performances[nom] = [];
+    STATE.performances[nom] = STATE.performances[nom].filter(e=>e.date!==date);
+    STATE.performances[nom].push({date, reps:best});
+    STATE.performances[nom].sort((x,y)=>String(x.date).localeCompare(String(y.date)));
     n++;
-  }));
+  });
   if(!n){ alert('Aucune valeur saisie.'); return; }
+  STATE.test.dernier = date;
   syncRefs(); renderPage(); saveNow();
-  alert(n + ' test(s) enregistré(s). Les Max réf. sont à jour — passe en S1 pour relancer le cycle.');
+  toast(n + ' test(s) enregistré(s). Prochain test dans ' + STATE.test.intervalleSemaines + ' semaines.');
 }
 function setRefManual(key,bi,ei,val){
   const ex = STATE.seances[key].blocks[bi].exercises[ei];
@@ -890,6 +1201,8 @@ function drawSeanceChart(key){
   if(d && !d.value) d.value = today();
   const td = document.getElementById('testDate_'+key);
   if(td && !td.value) td.value = today();
+  const vd = document.getElementById('vDate_'+key);
+  if(vd && !vd.value) vd.value = today();
   const name = seanceChartSel[key];
   const entries = (name && STATE.performances[name]) ? STATE.performances[name] : [];
   drawLineChart(canvas, entries.map(e=>e.date), entries.map(e=>e.reps), STATE.seances[key].accent);
@@ -1066,7 +1379,7 @@ function removeSafetyItem(key,i){ STATE[key].safetyItems.splice(i,1); renderPage
 /* ===================== Performances ===================== */
 function allKnownExerciseNames(){
   const names = new Set(Object.keys(STATE.performances));
-  SEANCE_KEYS.forEach(k=>{ STATE.seances[k].blocks.forEach(b=>b.exercises.forEach(ex=>names.add(ex.name))); });
+  SEANCE_KEYS.forEach(k=>{ exNames(k).forEach(n=>names.add(n)); });
   STATE.frontLever.seances.forEach(s=>s.exercises.forEach(ex=>names.add(ex.name)));
   return Array.from(names).filter(Boolean).sort((a,b)=>a.localeCompare(b,'fr'));
 }
@@ -1244,66 +1557,155 @@ function recomputeDefi(){
 }
 
 /* ===================== Page Synchro ===================== */
+function humanError(msg){
+  msg = String(msg||'');
+  if(isQuotaError(msg)) return "Quota GitHub atteint. L'appli se met en pause et reprend toute seule.";
+  if(/^401/.test(msg)) return "Token refusé. Il est peut-être expiré, révoqué, ou mal collé.";
+  if(/^403/.test(msg)) return "Token sans la permission « gist ». Recrée-en un en cochant cette case.";
+  if(/^404/.test(msg)) return "Gist introuvable. Vide le champ Identifiant du Gist pour en recréer un.";
+  if(/Failed to fetch|NetworkError/i.test(msg)) return "Pas de connexion à GitHub.";
+  return msg;
+}
+function etatSync(){
+  if(!SYNC.token) return {icone:'⚙️', titre:'Pas encore configuré', detail:"Colle un token GitHub ci-dessous pour synchroniser tes appareils.", ton:'warn'};
+  if(!SYNC.enabled) return {icone:'⏸️', titre:'Synchro en pause', detail:"Tes données restent sur cet appareil. Coche « Activer » pour reprendre.", ton:'warn'};
+  if(!navigator.onLine) return {icone:'📴', titre:'Hors-ligne', detail:"L'appli continue de fonctionner. La synchro reprendra au retour du réseau.", ton:'warn'};
+  if(Date.now() < pushCooldownUntil) return {icone:'⏳', titre:'En pause '+Math.ceil((pushCooldownUntil-Date.now())/60000)+' min', detail:"Quota GitHub atteint. Reprise automatique, rien à faire.", ton:'warn'};
+  if(SYNC.lastError) return {icone:'⚠️', titre:'Problème', detail:humanError(SYNC.lastError), ton:'test'};
+  if(!SYNC.lastSyncAt) return {icone:'🔄', titre:'Jamais synchronisé', detail:"Clique sur Synchroniser pour créer ta sauvegarde en ligne.", ton:'warn'};
+  const min = Math.round((Date.now() - new Date(SYNC.lastSyncAt).getTime())/60000);
+  const quand = min < 1 ? "à l'instant" : (min < 60 ? 'il y a '+min+' min' : 'le '+fmtDT(SYNC.lastSyncAt));
+  return {icone:'✅', titre:'Synchronisé '+quand, detail:"Tes modifications partent automatiquement. Rien à faire.", ton:'ok'};
+}
 function renderSyncHtml(){
-  const on = SYNC.enabled;
-  const statut = !on ? '<span class="banner warn">Synchro désactivée — les données restent sur cet appareil uniquement.</span>'
-    : SYNC.lastError ? `<span class="banner test">Dernière erreur : ${escapeHtml(SYNC.lastError)}</span>`
-    : `<span class="banner ok">Synchro active — dernier échange : ${escapeHtml(fmtDT(SYNC.lastSyncAt))}</span>`;
+  const e = etatSync();
+  const configure = !!SYNC.token;
   return `
     <div class="card">
       <div class="accentbar" style="background:#0F1F3D"></div>
-      <h2>☁ Synchro téléphone ↔ ordinateur</h2>
-      <div class="sub">Tes données sont stockées dans un <b>Gist secret</b> de ton compte GitHub. Chaque appareil pousse ses modifications et récupère celles des autres. Aucun serveur, aucun abonnement.</div>
-      ${statut}
-      <div class="kv" style="margin-top:10px;">
-        <div class="k">Token GitHub (portée <code>gist</code>)</div>
+      <div class="syncHero">
+        <div class="syncIcon">${e.icone}</div>
+        <div>
+          <div class="syncTitle">${escapeHtml(e.titre)}</div>
+          <div class="syncDetail">${escapeHtml(e.detail)}</div>
+        </div>
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px;">
+        <button class="btn primary" style="flex:1;min-width:170px;padding:10px;" onclick="syncNow()">🔄 Synchroniser maintenant</button>
+        <button class="btn" style="flex:1;min-width:150px;padding:10px;" onclick="pairFlow()">📱 Lier un téléphone</button>
+      </div>
+      <div class="sub" style="margin:10px 0 0;">Dernière modification sur cet appareil : ${escapeHtml(fmtDT(STATE.meta && STATE.meta.updatedAt))}.</div>
+    </div>
+
+    <div class="card">
+      <div class="accentbar" style="background:#00838F"></div>
+      <h2>${configure?'Réglages':'Configurer en 2 minutes'}</h2>
+      ${configure?'':`<ol class="steps" style="margin-top:0;">
+        <li>Crée un token GitHub — le lien ci-dessous coche déjà la bonne permission, tu n'as qu'à valider en bas de page.</li>
+        <li>Copie-le, colle-le ici, coche <b>Activer</b>, puis <b>Enregistrer</b>.</li>
+      </ol>
+      <a class="btn primary" style="display:inline-block;text-decoration:none;margin-bottom:10px;" href="https://github.com/settings/tokens/new?scopes=gist&description=Calisthenie" target="_blank" rel="noopener">Créer mon token GitHub ↗</a>`}
+      <div class="kv">
+        <div class="k">Token</div>
         <div><input type="password" id="syncToken" placeholder="ghp_… ou github_pat_…" value="${escapeAttr(SYNC.token)}" autocomplete="off"></div>
+        <div class="k">Synchro auto</div>
+        <div><label style="font-size:12.5px;"><input type="checkbox" id="syncOn" ${SYNC.enabled?'checked':''} style="width:auto;margin-right:6px;">Activer</label></div>
+      </div>
+      <button class="btn primary" style="margin-top:10px;" onclick="applySyncSettings()">Enregistrer</button>
+      <div class="sub" style="margin:10px 0 0;">Le token est stocké sur cet appareil uniquement. Il n'apparaît ni dans la sauvegarde en ligne, ni dans l'export JSON.</div>
+    </div>
+
+    <details class="card" ${SYNC.lastError?'open':''}>
+      <summary style="cursor:pointer;font-weight:700;color:var(--dark);font-size:15px;">Avancé</summary>
+      <div class="kv" style="margin-top:12px;">
         <div class="k">Identifiant du Gist</div>
-        <div><input type="text" id="syncGist" placeholder="laisse vide : il sera créé automatiquement" value="${escapeAttr(SYNC.gistId)}"></div>
-        <div class="k">Synchro automatique</div>
-        <div><label style="font-size:12.5px;"><input type="checkbox" id="syncOn" ${on?'checked':''} style="width:auto;margin-right:6px;">Activer (envoi 2,5 s après chaque modification, récupération à l'ouverture)</label></div>
+        <div><input type="text" id="syncGist" placeholder="vide = création automatique" value="${escapeAttr(SYNC.gistId)}"></div>
+        <div class="k">Sauvegarde en ligne</div>
+        <div class="mono">${SYNC.gistId?`<a href="https://gist.github.com/${escapeAttr(SYNC.gistId)}" target="_blank" rel="noopener">gist.github.com/${escapeHtml(SYNC.gistId)}</a>`:'—'}</div>
+        <div class="k">Dernier échange</div><div>${escapeHtml(fmtDT(SYNC.lastSyncAt))}</div>
+        <div class="k">Message brut</div><div class="mono">${escapeHtml(SYNC.lastError||'aucun')}</div>
       </div>
       <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:12px;">
-        <button class="btn primary" onclick="applySyncSettings()">Enregistrer</button>
-        <button class="btn" onclick="pushRemote(false)">⬆ Envoyer maintenant</button>
-        <button class="btn" onclick="pullRemote(true)">⬇ Récupérer maintenant</button>
-        <button class="btn" onclick="forgetSync()">Oublier le token</button>
-      </div>
-      <div class="kv" style="margin-top:14px;">
-        <div class="k">Dernière modif. locale</div><div>${escapeHtml(fmtDT(STATE.meta && STATE.meta.updatedAt))} — ${escapeHtml((STATE.meta&&STATE.meta.device)||deviceLabel())}</div>
-        <div class="k">Gist</div><div class="mono">${SYNC.gistId?`<a href="https://gist.github.com/${escapeAttr(SYNC.gistId)}" target="_blank" rel="noopener">gist.github.com/${escapeHtml(SYNC.gistId)}</a>`:'—'}</div>
-        <div class="k">Connexion</div><div>${navigator.onLine?'en ligne':'hors-ligne (la synchro reprendra au retour du réseau)'}</div>
-      </div>
-    </div>
-
-    <div class="card">
-      <h2>Mettre en place en 4 étapes</h2>
-      <ol class="steps">
-        <li>Sur GitHub : <b>Settings → Developer settings → Personal access tokens → Tokens (classic) → Generate new token</b>.</li>
-        <li>Coche <b>uniquement</b> la case <code>gist</code>. Aucune autre. Expiration : ce que tu veux (« No expiration » évite d'y revenir).</li>
-        <li>Copie le token, colle-le ci-dessus, coche <b>Activer</b>, clique <b>Enregistrer</b> puis <b>⬆ Envoyer maintenant</b>. L'identifiant du Gist se remplit tout seul.</li>
-        <li>Sur ton autre appareil : ouvre la même adresse, colle le <b>même token</b> et le <b>même identifiant de Gist</b>, active, puis <b>⬇ Récupérer</b>.</li>
-      </ol>
-      <div class="banner warn" style="margin-top:10px;">Le token est enregistré en clair dans le navigateur de cet appareil. Quiconque a accès à l'appareil déverrouillé peut le lire. Avec la portée <code>gist</code> seule, il ne donne accès qu'à tes Gists — pas à ton code. En cas de perte de l'appareil : révoque le token sur GitHub, il devient inutilisable.</div>
-    </div>
-
-    <div class="card">
-      <h2>Règle de résolution des conflits</h2>
-      <div class="sub">Avant chaque envoi, l'appli compare la date de dernière modification locale et distante. Si la version distante est plus récente, elle refuse d'écraser et te propose de la récupérer. Le dernier appareil à enregistrer gagne — donc évite de modifier la même séance sur deux appareils sans synchroniser entre les deux.</div>
-      <div style="display:flex;gap:6px;flex-wrap:wrap;">
-        <button class="btn" onclick="exportData()">💾 Export JSON (sauvegarde froide)</button>
+        <button class="btn" onclick="pushRemote(false)">⬆ Forcer l'envoi</button>
+        <button class="btn" onclick="pullRemote(true)">⬇ Forcer la récupération</button>
+        <button class="btn" onclick="exportData()">💾 Export JSON</button>
         <button class="btn" onclick="document.getElementById('importFile').click()">📂 Import JSON</button>
+        <button class="btn danger" onclick="forgetSync()">Oublier le token</button>
       </div>
-    </div>`;
+      <div class="sub" style="margin-top:12px;">En cas de conflit, l'appli compare les dates et refuse d'écraser une version plus récente : elle te propose de la récupérer. Le dernier appareil à enregistrer gagne, il n'y a pas de fusion.</div>
+      <textarea id="pairLink" rows="3" class="mono" style="margin-top:8px;display:none;" readonly></textarea>
+    </details>`;
+}
+async function syncNow(){
+  if(!SYNC.token){ alert("Colle d'abord un token GitHub, puis clique Enregistrer."); return; }
+  if(!SYNC.enabled){ SYNC.enabled = true; saveSync(); }
+  if(!SYNC.gistId){ await pushRemote(false); renderPage(); return; }
+  await pullRemote(false);
+  if(stateFingerprint() !== lastPushedFP) await pushRemote(false);
+  renderPage();
+}
+function pairFlow(){
+  const l = makePairLink();
+  if(!l){ alert("Clique d'abord sur « Synchroniser maintenant » pour créer ta sauvegarde en ligne."); return; }
+  const el = document.getElementById('pairLink');
+  if(el){ el.style.display='block'; el.value = l; }
+  copyPairLink();
+  alert("Lien copié.\n\n1. Envoie-le-toi par un canal privé (note perso, message à toi-même).\n2. Ouvre-le sur le téléphone : la synchro s'y configure toute seule.\n3. Supprime le lien ensuite — il contient ton token.");
 }
 function applySyncSettings(){
   SYNC.token = document.getElementById('syncToken').value.trim();
-  SYNC.gistId = document.getElementById('syncGist').value.trim().replace(/^.*gist\.github\.com\//,'');
+  const gEl = document.getElementById('syncGist');
+  if(gEl) SYNC.gistId = gEl.value.trim().replace(/^.*gist\.github\.com\//,'');
   SYNC.enabled = document.getElementById('syncOn').checked;
   SYNC.lastError = '';
   if(SYNC.enabled && !SYNC.token){ SYNC.enabled = false; alert('Il faut un token pour activer la synchro.'); }
   saveSync(); refreshSyncPill(); renderPage();
-  if(SYNC.enabled) toast('Réglages enregistrés. Utilise ⬆ Envoyer ou ⬇ Récupérer.');
+  if(SYNC.enabled) toast('Réglages enregistrés. Clique sur 🔄 Synchroniser.');
+}
+function b64urlEncode(str){
+  return btoa(unescape(encodeURIComponent(str))).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
+}
+function b64urlDecode(str){
+  const s = str.replace(/-/g,'+').replace(/_/g,'/');
+  return decodeURIComponent(escape(atob(s)));
+}
+function makePairLink(){
+  if(!SYNC.token || !SYNC.gistId) return null;
+  const payload = b64urlEncode(JSON.stringify({t:SYNC.token, g:SYNC.gistId}));
+  return location.origin + location.pathname + '#pair=' + payload;
+}
+function showPairLink(){
+  const l = makePairLink();
+  if(!l){ alert("Configure d'abord le token, puis clique sur ⬆ Envoyer maintenant pour créer le Gist."); return; }
+  const el = document.getElementById('pairLink');
+  el.value = l; el.focus(); el.select();
+}
+function copyPairLink(){
+  const l = makePairLink();
+  if(!l){ alert("Configure d'abord le token, puis clique sur ⬆ Envoyer maintenant pour créer le Gist."); return; }
+  document.getElementById('pairLink').value = l;
+  const done = ()=>toast('Lien copié — ouvre-le sur l\'autre appareil.');
+  if(navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(l).then(done).catch(()=>{
+      const el=document.getElementById('pairLink'); el.select(); document.execCommand('copy'); done();
+    });
+  }else{
+    const el=document.getElementById('pairLink'); el.select(); document.execCommand('copy'); done();
+  }
+}
+function consumePairLink(){
+  const h = location.hash || '';
+  const m = h.match(/pair=([A-Za-z0-9\-_]+)/);
+  if(!m) return false;
+  try{
+    const o = JSON.parse(b64urlDecode(m[1]));
+    if(!o.t || !o.g) return false;
+    SYNC.token = o.t; SYNC.gistId = o.g; SYNC.enabled = true;
+    SYNC.lastRemoteAt=''; SYNC.lastSyncAt=''; SYNC.lastError='';
+    saveSync();
+    history.replaceState(null, '', location.pathname);
+    return true;
+  }catch(e){ return false; }
 }
 function forgetSync(){
   if(!confirm('Effacer le token et l\'identifiant du Gist de cet appareil ? Le Gist lui-même reste intact sur GitHub.')) return;
@@ -1350,20 +1752,69 @@ function resetData(){
 /* ===================== Migration / Init ===================== */
 function migrate(){
   if(!STATE.semaine) STATE.semaine = 1;
-  if(!STATE.testProtocol) STATE.testProtocol = deepClone(SEED.testProtocol);
   if(!STATE.performances) STATE.performances = {};
-  SEANCE_KEYS.forEach(k=>{
-    if(!STATE.seances[k]) STATE.seances[k] = deepClone(SEED.seances[k]);
-    STATE.seances[k].blocks.forEach(b=>b.exercises.forEach(ex=>{ if(ex.auto===undefined) ex.auto = true; }));
+  if(!STATE.courbePoids) STATE.courbePoids = deepClone(SEED.courbePoids);
+  if(!STATE.test) STATE.test = deepClone(SEED.test);
+  if(STATE.testProtocol){                       // ancien format
+    STATE.test.series = STATE.testProtocol.series || STATE.test.series;
+    STATE.test.repos  = STATE.testProtocol.repos  || STATE.test.repos;
+    delete STATE.testProtocol;
+  }
+  if(!STATE.seances) STATE.seances = {};
+  // v2 -> v3 : "Street Plus" devient "Street"
+  if(STATE.seances.streetPlus && !STATE.seances.street){
+    STATE.seances.street = STATE.seances.streetPlus;
+    delete STATE.seances.streetPlus;
+  }
+  ['jambes','complement','endurance','explosivite','super6b'].forEach(k=>{ delete STATE.seances[k]; });
+
+  PROG_KEYS.forEach(k=>{
+    const ref = SEED.seances[k];
+    let s0 = STATE.seances[k];
+    if(!s0){ STATE.seances[k] = deepClone(ref); return; }
+    if(s0.type !== 'progressive'){                       // conversion depuis l'ancien format circuit
+      const noms = [];
+      (s0.blocks||[]).forEach(b=>(b.exercises||[]).forEach(e=>{ if(e.name) noms.push(e.name); }));
+      const conv = deepClone(ref);
+      if(noms.length){
+        conv.exercises = noms.map((n,i)=>{
+          const modele = ref.exercises[Math.min(i, ref.exercises.length-1)];
+          return {name:n, reps:modele.reps, plafond:modele.plafond};
+        });
+      }
+      conv.subtitle = s0.subtitle || conv.subtitle;
+      conv.label = ref.label;
+      STATE.seances[k] = conv;
+    }else{
+      if(!s0.lest) s0.lest = {actif:false, charge:0, palier:0};
+      if(!s0.history) s0.history = [];
+      if(!s0.toursCible) s0.toursCible = 5;
+      if(!s0.exercises) s0.exercises = deepClone(ref.exercises);
+      s0.label = ref.label;
+      s0.type = 'progressive';
+    }
   });
-  STATE.version = 2;
+
+  if(!STATE.seances.abdo) STATE.seances.abdo = deepClone(SEED.seances.abdo);
+  STATE.seances.abdo.type = 'circuit';
+  (STATE.seances.abdo.blocks||[]).forEach(b=>b.exercises.forEach(ex=>{ if(ex.auto===undefined) ex.auto = true; }));
+
+  // planning : renommages
+  (STATE.planning.days||[]).forEach(d=>(d.slots||[]).forEach(sl=>{
+    if(sl.act === 'Souplesse') sl.act = 'Mobilité';
+    if(sl.act === 'Street Plus' && !STATE.seances.streetPlus) sl.act = 'Street';
+  }));
+  STATE.version = 3;
 }
-migrate();
+migrate();migrate();
 loadSync();
 syncRefs();
+lastLocalFP = stateFingerprint();
 
+const paired = consumePairLink();
 const hash = (location.hash||'').replace('#','');
 if(TABS.some(t=>t.id===hash)) currentTab = hash;
+if(paired) currentTab = 'sync';
 
 renderWeekSelect();
 renderNav();
@@ -1379,7 +1830,8 @@ document.addEventListener('visibilitychange', ()=>{
 });
 window.addEventListener('online', ()=>{ refreshSyncPill(); if(SYNC.enabled) pullRemote(false); });
 window.addEventListener('offline', refreshSyncPill);
-if(SYNC.enabled) pullRemote(false);
+if(paired){ toast('Appareil lié ✓ récupération en cours…'); pullRemote(true); }
+else if(SYNC.enabled) pullRemote(false);
 
 /* Service worker : l'appli s'ouvre hors-ligne et se met à jour toute seule. */
 if('serviceWorker' in navigator){
