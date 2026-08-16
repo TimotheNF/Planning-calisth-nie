@@ -12,7 +12,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="theme-color" content="#17191B">
+<meta name="theme-color" content="#0A0A0A">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -24,17 +24,17 @@
 <style>
 :root{
   color-scheme: dark;
-  --bg:#17191B;              /* asphalte */
-  --surface-1:#22252A;       /* béton */
-  --surface-2:#2B2F35;       /* acier */
-  --line:#3A3F46;
-  --line-soft:#2E3238;
-  --text-primary:#F0EFEA;    /* craie */
-  --text-secondary:#A5A7A3;
-  --text-muted:#8C8F91;
-  --brand:#F2C230;           /* jaune sécurité */
-  --brand-2:#FF6B35;         /* orange chantier */
-  /* palette catégorielle validée sur la surface #22252A */
+  --bg:#0A0A0A;
+  --surface-1:#141414;
+  --surface-2:#1E1E1E;
+  --line:#2E2E2E;
+  --line-soft:#242424;
+  --text-primary:#FFFFFF;
+  --text-secondary:#9A9A98;
+  --text-muted:#7A7A78;
+  --brand:#FF6B00;
+  --brand-2:#F5A623;
+  --grad:linear-gradient(100deg,#FF6B00 0%,#F5A623 100%);
   --s1:#3987e5; --s2:#d95926; --s3:#199e70; --s4:#c98500; --s5:#d55181; --s6:#9085e9;
   --good:#199e70; --warn:#c98500; --bad:#e66767;
   --radius:14px;
@@ -47,47 +47,47 @@ body{
   font-size:14px;line-height:1.5;-webkit-text-size-adjust:100%;
   background-color:var(--bg);
   background-image:
-    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='168' height='168' viewBox='0 0 168 168'%3E%3Cg fill='none' stroke='%23F2C230' stroke-width='2.2' stroke-linecap='round'%3E%3Cpath d='M22 42h124'/%3E%3Cpath d='M22 126h124'/%3E%3C/g%3E%3Cg fill='%23F2C230'%3E%3Crect x='40' y='30' width='6' height='24' rx='3'/%3E%3Crect x='52' y='34' width='5' height='16' rx='2.5'/%3E%3Crect x='122' y='30' width='6' height='24' rx='3'/%3E%3Crect x='111' y='34' width='5' height='16' rx='2.5'/%3E%3Crect x='40' y='114' width='6' height='24' rx='3'/%3E%3Crect x='52' y='118' width='5' height='16' rx='2.5'/%3E%3Crect x='122' y='114' width='6' height='24' rx='3'/%3E%3Crect x='111' y='118' width='5' height='16' rx='2.5'/%3E%3C/g%3E%3C/svg%3E"),
-    radial-gradient(760px 360px at 8% -6%, rgba(242,194,48,.10), transparent 62%),
-    radial-gradient(680px 340px at 98% 4%, rgba(255,107,53,.09), transparent 64%);
-  background-size:168px 168px, auto, auto;
-  background-repeat:repeat, no-repeat, no-repeat;
+    url('bg.jpg'),
+    radial-gradient(820px 420px at 6% -8%, rgba(255,107,0,.16), transparent 60%),
+    radial-gradient(700px 380px at 100% 2%, rgba(245,166,35,.10), transparent 62%);
+  background-size:cover, auto, auto;
+  background-position:center top, center, center;
+  background-repeat:no-repeat, no-repeat, no-repeat;
   background-attachment:fixed;
-  background-blend-mode:normal;
 }
 body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
-  background:linear-gradient(180deg, rgba(23,25,27,.58), rgba(23,25,27,.86));}
+  background:linear-gradient(180deg, rgba(10,10,10,.80), rgba(10,10,10,.94));}
 header,nav,main,#toast{position:relative;z-index:1;}
 .num{font-variant-numeric:tabular-nums;font-feature-settings:"tnum";}
 
 /* ---------- Chrome ---------- */
 header{position:sticky;top:0;z-index:30;padding:10px 14px;padding-top:calc(10px + env(safe-area-inset-top));
-  background:rgba(23,25,27,.88);backdrop-filter:blur(14px);border-bottom:1px solid var(--line-soft);}
+  background:rgba(10,10,10,.90);backdrop-filter:blur(16px);border-bottom:1px solid var(--line-soft);}
 .headerRow{display:flex;align-items:center;justify-content:space-between;gap:10px;}
 .brand{display:flex;align-items:center;gap:10px;min-width:0;}
-.brandMark{width:30px;height:30px;border-radius:9px;flex:none;display:grid;place-items:center;
-  background:var(--brand);box-shadow:0 3px 14px rgba(242,194,48,.28);}
-.brandMark svg{width:18px;height:18px;display:block;}
-h1{margin:0;font-size:15px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;
+.brandMark{width:34px;height:34px;flex:none;display:block;filter:drop-shadow(0 3px 12px rgba(255,107,0,.45));}
+.brandMark svg{width:34px;height:34px;display:block;}
+h1{margin:0;font-size:16px;font-weight:900;font-style:italic;letter-spacing:.02em;text-transform:uppercase;
   white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 #saveState{font-size:11px;padding:5px 11px;border-radius:20px;white-space:nowrap;cursor:pointer;
   background:var(--surface-2);border:1px solid var(--line);color:var(--text-secondary);}
 #saveState.warn{background:rgba(230,103,103,.16);border-color:rgba(230,103,103,.45);color:#f3aeae;}
-nav{position:sticky;top:51px;z-index:29;background:rgba(23,25,27,.88);backdrop-filter:blur(14px);
+nav{position:sticky;top:51px;z-index:29;background:rgba(10,10,10,.90);backdrop-filter:blur(14px);
   border-bottom:1px solid var(--line-soft);overflow-x:auto;white-space:nowrap;padding:7px 10px;scrollbar-width:none;}
 nav::-webkit-scrollbar{display:none;}
 nav button{border:1px solid transparent;background:transparent;padding:7px 13px;margin-right:4px;border-radius:8px;
   font-size:12px;font-weight:700;letter-spacing:.03em;color:var(--text-muted);cursor:pointer;font-family:inherit;}
 nav button:hover{color:var(--text-secondary);}
-nav button.active{background:var(--brand);color:#17191B;border-color:var(--brand);}
+nav button.active{background:var(--grad);color:#0A0A0A;border-color:transparent;}
 main{padding:14px;max-width:1060px;margin:0 auto;}
 
 /* ---------- Cartes ---------- */
 .card{background:var(--surface-1);border:1px solid var(--line);border-radius:var(--radius);
   padding:16px;margin-bottom:14px;position:relative;overflow:hidden;
   box-shadow:0 1px 0 rgba(255,255,255,.03) inset, 0 8px 24px rgba(0,0,0,.28);}
-.card::before{content:'';position:absolute;inset:0 0 auto 0;height:3px;background:var(--acc,var(--brand));}
-.card h2{margin:0 0 4px;font-size:16px;font-weight:800;letter-spacing:-.01em;}
+.card::before{content:'';position:absolute;inset:0 0 auto 0;height:3px;background:var(--grad);}
+.card.brandTop::before{background:var(--grad);}
+.card h2{margin:0 0 4px;font-size:17px;font-weight:900;font-style:italic;text-transform:uppercase;letter-spacing:.01em;}
 .sub{color:var(--text-secondary);font-size:12.5px;line-height:1.55;margin-bottom:12px;}
 .eyebrow{font-size:10px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--text-muted);margin-bottom:5px;}
 .banner{border-radius:11px;padding:11px 13px;font-size:12.5px;line-height:1.55;margin:12px 0;
@@ -109,14 +109,14 @@ label.lbl{font-size:10px;font-weight:800;letter-spacing:.1em;text-transform:uppe
   font-size:12.5px;font-weight:700;cursor:pointer;color:var(--text-primary);transition:transform .06s ease;}
 .btn:active{transform:scale(.97);}
 .btn:hover{border-color:#4c525a;}
-.btn.primary{background:var(--brand);border-color:var(--brand);color:#17191B;}
+.btn.primary{background:var(--grad);border-color:transparent;color:#0A0A0A;}
 .btn.go{background:var(--good);border-color:var(--good);color:#fff;}
-.btn.warm{background:var(--brand-2);border-color:var(--brand-2);color:#17191B;}
+.btn.warm{background:var(--brand-2);border-color:var(--brand-2);color:#0A0A0A;}
 .btn.ghost{background:transparent;}
 .btn.danger{color:#f3aeae;border-color:rgba(230,103,103,.45);background:transparent;}
 .btn.small{padding:5px 10px;font-size:11.5px;border-radius:8px;}
 .btn.block{width:100%;}
-.btn.on{background:var(--brand);border-color:var(--brand);color:#17191B;}
+.btn.on{background:var(--grad);border-color:transparent;color:#0A0A0A;}
 .row{display:flex;gap:8px;flex-wrap:wrap;}
 .row>*{flex:1;min-width:130px;}
 .delbtn{background:none;border:none;color:#e08585;cursor:pointer;font-size:15px;padding:3px 5px;}
@@ -134,20 +134,20 @@ td input[type=number]{width:66px;}
 
 /* ---------- Séance ---------- */
 .seanceHead{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;flex-wrap:wrap;}
-.badge{border-radius:8px;padding:5px 12px;font-size:11px;font-weight:800;white-space:nowrap;letter-spacing:.05em;
-  background:var(--acc);color:#17191B;}
+.badge{border-radius:7px;padding:5px 12px;font-size:11px;font-weight:900;font-style:italic;white-space:nowrap;letter-spacing:.04em;
+  background:var(--grad);color:#0A0A0A;}
 .exGrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:10px;margin:14px 0 12px;}
 .exTile{border:1px solid var(--line);border-radius:12px;padding:12px 10px;background:var(--surface-2);
   text-align:center;position:relative;overflow:hidden;}
-.exTile::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--acc);}
+.exTile::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--grad);}
 .exTile .exName{font-size:11.5px;color:var(--text-secondary);font-weight:700;line-height:1.3;min-height:31px;
   display:flex;align-items:center;justify-content:center;}
-.exTile .exReps{font-size:36px;font-weight:800;letter-spacing:-.04em;line-height:1.02;color:var(--text-primary);}
+.exTile .exReps{font-size:37px;font-weight:900;font-style:italic;letter-spacing:-.03em;line-height:1.02;color:var(--text-primary);}
 .exTile .exU{font-size:10px;font-weight:800;color:var(--text-muted);letter-spacing:.12em;text-transform:uppercase;}
 .exTile .exMeta{font-size:10.5px;color:var(--text-muted);margin-top:5px;}
 .kpiRow{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:4px;}
 .kpi{flex:1;min-width:96px;background:var(--surface-2);border:1px solid var(--line);border-radius:11px;padding:10px 12px;}
-.kpi .v{font-size:20px;font-weight:800;letter-spacing:-.02em;}
+.kpi .v{font-size:21px;font-weight:900;font-style:italic;letter-spacing:-.02em;}
 .kpi .l{font-size:10px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.08em;margin-top:1px;}
 
 /* ---------- Chrono ---------- */
@@ -156,26 +156,26 @@ td input[type=number]{width:66px;}
 .timerActions .btn{min-width:96px;}
 .presetRow{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin-top:12px;}
 .presetRow .btn{padding:7px 4px;text-align:center;}
-.timerDial{font-size:46px;font-weight:800;letter-spacing:-.03em;min-width:112px;}
+.timerDial{font-size:46px;font-weight:900;font-style:italic;letter-spacing:-.03em;min-width:118px;}
 .timerDial.run{color:var(--brand);}
 .timerDial.done{color:var(--good);}
 .timerBar{height:5px;border-radius:4px;background:var(--surface-2);overflow:hidden;margin-top:10px;}
-.timerFill{height:100%;background:var(--brand);width:0%;transition:width .25s linear;}
+.timerFill{height:100%;background:var(--grad);width:0%;transition:width .25s linear;}
 
 /* ---------- Paliers ---------- */
 .palierRow{display:flex;flex-wrap:wrap;gap:4px;margin-top:8px;max-height:104px;overflow:auto;}
 .chipP{border:1px solid var(--line);background:var(--surface-2);border-radius:7px;padding:3px 8px;
   font-size:11px;font-weight:700;color:var(--text-muted);}
-.chipP.cur{background:var(--acc);color:#17191B;border-color:var(--acc);}
+.chipP.cur{background:var(--grad);color:#0A0A0A;border-color:transparent;}
 .chipP.done{color:var(--text-secondary);border-color:#4a4f56;}
 
 /* ---------- Planning ---------- */
 .weekGrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:10px;}
 .dayCard{background:var(--surface-2);border:1px solid var(--line);border-radius:12px;overflow:hidden;display:flex;flex-direction:column;}
-.dayCard.today{border-color:var(--brand);box-shadow:0 0 0 1px rgba(242,194,48,.35);}
+.dayCard.today{border-color:var(--brand);box-shadow:0 0 0 1px rgba(255,107,0,.4);}
 .dayHead{padding:9px 11px;font-weight:800;font-size:11px;letter-spacing:.1em;text-transform:uppercase;
   color:var(--text-secondary);display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--line-soft);}
-.todayTag{font-size:9.5px;background:var(--brand);color:#17191B;border-radius:6px;padding:2px 8px;letter-spacing:.04em;}
+.todayTag{font-size:9.5px;background:var(--grad);color:#0A0A0A;border-radius:6px;padding:2px 8px;letter-spacing:.04em;}
 .dayBody{padding:9px;display:flex;flex-direction:column;gap:7px;flex:1;}
 .slot{border:1px solid var(--line);border-left:3px solid var(--sc,#666);border-radius:9px;padding:7px 8px;background:var(--surface-1);}
 .slotTop{display:flex;gap:4px;align-items:center;}
@@ -184,7 +184,7 @@ td input[type=number]{width:66px;}
 .addSlot{border:1px dashed var(--line);background:transparent;color:var(--text-muted);border-radius:9px;padding:6px;font-size:11.5px;cursor:pointer;font-weight:700;}
 .addSlot:hover{color:var(--text-primary);border-color:var(--text-muted);}
 .legend{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px;}
-.chip{font-size:11px;border-radius:7px;padding:3px 10px;font-weight:700;color:#17191B;}
+.chip{font-size:11px;border-radius:7px;padding:3px 10px;font-weight:800;color:#0A0A0A;}
 
 /* ---------- Performances ---------- */
 .prGrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(158px,1fr));gap:10px;}
@@ -194,7 +194,7 @@ td input[type=number]{width:66px;}
 .prCard.sel{border-color:var(--acc);box-shadow:0 0 0 1px color-mix(in srgb,var(--acc) 45%,transparent);}
 .prName{font-size:11.5px;color:var(--text-secondary);font-weight:700;line-height:1.3;height:31px;overflow:hidden;}
 .prName .dot{display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:6px;vertical-align:1px;}
-.prVal{font-size:30px;font-weight:800;letter-spacing:-.03em;line-height:1.1;margin-top:2px;}
+.prVal{font-size:31px;font-weight:900;font-style:italic;letter-spacing:-.03em;line-height:1.1;margin-top:2px;}
 .prUnit{font-size:11px;color:var(--text-muted);font-weight:700;margin-left:3px;}
 .prDelta{font-size:11px;font-weight:800;margin-top:1px;}
 .prDelta.up{color:var(--good);} .prDelta.flat{color:var(--text-muted);} .prDelta.down{color:var(--bad);}
@@ -205,9 +205,9 @@ canvas.mainChart{width:100%;height:250px;display:block;}
 
 /* ---------- Front Lever ---------- */
 .flHead{display:flex;align-items:center;gap:11px;}
-.flBadge{width:32px;height:32px;border-radius:9px;display:grid;place-items:center;color:#17191B;font-weight:800;font-size:14px;flex:none;background:var(--acc);}
+.flBadge{width:32px;height:32px;border-radius:9px;display:grid;place-items:center;color:#0A0A0A;font-weight:900;font-size:14px;flex:none;background:var(--grad);}
 .warmGrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:9px;}
-.warmItem{border:1px solid var(--line);border-left:3px solid var(--s3);border-radius:10px;padding:9px 11px;background:var(--surface-2);}
+.warmItem{border:1px solid var(--line);border-left:3px solid var(--brand);border-radius:10px;padding:9px 11px;background:var(--surface-2);}
 
 /* ---------- Divers ---------- */
 .kv{display:grid;grid-template-columns:140px 1fr;gap:8px 12px;align-items:center;font-size:12.5px;}
@@ -221,12 +221,12 @@ details.card[open] summary::after{content:'▴';}
 details.card summary::-webkit-details-marker{display:none;}
 .syncHero{display:flex;gap:13px;align-items:center;}
 .syncIcon{font-size:32px;line-height:1;flex:none;}
-.syncTitle{font-size:16px;font-weight:800;letter-spacing:-.01em;}
+.syncTitle{font-size:16px;font-weight:900;font-style:italic;text-transform:uppercase;}
 .syncDetail{font-size:12.5px;color:var(--text-secondary);margin-top:2px;}
 #toast{position:fixed;left:50%;transform:translateX(-50%);bottom:20px;background:#0E1013;border:1px solid var(--line);
   color:#fff;padding:11px 15px;border-radius:11px;font-size:12.5px;z-index:60;display:none;max-width:92vw;
   text-align:center;box-shadow:0 12px 40px rgba(0,0,0,.7);}
-#toast button{margin-left:9px;background:var(--brand);color:#17191B;border:none;border-radius:7px;
+#toast button{margin-left:9px;background:var(--brand);color:#0A0A0A;border:none;border-radius:7px;
   padding:4px 10px;font-size:11.5px;font-weight:800;cursor:pointer;}
 @media (max-width:560px){
   main{padding:11px;}
@@ -243,11 +243,21 @@ details.card summary::-webkit-details-marker{display:none;}
 <header>
   <div class="headerRow">
     <div class="brand">
-      <div class="brandMark">
-        <svg viewBox="0 0 24 24" fill="none" stroke="#17191B" stroke-width="2.4" stroke-linecap="round">
-          <path d="M4 9v6M7.5 6.5v11M16.5 6.5v11M20 9v6M7.5 12h9"/>
-        </svg>
-      </div>
+      <div class="brandMark"><svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+  <defs><linearGradient id="lgR" x1="12" y1="6" x2="88" y2="94" gradientUnits="userSpaceOnUse">
+    <stop stop-color="#FF6B00"/><stop offset="1" stop-color="#F5A623"/></linearGradient></defs>
+  <circle cx="50" cy="50" r="45" fill="#0A0A0A"/>
+  <circle cx="50" cy="50" r="45" fill="none" stroke="url(#lgR)" stroke-width="5.5"/>
+  <rect x="11" y="30.5" width="78" height="4.5" rx="2.2" fill="#DCDCDC"/>
+  <g stroke="#FFFFFF" stroke-width="6.2" stroke-linecap="round">
+    <path d="M46 33 L41 50"/><path d="M53 33 L44 51.5"/>
+  </g>
+  <g fill="#FFFFFF">
+    <circle cx="32.5" cy="53" r="5.5"/>
+    <rect x="37" y="48.4" width="26" height="10" rx="5"/>
+    <rect x="58" y="50" width="30" height="7.4" rx="3.7"/>
+  </g>
+</svg></div>
       <h1>Calisthénie</h1>
     </div>
     <span id="saveState" onclick="switchTab('sync')">…</span>
@@ -697,11 +707,11 @@ function renderPage(){
   syncRefs();
   const m=document.getElementById('mainArea');
   if(isProg(currentTab)){ m.innerHTML=renderProg(currentTab); afterProg(currentTab); }
-  else if(currentTab==='abdo'){ m.innerHTML=renderAbdo(); recomputeAbdo(); }
+  else if(currentTab==='abdo'){ m.innerHTML=renderAbdo(); recomputeAbdo(); timerPaint(); }
   else if(currentTab==='planning') m.innerHTML=renderPlanning();
   else if(currentTab==='performances'){ m.innerHTML=renderPerf(); afterPerf(); }
-  else if(currentTab==='frontLever') m.innerHTML=renderFrontLever();
-  else if(currentTab==='fullPlanche') m.innerHTML=renderPhase('fullPlanche','Full Planche','#e66767');
+  else if(currentTab==='frontLever'){ m.innerHTML=renderFrontLever(); timerPaint(); }
+  else if(currentTab==='fullPlanche') m.innerHTML=renderPhase('fullPlanche','Full Planche','var(--brand)');
   else if(currentTab==='defiPompes'){ m.innerHTML=renderDefi(); recomputeDefi(); }
   else if(currentTab==='sync') m.innerHTML=renderSync();
   scheduleSave();
@@ -732,7 +742,7 @@ function renderPlanning(){
   p.days.forEach(d=>d.slots.forEach(s=>{ if(s.act!=='Repos') c[s.act]=(c[s.act]||0)+1; }));
   const legend=Object.keys(c).sort().map(k=>`<span class="chip" style="background:${actColor(k)}">${escapeHtml(k)} × ${c[k]}</span>`).join('')
     ||'<span style="font-size:11.5px;color:var(--text-muted)">Aucune séance placée.</span>';
-  return `<div class="card" style="--acc:var(--s1)">
+  return `<div class="card" style="--acc:var(--brand)">
       <div class="eyebrow">Semaine type</div>
       <h2>Planning</h2>
       <div class="sub">${escapeHtml(p.note)}</div>
@@ -857,7 +867,7 @@ function renderProg(key){
   const due=!STATE.test.dernier||(sem!==null&&sem>=nombre(STATE.test.intervalleSemaines||8));
 
   return `
-  <div class="card" style="--acc:${acc}">
+  <div class="card" style="--acc:var(--brand)">
     <div class="seanceHead">
       <div>
         <div class="eyebrow">${leste?'Version lestée':'Poids du corps'}</div>
@@ -906,14 +916,14 @@ function renderProg(key){
 
   <div id="testCard_${key}" style="display:none;">${renderTestCard(key)}</div>
 
-  <div class="card" style="--acc:${acc}">
+  <div class="card" style="--acc:var(--brand)">
     <h2>Historique</h2>
     <div class="tablewrap"><table>
       <thead><tr><th>Date</th><th>Tours</th><th>Objectif</th><th>Charge</th><th>OK</th></tr></thead>
       <tbody>${hist}</tbody></table></div>
   </div>
 
-  ${leste?`<div class="card" style="--acc:${acc}">
+  ${leste?`<div class="card" style="--acc:var(--brand)">
     <h2>Courbe de poids</h2>
     <div class="sub">${paliers().length} paliers, de ${fmtKg(paliers()[0])} à ${fmtKg(paliers()[paliers().length-1])} kg. Le palier en cours est surligné.</div>
     <div class="palierRow">${chips}</div>
@@ -929,7 +939,7 @@ function renderProg(key){
     </details>
   </div>`:''}
 
-  <div class="card" style="--acc:${acc}">
+  <div class="card" style="--acc:var(--brand)">
     <h2>Réglages</h2>
     <div class="row" style="margin-bottom:12px;">
       <div><label class="lbl">Tours cible</label><input type="number" value="${cible}" oninput="STATE.seances['${key}'].toursCible=nombre(this.value)||1"></div>
@@ -1075,7 +1085,7 @@ function renderAbdo(){
       <td><input type="text" style="width:78px;" value="${escapeAttr(ex.repos)}" oninput="STATE.seances.abdo.blocks[0].exercises[${i}].repos=this.value"></td>
       <td><button class="delbtn" onclick="removeAbdoEx(${i})">🗑</button></td>
     </tr>`;}).join('');
-  return `<div class="card" style="--acc:var(--s5)">
+  return `<div class="card" style="--acc:var(--brand)">
       <div class="seanceHead">
         <div><div class="eyebrow">Circuit AMRAP</div><h2>Abdo</h2></div>
         <span class="badge">Semaine ${cur}</span>
@@ -1098,6 +1108,7 @@ function renderAbdo(){
         <button class="btn small" onclick="toggleTest('abdo')">Ouvrir le test</button>
       </div>
     </div>
+    ${renderTimer()}
     <div id="testCard_abdo" style="display:none;">${renderTestCard('abdo')}</div>`;
 }
 function recomputeAbdo(){
@@ -1144,7 +1155,7 @@ function renderPerf(){
       <td><button class="delbtn" onclick="removePerf('${jsStr(selectedPerf)}',${i})">🗑</button></td></tr>`;
   }).join('')||'<tr><td colspan="3" style="color:var(--text-muted);">Aucune mesure.</td></tr>';
 
-  return `<div class="card" style="--acc:var(--s1)">
+  return `<div class="card" style="--acc:var(--brand)">
       <div class="eyebrow">Records par mouvement</div>
       <h2>Performances</h2>
       <div class="sub">Chaque carte montre ton dernier max et son évolution. Clique une carte pour ouvrir le détail.</div>
@@ -1307,7 +1318,7 @@ function renderFrontLever(){
         <td style="text-align:left;"><input type="text" style="min-width:150px;" value="${escapeAttr(ex.note)}" oninput="STATE.frontLever.seances[${si}].exercises[${ei}].note=this.value"></td>
         <td><button class="delbtn" onclick="removeFlEx(${si},${ei})">🗑</button></td>
       </tr>`).join('');
-    return `<div class="card" style="--acc:var(--s6)">
+    return `<div class="card" style="--acc:var(--brand)">
       <div class="flHead">
         <div class="flBadge">${si+1}</div>
         <div style="flex:1;min-width:0;">
@@ -1333,23 +1344,24 @@ function renderFrontLever(){
   const safety=f.safetyItems.map((it,i)=>`<div style="display:flex;gap:6px;margin-bottom:5px;">
       <input type="text" value="${escapeAttr(it)}" oninput="STATE.frontLever.safetyItems[${i}]=this.value">
       <button class="delbtn" onclick="removeSafetyItem('frontLever',${i})">✕</button></div>`).join('');
-  return `<div class="card" style="--acc:var(--s6)">
+  return `<div class="card" style="--acc:var(--brand)">
       <div class="eyebrow">Figure</div><h2>Front Lever</h2>
       <textarea class="sub" rows="3" oninput="STATE.frontLever.subtitle=this.value">${escapeHtml(f.subtitle)}</textarea>
     </div>
-    <div class="card" style="--acc:var(--s3)">
+    <div class="card" style="--acc:var(--brand)">
       <h2>Échauffement</h2>
       <textarea class="sub" rows="2" oninput="STATE.frontLever.echauffement.note=this.value">${escapeHtml(f.echauffement.note)}</textarea>
       <div class="warmGrid">${warm}</div>
     </div>
+    ${renderTimer()}
     ${seances}
-    <div class="card" style="--acc:var(--s6)">
+    <div class="card" style="--acc:var(--brand)">
       <h2>Paliers</h2>
       <div class="tablewrap"><table style="min-width:780px;">
         <thead><tr><th style="text-align:left;">Palier</th><th>Objectif</th><th>Durée</th><th>Exercices</th><th>Critère</th><th>Validé</th></tr></thead>
         <tbody>${paliersHtml}</tbody></table></div>
     </div>
-    <div class="card" style="--acc:var(--s6)">
+    <div class="card" style="--acc:var(--brand)">
       <h2>${escapeHtml(f.safetyTitle)}</h2>
       <div style="margin-top:10px;">${safety}</div>
       <button class="btn small" onclick="addSafetyItem('frontLever')">+ Ligne</button>
@@ -1405,7 +1417,7 @@ function renderDefi(){
       </select></td>
       <td><input type="number" value="${day.reps==null?'':day.reps}" oninput="STATE.defiPompes.days[${i}].reps=this.value===''?null:nombre(this.value);recomputeDefi()"></td>
       <td class="num" id="ec_${i}">—</td></tr>`).join('');
-  return `<div class="card" style="--acc:var(--s5)">
+  return `<div class="card" style="--acc:var(--brand)">
       <div class="eyebrow">30 jours</div><h2>Défi Pompes</h2>
       <textarea class="sub" rows="1" oninput="STATE.defiPompes.note=this.value">${escapeHtml(d.note)}</textarea>
       <div class="kpiRow" id="defiStats"></div>
@@ -1466,7 +1478,7 @@ function renderSync(){
       <div class="sub" style="margin:12px 0 0;">Dernière modification ici : ${escapeHtml(fmtDT(STATE.meta&&STATE.meta.updatedAt))}.</div>
     </div>
 
-    <div class="card" style="--acc:var(--s3)">
+    <div class="card" style="--acc:var(--brand)">
       <h2>${conf?'Réglages':'Configurer'}</h2>
       ${conf?'':`<ol class="steps" style="margin:6px 0 12px;">
         <li>Crée un token GitHub — le lien coche déjà la bonne permission, tu valides en bas de page.</li>
@@ -1586,6 +1598,21 @@ function resetData(){
 /* ===================== Migration ===================== */
 function migrate(){
   if(!STATE.performances) STATE.performances={};
+  const ancien = nombre(STATE.version) < 5;
+  if(ancien){
+    // Les versions precedentes conservaient l'ancien ordre d'exercices et l'ancienne
+    // courbe de poids. On repart de la reference, en gardant l'historique et le palier.
+    PROG_KEYS.forEach(k=>{
+      const ref=SEED.seances[k], cur=STATE.seances&&STATE.seances[k];
+      const hist=(cur&&Array.isArray(cur.history))?cur.history:[];
+      const pal=(cur&&typeof cur.palier==='number')?cur.palier:0;
+      if(!STATE.seances) STATE.seances={};
+      STATE.seances[k]=deepClone(ref);
+      STATE.seances[k].history=hist;
+      if(ref.leste) STATE.seances[k].palier=Math.min(pal, COURBE_DEFAUT.length-1);
+    });
+    STATE.courbePoids=deepClone(SEED.courbePoids);
+  }
   if(!STATE.courbePoids||!STATE.courbePoids.paliers||!STATE.courbePoids.paliers.length) STATE.courbePoids=deepClone(SEED.courbePoids);
   if(!STATE.test) STATE.test=deepClone(SEED.test);
   if(STATE.testProtocol) delete STATE.testProtocol;
