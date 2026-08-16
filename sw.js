@@ -3,7 +3,7 @@
    navigations en network-first avec repli sur le cache.
    Les appels à l'API GitHub ne passent JAMAIS par le cache. */
 
-const VERSION = 'pc-v8';
+const VERSION = 'pc-v9';
 const SHELL = [
   './',
   './index.html',

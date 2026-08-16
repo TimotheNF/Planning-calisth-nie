@@ -7,11 +7,13 @@ Application web personnelle de suivi calisthénie. Un seul fichier HTML, aucune 
 ## Ce que fait l'appli
 
 - **Planning hebdomadaire** par créneaux : chaque jour est une pile de séances qu'on ajoute, remplace ou supprime en deux clics.
-- **Street Original** / **Street** — progression par réussite au poids du corps. Un objectif de reps par mouvement et un nombre de tours cible (5). Chaque séance validée aux tours cible ajoute **+1 rep à chaque mouvement**. Au plafond, l'appli propose de passer à la version lestée.
-- **Street Original Plus** / **Street Plus** — mêmes mouvements, reps figées au plafond, c'est la **courbe de poids** qui monte : un palier par séance réussie (35 paliers, de 1,25 à 18,5 kg).
-- **Test de max** toutes les 8 semaines : 2 séries au maximum, 4 min de repos, meilleur des deux retenu.
+- **Street Originel** / **Street** — au poids du corps. Un objectif de reps par mouvement, 5 tours à tenir. Chaque séance validée aux 5 tours ajoute **+1 rep à chaque mouvement**, sans limite.
+- **Street Originel Plus** / **Street Plus** — reps fixes, c'est la **courbe de poids** qui monte : un palier par séance réussie (35 paliers, de 1,25 à 18,5 kg, éditables un par ligne).
+- **Validation détaillée** : nombre de tours complets, plus les reps du dernier tour laissé en cours si tu n'es pas allé au bout.
+- **Chrono de repos** sous chaque séance : 60 s / 90 s / 2 min / 3 min, bip et vibration à la fin.
+- **Test de max** toutes les 8 semaines, sur n'importe quelle séance.
 - **Abdo** : circuit S1 → S7 calculé depuis un *Max réf.* qui suit la dernière perf loggée.
-- **Performances** : une carte par mouvement principal avec le dernier max, l'écart et une sparkline, plus une courbe détaillée avec lecture au survol.
+- **Performances** : une carte par mouvement principal avec le dernier max, l'écart et une sparkline, plus une courbe détaillée.
 - **Front Lever**, **Full Planche**, **Défi Pompes 30 jours**.
 
 ## Installation sur téléphone
