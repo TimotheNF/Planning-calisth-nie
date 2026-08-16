@@ -3,7 +3,7 @@
    navigations en network-first avec repli sur le cache.
    Les appels à l'API GitHub ne passent JAMAIS par le cache. */
 
-const VERSION = 'pc-v10';
+const VERSION = 'pc-v11';
 const SHELL = [
   './',
   './index.html',
@@ -12,7 +12,8 @@ const SHELL = [
   './icons/icon-512.png',
   './icons/icon-maskable-512.png',
   './icons/apple-touch-icon.png',
-  './icons/favicon-32.png'
+  './icons/favicon-32.png',
+  './icons/logo.png'
 ];
 
 self.addEventListener('install', event => {

@@ -65,8 +65,8 @@ header{position:sticky;top:0;z-index:30;padding:10px 14px;padding-top:calc(10px 
   background:rgba(10,10,10,.90);backdrop-filter:blur(16px);border-bottom:1px solid var(--line-soft);}
 .headerRow{display:flex;align-items:center;justify-content:space-between;gap:10px;}
 .brand{display:flex;align-items:center;gap:10px;min-width:0;}
-.brandMark{width:34px;height:34px;flex:none;display:block;filter:drop-shadow(0 3px 12px rgba(255,107,0,.45));}
-.brandMark svg{width:34px;height:34px;display:block;}
+.brandMark{width:36px;height:36px;flex:none;display:block;border-radius:50%;filter:drop-shadow(0 3px 12px rgba(255,107,0,.4));}
+
 h1{margin:0;font-size:16px;font-weight:900;font-style:italic;letter-spacing:.02em;text-transform:uppercase;
   white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 #saveState{font-size:11px;padding:5px 11px;border-radius:20px;white-space:nowrap;cursor:pointer;
@@ -243,21 +243,7 @@ details.card summary::-webkit-details-marker{display:none;}
 <header>
   <div class="headerRow">
     <div class="brand">
-      <div class="brandMark"><svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-  <defs><linearGradient id="lgR" x1="12" y1="6" x2="88" y2="94" gradientUnits="userSpaceOnUse">
-    <stop stop-color="#FF6B00"/><stop offset="1" stop-color="#F5A623"/></linearGradient></defs>
-  <circle cx="50" cy="50" r="45" fill="#0A0A0A"/>
-  <circle cx="50" cy="50" r="45" fill="none" stroke="url(#lgR)" stroke-width="5.5"/>
-  <rect x="11" y="30.5" width="78" height="4.5" rx="2.2" fill="#DCDCDC"/>
-  <g stroke="#FFFFFF" stroke-width="6.2" stroke-linecap="round">
-    <path d="M46 33 L41 50"/><path d="M53 33 L44 51.5"/>
-  </g>
-  <g fill="#FFFFFF">
-    <circle cx="32.5" cy="53" r="5.5"/>
-    <rect x="37" y="48.4" width="26" height="10" rx="5"/>
-    <rect x="58" y="50" width="30" height="7.4" rx="3.7"/>
-  </g>
-</svg></div>
+      <img class="brandMark" src="icons/logo.png" alt="" width="34" height="34">
       <h1>Calisthénie</h1>
     </div>
     <span id="saveState" onclick="switchTab('sync')">…</span>
